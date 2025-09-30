@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Mate</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/owl.theme.default.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/aos.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/slick.css') }}">
+
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light ">
+        <a class="navbar-brand " href="{{ url_for('home') }}">
+           NOTE MATE
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">🏡 Haven</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('locations') }}">📖 Legends & Landscapes</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('accommodations') }}">🛎 Stay Nearby</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('stories') }}">📸 Journeys Captured</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('discover') }}">✨ Discover More</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">👤 My Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    {% block content %}{% endblock %}
+
+    <!----------footer--------------------------------->
+
+    <footer class="footer">
+    <div class="container">
+        <div class="about-us" data-aos="zoom-in" data-aos-delay="200">
+            <h2>Contact Us</h2>
+            <ul class="footer-contact">
+                <li>Delight Homes Constructions (Pvt)Ltd,</li>
+                <li>No:93/94,Beligollawatta,Thimbirigama,</li>
+                <li>Kiridiwela</li>
+                <li>Sri Lanka</li>
+                <li>Tel: +94 711-514-363 </li>
+                <li>Email: <a href="#">delighthomesc@gmail.com</a></li>
+            </ul>
+        </div>
+        <div class="newsletter" data-aos="zoom-in" data-aos-delay="200">
+            <h2>Newsletter</h2>
+            <p>Stay Updated With Our Latest</p>
+            <form action="#" method="POST">
+                <div class="form-element">
+                    <input type="email" placeholder="Email">
+                    <span><i class="fas fa-chevron-right"></i></span>
+                </div>
+            </form>
+        </div>
+        <div class="instagram" data-aos="zoom-in" data-aos-delay="200">
+            <h2>Instagram</h2>
+            <div class="flex-row">
+                {% for img in ['abelpark2.jpg','abelpark3.jpg','abelpark4.jpg'] %}
+                    <img src="{{ url_for('static', filename='images/' ~ img) }}" alt="image">
+                {% endfor %}
+            </div>
+        </div>
+        <div class="follow" data-aos="zoom-in" data-aos-delay="200">
+            <h2>Follow Us</h2>
+            <p>Let Us be Social</p>
+            <div>
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="rights flex-row" data-aos="zoom-in" data-aos-delay="200">
+        <h4 class="text-gray">
+            Copyright &copy; 2019 All rights reserved | made by Delight Home Constructions
+        </h4>
+    </div>
+    <div class="move-up">
+        <span>
+            <i class="fas fa-arrow-circle-up fa-2x"></i>
+        </span>
+    </div>
+</footer>
+
+
+
+    <!-- jQuery first -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Popper.js and Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <!-- Owl Carousel JS -->
+    <script src="{{ url_for('static', filename='js/owl.carousel.min.js') }}"></script>
+      <!-- AOS JS -->
+    <script src="{{ url_for('static', filename='js/aos.js') }}"></script>
+
+    <!-- Your custom script -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>

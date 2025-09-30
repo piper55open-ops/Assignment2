@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Delight Home Constructions{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container-fluid text-center heading">
+        <video autoplay muted loop id="myVideo">
+            <source src="{{ url_for('static', filename='videos/video1.mp4') }}" type="video/mp4">
+        </video>
+        <h1 class="h1" data-aos="fade-up" data-aos-delay="300">
+            Welcome to the <span></span>Delight Home Constructions
+        </h1>
+        <h3 class="h3" style="color:white" data-aos="fade-up" data-aos-delay="300">
+            You Dream It, We Build It.
+        </h3>
+        <a href="#" class="btn btn1">Contact</a>
+        <a href="#" class="btn btn2">Explore</a>
+    </div>
+</section>
+
+<!-- Special Goal / Our Specialization -->
+<section class="section-1">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+                <div class="pray">
+                    <img src="{{ url_for('static', filename='images/wall_paper2.jpg') }}" alt="main">
+                </div>
+            </div>
+            <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+                <div class="panel text-left">
+                    <h1>Our Specialization</h1>
+                    <p class="pt-4">
+                        A synonym for quality, speed and care, Delight Engineering is one of the most trusted
+                        construction companies in South Asia, delivering high-quality buildings and infrastructure
+                        for over three decades...
+                    </p>
+                    <p>
+                        In bringing to life over 500 multi-disciplinary projects, Delight has set global benchmarks
+                        in project delivery and sustainability, from completing tsunami rehabilitation projects to
+                        building the world’s tallest vertical garden...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Owl Carousel / Blog Section -->
+<section class="section-blog">
+    <div class="container">
+        <div class="owl-carousel owl-theme blog-post">
+            {% for i in range(2, 7) %}
+            <div class="blog-content" data-aos="fade-up" data-aos-delay="200">
+                <img src="{{ url_for('static', filename='images/wall_paper' ~ i ~ '.jpg') }}" alt="banner">
+                <div class="blog-title">
+                    <h3>The Best Interior & Exterior Design {{ i }}</h3>
+                    <button class="btn btn-blog">Latest</button>
+                    <span>2 minutes</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="owl-navigation">
+            <span class="owl-nav-prev"><i class="fas fa-long-arrow-alt-left"></i></span>
+            <span class="owl-nav-next"><i class="fas fa-long-arrow-alt-right"></i></span>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="section-2 container-fluid p-0">
+    <div class="cover">
+        <div class="content text-center" data-aos="zoom-in" data-aos-delay="200">
+            <h1>Some Features That Made Us Unique</h1>
+            <p>
+                Since its establishment in 1984, Delight has been an active participant in the construction
+                industry in Sri Lanka, making a significant contribution...
+            </p>
+        </div>
+    </div>
+    <div class="container-fluid text-center" data-aos="zoom-in" data-aos-delay="200">
+        <div class="numbers d-flex flex-md-row flex-wrap justify-content-center">
+            <div class="rect"><h1>2345</h1><p>Happy Clients</p></div>
+            <div class="rect"><h1>4000</h1><p>Projects</p></div>
+            <div class="rect"><h1>1500</h1><p>Repairing</p></div>
+            <div class="rect"><h1>3568</h1><p>Services</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- Offer / Subscription Section -->
+<section class="offer">
+    <div class="row">
+        <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200"></div>
+        <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+            <div class="subscribe">
+                <h1>We provide the best service in the industry</h1>
+                <p>
+                    Delight retains its Platinum rating and number 4 ranking in the Sri Lanka’s Corporate
+                    Accountability Index since 2016...
+                </p>
+                <a href="#">Join With Us</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Clients / Testimonials Section -->
+<section class="section-4">
+    <div class="container text-center">
+        <h1 class="text-dark">What Our Clients Say About Us</h1>
+    </div>
+    <div class="client row">
+        {% for client in [
+            {'name':'Shehani Devindi','role':'Accountant at Hemas','img':'wall_paper7.jpg','text':'You can use these sections to highlight the features of heading...'},
+            {'name':'Nipuna Perera','role':'Manager at Sampath Bank','img':'wall_paper2.jpg','text':'You can use these sections to highlight the features...'},
+            {'name':'Bihan Rajapaksha','role':'Executive at SLT','img':'wall_paper2.jpg','text':'You can use these sections to highlight the features...'}
+        ] %}
+        <div class="col-md-4 col-12 text-center" data-aos="fade-up" data-aos-delay="200">
+            <div class="card-mr-2 d-inline-block shadow-lg">
+                <div class="card-img-top">
+                    <img src="{{ url_for('static', filename='images/' ~ client.img) }}" alt="client"
+                         class="img-fluid rounded-circle w-50 p-4">
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title">{{ client.name }}</h4>
+                    <p class="card-text">{{ client.text }}</p>
+                    <p class="text-black">{{ client.role }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

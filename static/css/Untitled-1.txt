@@ -1,0 +1,110 @@
+/*..........Main Content....*/
+main .site-title{
+	background:url('../images/mainwall6.jpg');
+	background-size:cover;
+	height:110vh;
+	display:flex;
+	justify-content:center;
+}
+main .site-title .site-background{
+	padding-top:10rem;
+	text-align:center;
+	color:white;
+}
+main .site-title h1,h3{
+	margin:3rem;
+	text-shadow:1px 1px 15px #000;
+	
+}
+main .site-title .btn{
+	margin:1.8rem;
+	background:var(--sky);
+	
+}
+main .site-title .btn:hover{
+	background: transparent;
+	border: 1px solid var(--white);
+	color: var(--white);
+
+}
+const selectElement = (s) => document.querySelector(s);
+
+selectElement('.open').addEventListner('click', () => {
+    selectElement('.nav-list').classList.add('active');
+});
+
+.nav{
+	
+	background:var(--white);
+	padding: 1rem 0;
+	height: 0rem;
+	min-height: 40vh;
+	overflow: hidden;
+	transition: height 1s ease-in-out;
+
+}
+.nav .toggle-collapse{
+	position: absolute;
+	top: 0%;
+	width: 90%;
+	display: none;
+	cursor: pointer;
+}
+.nav .toggle-collapse .toggle-icons{
+	display: flex;
+	justify-content: flex-end;
+	padding: 1.7rem 0;
+
+}
+.nav .toggle-collapse .toggle-icons i{
+	color:var(--text-gray);
+	font-size: 1.4rem;
+}
+.collapse{
+	height: 30rem;
+}
+.nav .nav-brand a{
+padding: 2rem 0;
+
+}
+.nav .nav-brand img{
+	height:150px;
+	padding: 1rem 0;
+	display: block;
+}
+.nav .nav-menu{
+	justify-content: space-between;
+}
+.nav .nav-items{
+	list-style-type: none;
+	display: flex;
+	margin: 0;
+
+}
+.nav .nav-items .nav-link{
+	padding: 1.6rem 1rem;
+	font-size: 1.2rem;
+	position: relative;
+}
+.nav .social{
+	padding: 1.4rem 0;
+	
+}
+
+.site-content > .side-bar .popular-post .post-content{
+	padding: 1rem 0;
+}
+.site-content .sidebar .popular-post h2{
+	padding-top:8rem ;
+	font-family: var(--Anton);
+}
+.site-content .sidebar .popular-post .post-info{
+	padding: .4rem .1rem !important;
+	bottom: 0rem !important;
+	left: 1.5rem !important;
+	border-radius: 0rem !important;
+	background: var(--white) !important;
+}
+.site-content .sidebar .popular-post .post-title a{
+	font-size: 1rem;
+}	
