@@ -1,0 +1,317 @@
+<!--------------  Nav Bar-- -------->
+
+    <nav class="nav">
+        <div class="nav-menu flex-row">
+            <div class="nav-brand">
+                <a href="new.html" class="text-gray">
+                    <img src="./images/SmallLogoBW.png" alt="logo"></a>
+            </div>
+            <div class="toggle-collapse ">
+                <i class="icon ion-md-menu"></i>
+            </div>
+
+            <div>
+                <ul class="nav-items">
+                    <li class="nav-link">
+                        <a href="#">Home</a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="#">About Us</a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="#">Portfolio</a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="#">Services</a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="#">Contact Us</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="social text-gray">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+
+    </nav>
+
+
+    <!------ Main Site Section -------->
+    <main>
+        <section class="site-title">
+
+            <div class="site-background" data-aos="fade-up" data-aos-delay="100">
+
+                <h1>Welcome to the Delight Home Constructions
+                </h1>
+                <h3>You Dream It, We Build It.</h3>
+
+
+                <button class="btn">Explore</button>
+
+            </div>
+
+        </section>
+
+
+        .nav{
+	
+	background:rgb(9, 9, 31);
+	padding: 1rem 2rem;
+	height: 0rem;
+	min-height: 25vh;
+	overflow: hidden;
+	transition: height 1s ease-in-out;
+
+}
+.nav .toggle-collapse{
+	position: absolute;
+	top: 0%;
+	width: 90%;
+	display: none;
+	cursor: pointer;
+}
+.nav .toggle-collapse .toggle-icons{
+	display: flex;
+	justify-content: flex-end;
+	padding: 1.7rem 0;
+
+}
+.nav .toggle-collapse .toggle-icons i{
+	color:var(--text-gray);
+	font-size: 1.4rem;
+}
+.collapse{
+	height: 30rem;
+}
+.nav .nav-brand a{
+margin: 0 auto;
+display: block;
+
+}
+.nav .nav-brand img{
+	height:120px;
+	padding: 0.7rem 0;
+	display: block;
+}
+.nav .nav-menu{
+	justify-content: space-between;
+	
+
+	
+	
+} 
+.nav .nav-items{
+	
+	display: flex;
+	margin-left: 150px;
+	
+}
+.nav .nav-items .nav-link{
+	padding: 1.6rem 1.3rem;
+	font-size: 1.2rem;
+	color: var(--white);
+	font-family: var(--Livvic);
+	position: relative;
+
+}
+
+
+.nav .nav-items .nav-link:hover a{
+	color:blanchedalmond;
+	border-top: medium solid var(--white);
+	
+}
+.nav .social{
+	margin-left:200px ;
+	padding:1.4rem 0
+	
+	
+}
+.nav .social i{
+	padding: 0.3rem;
+	
+	
+}
+.nav .social i:hover{
+	color:var(--sky);
+	border-top: medium solid var(--white);
+	
+}
+main .site-title{
+	background:url('../videos/video1.mp4');
+	background-size:cover;
+	height:110vh;
+	display:flex;
+	z-index: -1;
+	justify-content:center;
+}
+main .site-title .site-background{
+	padding-top:10rem;
+	text-align:center;
+	color:whitesmoke;
+	background: rgba(0, 0,0, 0.5);
+	font-weight: bold;
+	width:100%;
+	height:100%;
+	
+
+}
+
+main .site-title h1,h3{
+	margin:3rem;
+	font-weight: bold;
+	
+	
+	
+
+	
+}
+main .site-title .btn{
+	margin:1.8rem;
+	background:rgb(192, 7, 53);
+	
+}
+main .site-title .btn:hover{
+	background: transparent;
+	border: 1px solid var(--white);
+	color: var(--white);
+
+}
+<div class="section-5 bg-dark">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-7" data-aos="zoom-in" data-aos-delay="200">
+                    <img src="./images/img11.jpg" alt="Image" width="590">
+                </div>
+                <div class="col-md-5" data-aos="zoom-in" data-aos-delay="200">
+                    <h1 class="text-white">
+                        We provide the best service in industry
+                    </h1>
+                    <a href="#">Join With Us</a>
+                    <p class="para-1">
+                        Tell people a little more to attract.You can mention some
+                        important bullet points to attract visitors.
+                        Tell people a little more to attract.You can mention some
+                        important bullet points to attract visitors.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    .section-5{
+	margin-top:8%;
+}
+.section-5 .row .col-md-7, .col-md-5{
+	margin-top: 3%;
+	margin-bottom: 3%;
+}
+.section-5 a{
+	color: lightgreen;
+	font-size: 25px;
+	text-decoration: none;
+}
+.section-5 .para-1{
+	color:white;
+	font-family: var(--Lexend);
+	margin-top: 2%;
+	font-size: 15px;
+}
+<div class="section-3">
+        <div class="container-services">
+            <div class="row">
+                <div class="col-md-4">
+                     <div class="d-flex flex-row">
+                        <i class="fas fa-question fa-3x m-2"></i>
+                        <div class="d-flex flex-column">
+                            <h3 class="m-2">
+                                    Architecture
+                            </h3>
+                            <p class="m-2">
+                                A short description of this quality.
+                                 Make these lines enticing enough to prove 
+                                 that you are the best in all you do.</p>
+                        </div>
+                     </div>
+                </div>
+                <div class="col-md-4">
+                        <div class="d-flex flex-row">
+                                <i class="fas fa-seedling fa-3x m-2"></i>
+                                <div class="d-flex flex-column">
+                                    <h3 class="m-2">
+                                            Landscape Design
+                                    </h3>
+                                    <p class="m-2">
+                                        A short description of this quality.
+                                         Make these lines enticing enough to prove 
+                                         that you are the best in all you do.</p>
+                                </div>
+                             </div>
+                </div>
+                <div class="col-md-4">
+                        <div class="d-flex flex-row">
+                                <i class="fas fa-rocket fa-3x m-2"></i>
+                                <div class="d-flex flex-column">
+                                    <h3 class="m-2">
+                                            Exterior Design
+                                    </h3>
+                                    <p class="m-2">
+                                        A short description of this quality.
+                                         Make these lines enticing enough to prove 
+                                         that you are the best in all you do.</p>
+                                </div>
+                             </div>
+                </div>
+            </div>
+             <div class="row mt-2">
+                <div class="col-md-4">
+                     <div class="d-flex flex-row">
+                        <i class="fas fa-question fa-3x m-2"></i>
+                        <div class="d-flex flex-column">
+                            <h3 class="m-2">
+                                    Architecture
+                            </h3>
+                            <p class="m-2">
+                                A short description of this quality.
+                                 Make these lines enticing enough to prove 
+                                 that you are the best in all you do.</p>
+                        </div>
+                     </div>
+                </div>
+                <div class="col-md-4">
+                        <div class="d-flex flex-row">
+                                <i class="fas fa-seedling fa-3x m-2"></i>
+                                <div class="d-flex flex-column">
+                                    <h3 class="m-2">
+                                            Landscape Design
+                                    </h3>
+                                    <p class="m-2">
+                                        A short description of this quality.
+                                         Make these lines enticing enough to prove 
+                                         that you are the best in all you do.</p>
+                                </div>
+                             </div>
+                </div>
+                <div class="col-md-4">
+                        <div class="d-flex flex-row">
+                                <i class="fas fa-rocket fa-3x m-2"></i>
+                                <div class="d-flex flex-column">
+                                    <h3 class="m-2">
+                                            Exterior Design
+                                    </h3>
+                                    <p class="m-2">
+                                        A short description of this quality.
+                                         Make these lines enticing enough to prove 
+                                         that you are the best in all you do.</p>
+                                </div>
+                             </div>
+                </div>
+    
+            </div>
+           
+        </div>
+    </div>
