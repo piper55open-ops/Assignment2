@@ -193,7 +193,7 @@ span{
   .nav-link {
     font-family: var(--main-font);
     color: whitesmoke;
-	font-size: 1.4em;
+	font-size: 1.3em;
 	
   }
   .nav-link:hover {
@@ -244,7 +244,7 @@ span{
 
 /*...................Blog Coursel...........................*/
 main .blog{
-	background: url('../images/Cape1.jpg');
+	background: url('../images/Abract01.png');
 	background-position: right;
 	background-repeat: no-repeat;
 	height: 120vh;
@@ -392,7 +392,7 @@ section .container .owl-nav{
 	
 	width:100%;
 	height: 55vmin;
-	background:url('../images/Cape2.jpg') ;
+	background:url('../images/wall_paper13.jpg') ;
 	background-position: -24rem -19rem;
 	background-size: 160%;
 	position: relative;
@@ -627,10 +627,14 @@ section .container .owl-nav{
 .site-content > .post-image >div{
 	overflow: hidden;
 }
-.site-content .post-content > .post-image img{
-	width: 100%;
-	transform: all 1s ease;
+.site-content .post-content > .post-image img {
+    width: 100%;
+    height: 200px;        
+    object-fit: cover;     
+    transition: all 0.5s ease-in-out; 
+    border-radius: 8px;    /
 }
+
 .site-content .post-content > .post-image img:hover{
 	transform: scale(1.3);
 
@@ -728,7 +732,9 @@ color: var(--white);
 	background-color: #fff;
 }
 .site-content .sidebar .popular-post .post-content img{
-	width:100%;
+	width: 100%;        
+    height: 150px;      
+  
 }
 .site-content .sidebar .popular-post .post-content .blog-meta{
 	font-size: 14px;
@@ -769,6 +775,36 @@ text-decoration: none;
 	color: var(--white);
 	
 }
+#accommodations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+#accommodations img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.map-accommodation-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    margin-bottom: 40px;
+}
+.map-container { flex: 1 1 55%; }
+.map-container #map { height: 500px; width: 100%; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+.accommodation-container { flex: 1 1 40%; }
+#accommodations { display: grid; grid-template-columns: 1fr; gap: 20px; }
+.accommodation-card { background:#fff; border:1px solid #e0e0e0; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); padding:15px; transition:transform 0.2s ease, box-shadow 0.2s ease; cursor:pointer; }
+.accommodation-card:hover { transform:translateY(-5px); box-shadow:0 6px 18px rgba(0,0,0,0.12); border-color:#2e7d32; }
+.accommodation-card h4 { font-size:1.1rem; font-weight:600; color:#2e7d32; margin-bottom:10px; }
+.accommodation-card p { font-size:0.95rem; color:#555; }
+.accommodation-card img { margin-bottom:10px; border-radius:8px; width:100%; height:150px; object-fit:cover; }
+@media(max-width:992px) { .map-accommodation-wrapper { flex-direction: column; } .map-container, .accommodation-container { flex:1 1 100%; } }
+
+
 /*------------------------Portforlio---------------------*/
 .card{
 	width: 360px;
@@ -1570,7 +1606,7 @@ footer.footer .move-up span:hover{
 }
 .offer{
 	background-position:center;
-	background-image:url('../images/img54.jpeg');
+	background-image:url('../images/wall_paper3.jpg');
     height:100%;
 	margin-top: 10%;
 }

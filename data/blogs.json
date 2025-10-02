@@ -1,0 +1,185 @@
+[
+  {
+    "id": 1,
+    "title": "Exploring Aoraki / Mount Cook",
+    "author": "Emily Carter",
+    "date": "2025-01-18",
+    "story": "Legend / Pūrākau: In Ngāi Tahu tradition, Aoraki was the eldest son of Raki (Ranginui, the Sky Father). Along with his three brothers, he travelled in a canoe that capsized on a reef. They climbed on top, but the cold winds froze them into stone. Aoraki became the tallest peak, and his brothers the surrounding mountains, while the overturned canoe became Kā Tiritiri o te Moana (Southern Alps). Historically, Aoraki is central to Ngāi Tahu identity and remains tapu, representing their ancestral connection to the South Island landscape.",
+    "images": ["/static/images/abelpark1.jpg","/static/images/abelpark2.jpg"],
+    "location": {"lat": -43.5950, "lng": 170.1419},
+    "accommodation": ["The Hermitage Hotel Mount Cook", "Aoraki Court Motel", "Mount Cook Lodge"]
+  },
+  {
+    "id": 2,
+    "title": "Discovering the Moeraki Boulders",
+    "author": "James Wong",
+    "date": "2025-02-04",
+    "story": "Legend / Pūrākau: According to Ngāi Tahu, the Moeraki Boulders are the remains of the cargo of the waka Ārai-te-uru. When the canoe was wrecked, its gourds and kumara spilled ashore and turned to stone. The canoe itself became a reef, while the commander became nearby rock formations. Historically, the site is both a geological wonder—giant concretions millions of years old—and a taonga (treasure) embodying ancestral memory and voyaging heritage.",
+    "images": ["/static/images/Cape1.jpg", "/static/images/Cape2.jpg"],
+    "location": {"lat": -45.3456, "lng": 170.8264},
+    "accommodation": ["Moeraki Village Holiday Park", "Noah's Boutique Accommodation", "The Lighthouse Moeraki"]
+  },
+  {
+    "id": 3,
+    "title": "Sacred Mount Taranaki",
+    "author": "Aria Patel",
+    "date": "2025-03-12",
+    "story": "Legend / Pūrākau: According to Māori tradition (especially Taranaki iwi and related hapū), Mount Taranaki was once in the central North Island, in the company of mountains Ruapehu, Tongariro, and Ngauruhoe. The story goes that Taranaki fell in love with the beautiful mountain Pihanga. When Ruapehu also courted Pihanga, quarrel ensued. Taranaki, defeated in that contest, travelled westwards, carving the path of the Whanganui River with his tears, finally settled where he is now on the west coast of the North Island. Meanwhile, Tongariro stayed closer to Pihanga in rivalry, etc. This journey explains the geographic separation of those volcanoes and shape of land.",
+    "images": ["/static/images/hawke1.jpg", "/static/images/hawke2.jpg"],
+    "location": {"lat": -39.2970, "lng": 174.0631},
+    "accommodation": ["King and Queen Hotel Suites", "Nice Hotel New Plymouth", "Millennium Hotel New Plymouth"]
+  },
+  {
+    "id": 4,
+    "title": "Mystical Milford Sound / Piopiotahi",
+    "author": "Oliver Bennett",
+    "date": "2025-03-30",
+    "story": "Legend / Pūrākau: Milford Sound, or Piopiotahi, is wrapped in Māori oral traditions. One tells of a piopio bird that flew here mourning the death of Māui, giving the place its name. Historically, Piopiotahi is one of Fiordland’s most sacred landscapes, its towering peaks and waterfalls considered guardians of deep ancestral ties.",
+    "images": ["/static/images/kaikura1.jpg", "/static/images/kaikura2.jpg"],
+    "location": {"lat": -44.6167, "lng": 167.8667},
+    "accommodation": ["Milford Sound Lodge", "Fiordland Lodge", "Lakefront Lodge Te Anau"]
+  },
+  {
+    "id": 5,
+    "title": "The Sacred Tongariro Crossing",
+    "author": "Sophie Martinez",
+    "date": "2025-04-09",
+    "story": "Legend / Pūrākau: Tongariro was one of several mountains that fought for the love of Pihanga. Tongariro emerged victorious, and his volcanic eruptions symbolize his continuing passion. Historically, Tongariro National Park was the first in the world gifted by an Indigenous people (Ngāti Tūwharetoa) to the nation, blending conservation with cultural guardianship.",
+    "images": ["/static/images/Kupe_sites1.jpg", "/static/images/Kupe_sites2.jpg"],
+    "location": {"lat": -39.2900, "lng": 175.5700},
+    "accommodation": ["Chateau Tongariro Hotel", "Skotel Alpine Resort", "Adventure Lodge National Park"]
+  },
+  {
+    "id": 6,
+    "title": "Rotorua’s Geothermal Wonders",
+    "author": "Hannah Kim",
+    "date": "2025-04-22",
+    "story": "Legend / Pūrākau: The love story of Hinemoa and Tūtānekai is tied to Lake Rotorua. Hinemoa swam across the waters guided by flute music to unite with her beloved. Historically, Rotorua is a cultural heartland, where Māori traditions combine with geothermal landscapes, geysers, and mud pools, attracting visitors for centuries.",
+    "images": ["/static/images/Mount_Hiku1.jpg", "/static/images/Mount_Hiku2.jpg"],
+    "location": {"lat": -38.1368, "lng": 176.2497},
+    "accommodation": ["Millennium Hotel Rotorua", "Prince's Gate Hotel", "Novotel Rotorua Lakeside"]
+  },
+  {
+    "id": 7,
+    "title": "Waitomo Glowworm Caves",
+    "author": "Daniel Johnson",
+    "date": "2025-05-03",
+    "story": "Legend / Pūrākau: Waitomo caves are said to be guarded by taniwha, spiritual beings who protect waterways. Historically, they are sacred to local iwi, combining geological beauty with Māori kaitiakitanga. Today, the caves are globally famous for their glowing insects, yet remain cultural treasures.",
+    "images": ["/static/images/mt_cook1.jpg", "/static/images/Rotorua2.jpg"],
+    "location": {"lat": -38.2590, "lng": 175.1030},
+    "accommodation": ["Waitomo Caves Hotel", "Abseil Inn", "Kiwi Paka Hostel"]
+  },
+  {
+    "id": 8,
+    "title": "Bay of Islands – Gateway to Kupe",
+    "author": "Lucas Meyer",
+    "date": "2025-05-17",
+    "story": "Legend / Pūrākau: The Bay of Islands is linked to Kupe, the great Polynesian navigator credited with discovering Aotearoa. His journeys are etched into local place names. Historically, this area was an early site of Māori–European contact and home to the Treaty of Waitangi.",
+    "images": ["/static/images/Rotorua1.jpg", "/static/images/Tauporo1.jpg"],
+    "location": {"lat": -35.2200, "lng": 174.1200},
+    "accommodation": ["Paihia Beach Resort & Spa", "Duke of Marlborough Hotel", "Copthorne Hotel Bay of Islands"]
+  },
+  {
+    "id": 9,
+    "title": "Cathedral Cove, Coromandel",
+    "author": "Mia Roberts",
+    "date": "2025-06-02",
+    "story": "Legend / Pūrākau: Cathedral Cove (Te Whanganui-a-Hei) is named for the ancestral chief Hei, who claimed the area. The natural arch is seen as a sacred gateway. Historically, the Coromandel Peninsula is a place of deep Māori settlement and modern coastal conservation.",
+    "images": ["/static/images/Tauporo2.jpg", "/static/images/Tauporo1.jpg"],
+    "location": {"lat": -36.8311, "lng": 175.7919},
+    "accommodation": ["Hahei Holiday Resort", "Pauanui Pines Motor Lodge", "Grand Mercure Puka Park Resort"]
+  },
+  {
+    "id": 10,
+    "title": "Lake Taupō – Heart of Fire",
+    "author": "Noah Clarke",
+    "date": "2025-06-19",
+    "story": "Legend / Pūrākau: Ngātoroirangi, a great tohunga, called on his sisters to send fire when he was freezing on Tongariro. Their fire gave birth to geothermal energy around Taupō. Historically, Lake Taupō sits in the caldera of one of Earth’s largest volcanic eruptions, shaping both land and legend.",
+    "images": ["/static/images/tonpark1.jpg", "/static/images/tonpark2.jpg"],
+    "location": {"lat": -38.6857, "lng": 176.0702},
+    "accommodation": ["Hilton Lake Taupo", "Lakeland Resort Taupo", "Sails on the Lake"]
+  },
+  {
+    "id": 11,
+    "title": "Whale Tales of Kaikōura",
+    "author": "Ella Green",
+    "date": "2025-07-05",
+    "story": "Legend / Pūrākau: The story of Paikea, who survived on the back of a whale, is tied to Kaikōura. Whales are seen as guardians here. Historically, Kaikōura has been a food-gathering place for centuries, and today is world-famous for whale watching.",
+    "images": ["/static/images/waipuna1.jpg", "/static/images/waipuna2.jpg"],
+    "location": {"lat": -42.4167, "lng": 173.6833},
+    "accommodation": ["The White Morph", "Kaikoura Boutique Hotel", "Hapuku Lodge and Tree Houses"]
+  },
+  {
+    "id": 12,
+    "title": "Abel Tasman’s Golden Sands",
+    "author": "Jack Thompson",
+    "date": "2025-07-20",
+    "story": "Legend / Pūrākau: Local iwi tell stories of voyaging chiefs who named and claimed the bays of Abel Tasman. Historically, this park combines ancestral routes, food-gathering grounds, and now modern conservation efforts, known for its golden beaches and blue waters.",
+    "images": ["/static/images/wall_paper1.jpg", "/static/images/wall_paper1.jpg"],
+    "location": {"lat": -40.8333, "lng": 172.9000},
+    "accommodation": ["Abel Tasman Lodge", "Split Apple Retreat", "Kimi Ora Eco Resort"]
+  },
+  {
+    "id": 13,
+    "title": "Franz Josef & Fox Glaciers",
+    "author": "Amelia Scott",
+    "date": "2025-08-01",
+    "story": "Legend / Pūrākau: Local Māori speak of Hine Hukatere, whose tears for her lost lover froze to form Franz Josef Glacier (Kā Roimata o Hine Hukatere). Historically, the glaciers are sacred landscapes and dramatic reminders of both climate and culture.",
+    "images": ["/static/images/wall_paper2.jpg", "/static/images/wall_paper3.jpg"],
+    "location": {"lat": -43.4647, "lng": 170.1883},
+    "accommodation": ["Scenic Hotel Franz Josef Glacier", "Rainforest Retreat", "Fox Glacier Lodge"]
+  },
+  {
+    "id": 14,
+    "title": "Adventures in Queenstown",
+    "author": "William Hughes",
+    "date": "2025-08-15",
+    "story": "Legend / Pūrākau: Lake Wakatipu’s rhythmic rise and fall is explained by the story of a sleeping giant, whose heartbeat makes the waters pulse. Historically, Queenstown grew from gold-mining roots into today’s adventure capital, while retaining deep Ngāi Tahu connections.",
+    "images": ["/static/images/wall_paper4.jpg", "/static/images/wall_paper5.jpg"],
+    "location": {"lat": -45.0312, "lng": 168.6626},
+    "accommodation": ["Hilton Queenstown Resort & Spa", "Novotel Queenstown Lakeside", "Sherwood Queenstown"]
+  },
+  {
+    "id": 15,
+    "title": "Serenity of Lake Wānaka",
+    "author": "Grace Lewis",
+    "date": "2025-08-29",
+    "story": "Legend / Pūrākau: Lake Wānaka and its surrounding peaks carry Kāi Tahu stories of travel and settlement. Historically, the area is a hub of outdoor adventure and sacred routes through the Southern Alps.",
+    "images": ["/static/images/wall_paper6.jpg", "/static/images/wall_paper7.jpg"],
+    "location": {"lat": -44.7000, "lng": 169.1333},
+    "accommodation": ["Edgewater Hotel", "Lakeside Apartments", "Oakridge Resort Lake Wanaka"]
+  },
+  {
+    "id": 16,
+    "title": "Otago Peninsula Wildlife & Stories",
+    "author": "Benjamin Carter",
+    "date": "2025-09-10",
+    "story": "Legend / Pūrākau: The Otago Peninsula is dotted with ancient Māori settlement sites and stories of taniwha guarding its coasts. Historically, the peninsula blends cultural heritage with unique wildlife such as albatross and penguins.",
+    "images": ["/static/images/wall_paper8.jpg", "/static/images/wall_paper2.jpg"],
+    "location": {"lat": -45.8667, "lng": 170.6500},
+    "accommodation": ["Larnach Castle Lodge", "Camp Estate Dunedin", "Otago Peninsula Motel"]
+  },
+  {
+    "id": 17,
+    "title": "Napier – Art Deco by the Sea",
+    "author": "Charlotte Adams",
+    "date": "2025-09-22",
+    "story": "Legend / Pūrākau: Hawke’s Bay holds iwi stories of voyaging and settlement, layered with modern history after the 1931 earthquake reshaped Napier. Historically, Napier is now known as the Art Deco capital, merging Māori identity with colonial architecture.",
+    "images": ["/static/images/wall_paper10.jpg", "/static/images/wall_paper11.jpg"],
+    "location": {"lat": -39.4928, "lng": 176.9120},
+    "accommodation": ["Art Deco Masonic Hotel", "Navigate Seaside Hotel", "Scenic Hotel Te Pania"]
+  },
+  {
+    "id": 18,
+    "title": "Hobbiton in Matamata",
+    "author": "Isabella Murphy",
+    "date": "2025-10-05",
+    "story": "Legend / Pūrākau: Though Hobbiton is a modern film set, its surrounding Waikato land has ancient stories tied to iwi settlement. Historically, Hobbiton represents the fusion of global storytelling and New Zealand landscapes, attracting millions of visitors.",
+    "images": ["/static/images/wall_paper12.jpg", "/static/images/wall_paper13.jpg"],
+    "location": {"lat": -37.8720, "lng": 175.6820},
+    "accommodation": ["Matamata Central Motel", "Tower Road Motel", "Eldonwood Bed and Breakfast"]
+  }
+  
+]
+
+  
