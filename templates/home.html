@@ -1,140 +1,268 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Delight Home Constructions{% endblock %}
+{% block title %}TRAVEL MATE{% endblock %}
 
 {% block content %}
 
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="container-fluid text-center heading">
-        <video autoplay muted loop id="myVideo">
-            <source src="{{ url_for('static', filename='videos/video1.mp4') }}" type="video/mp4">
-        </video>
-        <h1 class="h1" data-aos="fade-up" data-aos-delay="300">
-            Welcome to the <span></span>Delight Home Constructions
-        </h1>
-        <h3 class="h3" style="color:white" data-aos="fade-up" data-aos-delay="300">
-            You Dream It, We Build It.
-        </h3>
-        <a href="#" class="btn btn1">Contact</a>
-        <a href="#" class="btn btn2">Explore</a>
-    </div>
+<div class="container-fluid text-center heading">
+  <video src="{{ url_for('static', filename='videos/video1.mp4') }}" autoplay muted loop id="myVideo"></video>
+  <h1 class="h1" data-aos="fade-up" data-aos-delay="300">Welcome to the <span></span>TRAVEL MATE</h1>
+  <h3 class="h3" style="color:white" data-aos="fade-up" data-aos-delay="300"> Create memories. Explore cultures. Live
+    your adventure.</h3>
+  <a href="./contact.html" class="btn btn1">Register</a>
+  <a href="./portforlio.html" class="btn btn2">Explore</a>
+</div>
 </section>
+<!-------------Special goal----------->
 
-<!-- Special Goal / Our Specialization -->
 <section class="section-1">
-    <div class="container text-center">
-        <div class="row">
-            <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
-                <div class="pray">
-                    <img src="{{ url_for('static', filename='images/wall_paper2.jpg') }}" alt="main">
-                </div>
-            </div>
-            <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
-                <div class="panel text-left">
-                    <h1>Our Specialization</h1>
-                    <p class="pt-4">
-                        A synonym for quality, speed and care, Delight Engineering is one of the most trusted
-                        construction companies in South Asia, delivering high-quality buildings and infrastructure
-                        for over three decades...
-                    </p>
-                    <p>
-                        In bringing to life over 500 multi-disciplinary projects, Delight has set global benchmarks
-                        in project delivery and sustainability, from completing tsunami rehabilitation projects to
-                        building the world’s tallest vertical garden...
-                    </p>
-                </div>
-            </div>
+  <div class="container text-center">
+    <div class="row">
+      <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+        <div class="pray">
+          <img src="{{ url_for('static', filename='images/wall_paper7.jpg') }}" alt="main">
         </div>
+      </div>
+      <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+        <div class="panel text-left">
+          <h1>Our specialization</h1>
+          <p class="pt-4">
+            A synonym for quality, speed and care, Delight Engineering is one of the most trusted
+            construction companies in South Asia, delivering high-quality buildings and infrastructure for
+            over three decades. From concept to conclusion, Maga continues to work with an array of stakeholders
+            from investors and developers to public agencies and regional communities. As the largest construction
+            company in Sri Lanka, its work has enriched all sectors of the economy,
+            from healthcare and hospitality to transport and water supply.
+          </p>
+          <p>
+            In bringing to life over 500 multi-disciplinary projects, Maga has set global
+            benchmarks in project delivery and sustainability, from completing one of the fastest
+            Tsunami rehabilitation projects, to building the world’s tallest vertical garden and the
+            first LEED Platinum apparel factory. The company is anchored by an extensive resource base
+            and driven by a dynamic workforce of over 10,500. Centered on an unwavering vision for
+            sustainable development,Delight is helping reshape the evolving landscapes around us.
+          </p>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- Owl Carousel / Blog Section -->
-<section class="section-blog">
-    <div class="container">
+<!--------------------------- Owl Carousel ------------------------------------------------>
+<main>
+  <section>
+    <div class="blog">
+      <div class="container">
         <div class="owl-carousel owl-theme blog-post">
-            {% for i in range(2, 7) %}
-            <div class="blog-content" data-aos="fade-up" data-aos-delay="200">
-                <img src="{{ url_for('static', filename='images/wall_paper' ~ i ~ '.jpg') }}" alt="banner">
-                <div class="blog-title">
-                    <h3>The Best Interior & Exterior Design {{ i }}</h3>
-                    <button class="btn btn-blog">Latest</button>
-                    <span>2 minutes</span>
-                </div>
+          <div class="blog-content" data-aos="fade-right" data-aos-delay="200">
+            <img src="{{ url_for('static', filename='images/Tauporo1.jpg') }}" alt="post1">
+            <div class="blog-title">
+              <h3>Queenstown Adventure Highlights </h3>
+              <button class="btn btn-blog">Trending</button>
+              <span>2 minutes</span>
             </div>
-            {% endfor %}
+          </div>
+          <div class="blog-content" data-aos=" fade-in" data-aos-delay="200">
+            <img src="{{ url_for('static', filename='images/wall_paper14.jpg') }}" alt="post1">
+            <div class="blog-title">
+              <h3>
+                Rotorua Hidden Gems
+              </h3>
+              <button class="btn btn-blog">New</button>
+              <span>2 minutes</span>
+            </div>
+          </div>
+          <div class="blog-content" data-aos="fade-left" data-aos-delay="200">
+            <img src="{{ url_for('static', filename='images/wall_paper13.jpg') }}" alt="post1">
+            <div class="blog-title">
+              <h3>
+                Fiordland Scenic Routes
+              </h3>
+              <button class="btn btn-blog">Top Picks</button>
+              <span>2 minutes</span>
+            </div>
+          </div>
+          <div class="blog-content" data-aos="fade-right" data-aos-delay="200">
+            <img src="{{ url_for('static', filename='images/wall_paper12.jpg') }}" alt="post1">
+            <div class="blog-title">
+              <h3>
+                Wellington Cultural Trails
+              </h3>
+              <button class="btn btn-blog">Recommended</button>
+              <span>2 minutes</span>
+            </div>
+          </div>
+          <div class="blog-content" data-aos="fade-left" data-aos-delay="200">
+            <img src="{{ url_for('static', filename='images/wall_paper10.jpg') }}" alt="post1">
+            <div class="blog-title">
+              <h3>
+                Bay of Islands Relaxing Escapes
+              </h3>
+              <button class="btn btn-blog">Popular</button>
+              <span>3 minutes</span>
+            </div>
+          </div>
         </div>
         <div class="owl-navigation">
-            <span class="owl-nav-prev"><i class="fas fa-long-arrow-alt-left"></i></span>
-            <span class="owl-nav-next"><i class="fas fa-long-arrow-alt-right"></i></span>
+          <span class="owl-nav-prev">
+            <i class="fas fa-long-arrow-alt-left"></i>
+          </span>
+          <span class="owl-nav-next">
+            <i class="fas fa-long-arrow-alt-right"></i>
+          </span>
         </div>
+      </div>
     </div>
-</section>
+  </section>
+</main>
 
-<!-- Features Section -->
+
+<!----------------------------features------------------------------------>
 <section class="section-2 container-fluid p-0">
-    <div class="cover">
-        <div class="content text-center" data-aos="zoom-in" data-aos-delay="200">
-            <h1>Some Features That Made Us Unique</h1>
-            <p>
-                Since its establishment in 1984, Delight has been an active participant in the construction
-                industry in Sri Lanka, making a significant contribution...
-            </p>
-        </div>
+  <div class="cover">
+    <div class="content text-center" data-aos="zoom-in" data-aos-delay="200">
+      <h1>
+        What Makes <span class="text-warning">TRAVEL MATE</span> Unique
+      </h1>
+      <p>Travel Mate is your ultimate travel companion app, designed to make every journey
+        seamless, memorable, and personalized. From discovering hidden gems to
+        planning itineraries, we ensure that your adventures are exciting, safe, and
+        stress-free.</p>
+
     </div>
-    <div class="container-fluid text-center" data-aos="zoom-in" data-aos-delay="200">
-        <div class="numbers d-flex flex-md-row flex-wrap justify-content-center">
-            <div class="rect"><h1>2345</h1><p>Happy Clients</p></div>
-            <div class="rect"><h1>4000</h1><p>Projects</p></div>
-            <div class="rect"><h1>1500</h1><p>Repairing</p></div>
-            <div class="rect"><h1>3568</h1><p>Services</p></div>
-        </div>
+  </div>
+  <div class="container-fluid text-center" data-aos="zoom-in" data-aos-delay="200">
+    <div class="numbers d-flex flex-md-row flex-wrap justify-content-center">
+      <div class="rect">
+        <h1>120</h1>
+        <p>Happy Travelers</p>
+      </div>
+      <div class="rect">
+        <h1>85</h1>
+        <p>Trips Planned</p>
+      </div>
+      <div class="rect">
+        <h1>50</h1>
+        <p>Destinations</p>
+      </div>
+      <div class="rect">
+        <h1>98%</h1>
+        <p>Satisfaction</p>
+      </div>
+
     </div>
+  </div>
 </section>
 
-<!-- Offer / Subscription Section -->
 <section class="offer">
-    <div class="row">
-        <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200"></div>
-        <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
-            <div class="subscribe">
-                <h1>We provide the best service in the industry</h1>
-                <p>
-                    Delight retains its Platinum rating and number 4 ranking in the Sri Lanka’s Corporate
-                    Accountability Index since 2016...
-                </p>
-                <a href="#">Join With Us</a>
-            </div>
-        </div>
+  <div class="row">
+    <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200"></div>
+    <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+      <div class="subscribe">
+        <h1>Unlock the New Zealand with TRAVEL MATE</h1>
+        <p class="mb-4">
+          Join thousands of travelers who explore smarter, safer, and more memorable adventures
+          with Travel Mate. From personalized itineraries to real-time updates and hidden gems,
+          we make every journey seamless and unforgettable.
+        </p>
+        <a href="#">Join With Us</a>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- Clients / Testimonials Section -->
+<!-------------------------Clients---------------------------------->
 <section class="section-4">
-    <div class="container text-center">
-        <h1 class="text-dark">What Our Clients Say About Us</h1>
-    </div>
-    <div class="client row">
-        {% for client in [
-            {'name':'Shehani Devindi','role':'Accountant at Hemas','img':'wall_paper7.jpg','text':'You can use these sections to highlight the features of heading...'},
-            {'name':'Nipuna Perera','role':'Manager at Sampath Bank','img':'wall_paper2.jpg','text':'You can use these sections to highlight the features...'},
-            {'name':'Bihan Rajapaksha','role':'Executive at SLT','img':'wall_paper2.jpg','text':'You can use these sections to highlight the features...'}
-        ] %}
-        <div class="col-md-4 col-12 text-center" data-aos="fade-up" data-aos-delay="200">
-            <div class="card-mr-2 d-inline-block shadow-lg">
-                <div class="card-img-top">
-                    <img src="{{ url_for('static', filename='images/' ~ client.img) }}" alt="client"
-                         class="img-fluid rounded-circle w-50 p-4">
-                </div>
-                <div class="card-body">
-                    <h4 class="card-title">{{ client.name }}</h4>
-                    <p class="card-text">{{ client.text }}</p>
-                    <p class="text-black">{{ client.role }}</p>
-                </div>
-            </div>
+  <div class="container text-center">
+    <h1 class="text-dark">
+      What Our Travelers Say About Us
+    </h1>
+  </div>
+  <div class="client row">
+    <div class="col-md-4 col-12 text-center" data-aos="fade-right" data-aos-delay="200" data-aos-duration="1000">
+      <div class="card-mr-2 d-inline-block shadow-lg ">
+        <div class="card-img-top">
+          <img src="{{ url_for('static', filename='images/tourists4.jpg') }}" alt="client"
+            class="img-fluid rounded-circle w-50 p-4">
         </div>
-        {% endfor %}
+        <div class="card-body">
+          <h4 class="card-title">
+            Emily Thompson
+          </h4>
+          <p class="card-text">
+            "Travel Mate made planning my New Zealand trip so simple! The AI itinerary suggested the perfect mix of
+            adventure and relaxation."
+          </p>
+          <p class="text-black">Freelance Photographer, USA</p>
+        </div>
+      </div>
     </div>
-</section>
+    <div class="col-md-4 col-12 text-center" data-aos="fade-in" data-aos-delay="200" data-aos-duration="1000">
+      <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
 
+        <div class="carousel-inner">
+          <div class="carousel-item active text-center">
+            <div class="card-mr-2 d-inline-block shadow-lg ">
+              <div class="card-img-top">
+                <img src="{{ url_for('static', filename='images/tourists2.jpg') }}" alt="client"
+                  class="img-fluid rounded-circle w-50 p-4">
+              </div>
+              <div class="card-body">
+                <h4 class="card-title">
+                  Luca Romano
+                </h4>
+                <p class="card-text">
+                  "I loved the AI virtual guide! It recommended hidden spots in Rotorua I would never have found on my
+                  own."
+                </p>
+                <p class="text-black">Travel Blogger, Italy</p>
+              </div>
+            </div>
+
+          </div>
+          <div class="carousel-item text-center">
+            <div class="card-mr-2 d-inline-block shadow-lg ">
+              <div class="card-img-top">
+                <img src="{{ url_for('static', filename='images/tourists3.jpg') }}" alt="client"
+                  class="img-fluid rounded-circle w-50 p-4">
+              </div>
+              <div class="card-body">
+                <h4 class="card-title">
+                  Sofia Müller
+                </h4>
+                <p class="card-text">
+                  "The AI photo recognition feature was amazing! I uploaded a photo and instantly got nearby attractions
+                  and travel tips."
+                </p>
+                <p class="text-black">Marketing Manager, Germany</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+    <div class="col-md-4 col-12 text-center" data-aos="fade-left" data-aos-delay="200" data-aos-duration="1000">
+      <div class="card-mr-2 d-inline-block shadow-lg ">
+        <div class="card-img-top">
+          <img src="{{ url_for('static', filename='images/tourists4.jpg') }}" alt="client"
+            class="iimg-fluid rounded-circle w-50 p-4">
+        </div>
+        <div class="card-body">
+          <h4 class="card-title">
+            James Wilson
+          </h4>
+          <p class="card-text">
+            "Travel Mate’s gamified badges added a fun twist to my trip. I earned the 'Mountain Explorer' badge while
+            hiking in Queenstown!"
+          </p>
+          <p class="text-black">Software Engineer, UK</p>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</section>
 {% endblock %}

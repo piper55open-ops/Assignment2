@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}TRAVEL MATE{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid text-center heading">
+    <video src="{{ url_for('static', filename='videos/video4.mp4') }}" autoplay muted loop id="myVideo"></video>
+    <h1 class="h1" data-aos="fade-up" data-aos-delay="300">Welcome to the <span></span>TRAVEL MATE</h1>
+    <h3 class="h3" style="color:white" data-aos="fade-up" data-aos-delay="300"> Create memories. Explore cultures. Live
+        your adventure.</h3>
+    <a href="./contact.html" class="btn btn1">Register</a>
+    <a href="./portforlio.html" class="btn btn2">Explore</a>
+</div>
+</section>
+<!------------------Blog Page----------------------------------------->
+<section class="container">
+    <div class="site-content">
+        <div class="posts">
+             {% for blog in blogs %}
+            <div class="post-content" data-aos="zoom-in" data-aos-delay="200">
+                <div class="post-image">
+                    <div>
+                        <img src="{{ url_for('static', filename='images/' + blog.images[0]) }}" alt="">
+                    </div>
+                    <div class="post-info flex-row">
+                        <span>
+                            <i class="fas fa-user text-gray"></i> &nbsp;&nbsp; {{ blog.author }}</span>
+                        <span><i class="fas fa-calendar-alt text-gray"></i>&nbsp;&nbsp; {{ blog.date }}
+                        </span>
+                        <span>2 comments </span>
+                    </div>
+                </div>
+                <div class="post-title">
+                    <a href="{{ url_for('blog_detail', blog_id=blog.id) }}"> {{ blog.title }} </a>
+                    <p>{{ blog.story[:120] }}<span id="dots-{{ blog.id }}">.......</span><span id="more-{{ blog.id }}"> {{ blog.story[120:] }}</span></p>
+                    <button type="button" id="post-btn-{{ blog.id }}" class="read-btn"
+              onclick="toggleRead(1)">
+        Read More &nbsp;<i class="fas fa-arrow-right"></i>
+      </button>
+                </div>
+            </div>
+            <hr>
+            {% endfor %}
+             {% for blog in blogs %}
+            <div class="post-content" data-aos="zoom-in" data-aos-delay="200">
+                <div class="post-image">
+                    <div>
+                        <img src="{{ url_for('static', filename='images/' + blog.images[0]) }}" alt="">
+                    </div>
+                    <div class="post-info flex-row">
+                        <span>
+                            <i class="fas fa-user text-gray"></i> &nbsp;&nbsp;{{ blog.author }}</span>
+                        <span><i class="fas fa-calendar-alt text-gray"></i>&nbsp;&nbsp; {{ blog.date }}
+                        </span>
+                        <span>4 comments </span>
+                    </div>
+                </div>
+                <div class="post-title">
+                    <a href="#"> {{ blog.title }}  </a>
+                    <p>{{ blog.story[:120] }}<span id="dots-{{ blog.id }}">.......</span><span id="more-{{ blog.id }}"> {{ blog.story[120:] }}</span></p>
+                    <button type="button" id="post-btn-{{ blog.id }}" class="read-btn"
+                        onclick="toggleRead(2)">
+                    Read More &nbsp;<i class="fas fa-arrow-right"></i>
+                </button>
+                </div>
+            </div>
+            <hr>
+              {% endfor %}
+
+            {% for blog in blogs %}
+            <div class="post-content" data-aos="zoom-in" data-aos-delay="200">
+                <div class="post-image">
+                    <div>
+                        <img src="{{ url_for('static', filename='images/' + blog.images[0]) }}" alt="">
+                    </div>
+                    <div class="post-info flex-row">
+                        <span>
+                            <i class="fas fa-user text-gray"></i> &nbsp;&nbsp;{{ blog.author }}</span>
+                        <span><i class="fas fa-calendar-alt text-gray"></i>&nbsp;&nbsp; {{ blog.date }}
+                        </span>
+                        <span>4 comments </span>
+                    </div>
+                </div>
+                <div class="post-title">
+                    <a href="#"> {{ blog.title }}  </a>
+                    <p>{{ blog.story[:120] }}<span id="dots-{{ blog.id }}">.......</span><span id="more-{{ blog.id }}"> {{ blog.story[120:] }}</span></p>
+                    <button type="button" id="post-btn-{{ blog.id }}" class="read-btn"
+                        onclick="toggleRead(3)">
+                    Read More &nbsp;<i class="fas fa-arrow-right"></i>
+                </button>
+                </div>
+            </div>
+            <hr>
+              {% endfor %}
+            {% for blog in blogs %}
+            <div class="post-content" data-aos="zoom-in" data-aos-delay="200">
+                <div class="post-image">
+                    <div>
+                        <img src="{{ url_for('static', filename='images/' + blog.images[0]) }}" alt="">
+                    </div>
+                    <div class="post-info flex-row">
+                        <span>
+                            <i class="fas fa-user text-gray"></i> &nbsp;&nbsp;{{ blog.author }}</span>
+                        <span><i class="fas fa-calendar-alt text-gray"></i>&nbsp;&nbsp; {{ blog.date }}
+                        </span>
+                        <span>4 comments </span>
+                    </div>
+                </div>
+                <div class="post-title">
+                    <a href="#"> {{ blog.title }}  </a>
+                    <p>{{ blog.story[:120] }}<span id="dots-{{ blog.id }}">.......</span><span id="more-{{ blog.id }}"> {{ blog.story[120:] }}</span></p>
+                    <button type="button" id="post-btn-{{ blog.id }}" class="read-btn"
+                        onclick="toggleRead(1)">
+                    Read More &nbsp;<i class="fas fa-arrow-right"></i>
+                </button>
+                </div>
+            </div>
+              {% endfor %}
+            <div class="pagination flex-row">
+                <a href="#"><i class="fas fa-chevron-left"></i></a>
+                <a href="blog.html" class="pages">1</a>
+                <a href="blog2.html" class="pages">2</a>
+                <a href="#" class="pages">3</a>
+                <a href="blog2.html"><i class="fas fa-chevron-right"></i></a>
+            </div>
+        </div>
+        <aside class="sidebar">
+            <div class="popular-post">
+                <h2>Popular Post</h2>
+                <div class="post-content" data-aos="flip-up" data-aos-delay="200">
+                    <p class="blog-meta">By Admin <span>January 26,2020</span></p>
+                    <img src="{{ url_for('static', filename='images/whbeach1.jpg') }}" alt="">
+                    <h2> Trends In Interior Designing </h2>
+                    <p class="blog-text">
+                        "One of my strongest convictions, and one of the first canons of good taste, i
+                        s that our houses, like the fish’s shell and the bird’s nest,
+                        ought to represent our individual taste and habits.
+                    </p>
+                    <p><a href="blog2.html" class="read-more-btn">Read More </a>
+                        <span><i class="fas fa-thumbs-up"></i> 5 people like,<i class="fas fa-comments"></i>2
+                            comments</span>
+                    </p>
+                </div>
+                <div class="post-content" data-aos="flip-up" data-aos-delay="300">
+                    <p class="blog-meta">By Admin <span>October 16,2019</span></p>
+                    <img src="{{ url_for('static', filename='images/Tauporo1.jpg') }}" alt="">
+                    <h2> Trends In Interior Designing </h2>
+                    <p class="blog-text">
+                        Interior design has become the subject of television shows. In the United Kingdom,
+                        popular interior design and decorating programs include 60 Minute Makeover (ITV),
+                        Changing Rooms (BBC), and Selling Houses (Channel 4).
+                    </p>
+                    <p><a href="blog2.html" class="read-more-btn">Read More </a>
+                        <span><i class="fas fa-thumbs-up"></i> 2 people like, &nbsp;<i class="fas fa-comments"></i>4
+                            comments</span>
+                    </p>
+                </div>
+                <div class="post-content" data-aos="flip-up" data-aos-delay="400">
+                    <p class="blog-meta">By Admin <span>Decembere 12,2019</span></p>
+                    <img src="{{ url_for('static', filename='images/kaikura1.jpg') }}" alt="">
+                    <h2> Trends In Interior Designing </h2>
+                    <p class="blog-text">
+                        Famous interior designers whose work is featured in these programs include Linda Barker and
+                        Laurence Llewelyn-Bowen. In the United States, the TLC Network aired a popular program called
+                        Trading Spaces,
+                        a show based on the UK program Changing Rooms.
+                    </p>
+                    <p><a href="blog2.html" class="read-more-btn">Read More </a>
+                        <span><i class="fas fa-thumbs-up"></i> 5 people like, &nbsp;<i class="fas fa-comments"></i>5
+                            comments</span>
+                    </p>
+                </div>
+                <div class="post-content" data-aos="flip-up" data-aos-delay="500">
+                    <p class="blog-meta">By Admin <span>November 26,2019</span></p>
+                    <img src="{{ url_for('static', filename='images/Kupe_sites1.jpg') }}" alt="">
+                    <h2> Trends In Interior Designing </h2>
+                    <p class="blog-text">
+                        Fictional interior decorators include the Sugarbaker sisters on Designing Women and Grace
+                        Adler on Will & Grace.
+                        There is also another show called Home MADE.
+                    </p>
+                    <p><a href="blog2.html" class="read-more-btn">Read More </a>
+                        <span><i class="fas fa-thumbs-up"></i> 5 people like, &nbsp;<i class="fas fa-comments"></i>3
+                            comments</span>
+                    </p>
+                </div>
+
+            </div>
+
+
+
+            <div class="newsletter" data-aos="fade-up" data-aos-delay="300">
+                <h2> Newsletter</h2>
+                <div class="form-element">
+                    <input type="text" class="input-element" placeholder="Email">
+                    <button class="btn form-btn">
+                        Subscribe
+                    </button>
+                </div>
+            </div>
+            <div class="popular-tags">
+                <h2>Popular Tags</h2>
+                <div class="tags flex-row">
+                    <span class="tag">Architecture</span>
+                    <span class="tag">Exterior</span>
+                    <span class="tag">Interior</span>
+                    <span class="tag">Planing</span>
+                    <span class="tag">Gardening</span>
+                    <span class="tag">Landscape</span>
+                </div>
+            </div>
+
+        </aside>
+    </div>
+
+</section>
+<!----------footer--------------------------------->
+
+{% endblock %}
+<script>
+  function toggleRead(id) {
+    const dots = document.getElementById(`dots-${id}`);
+    const more = document.getElementById(`more-${id}`);
+    const btn = document.getElementById(`post-btn-${id}`);
+
+    if (!dots || !more || !btn) return; // safety check
+
+    if (more.style.display === "none" || more.style.display === "") {
+      // show more
+      dots.style.display = "none";
+      more.style.display = "inline";
+      btn.innerHTML = "Read Less &nbsp;<i class='fas fa-arrow-left'></i>";
+    } else {
+      // hide more
+      dots.style.display = "inline";
+      more.style.display = "none";
+      btn.innerHTML = "Read More &nbsp;<i class='fas fa-arrow-right'></i>";
+    }
+  }
+</script>
+

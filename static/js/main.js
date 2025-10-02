@@ -32,7 +32,11 @@ $(document).ready(function () {
     });
 
     // Initialize AOS once
-    AOS.init();
+  // Initialize AOS safely
+    if (typeof AOS !== 'undefined') {
+         AOS.init();
+    }
+
 
     // Number counter animation
     let nCount = function (selector) {
