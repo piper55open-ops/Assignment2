@@ -15,6 +15,11 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/owl.carousel.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/owl.theme.default.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/slick.css') }}">
@@ -40,8 +45,6 @@
                                 <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Haven</a></li>
                                 <li class="nav-item"><a class="nav-link" href="{{ url_for('locations') }}">Legends &
                                         Landscapes</a></li>
-                                <li class="nav-item"><a class="nav-link" href="{{ url_for('accommodations') }}">Stay
-                                        Nearby</a></li>
                                 <li class="nav-item"><a class="nav-link" href="{{ url_for('stories') }}">Journeys
                                         Captured</a></li>
                                 <li class="nav-item"><a class="nav-link" href="{{ url_for('discover') }}">Discover
@@ -63,12 +66,12 @@
                     <div class="about-us" data-aos="zoom-in" data-aos-delay="200">
                         <h2>Contact Us</h2>
                         <ul class="footer-contact">
-                            <li>Delight Homes Constructions (Pvt)Ltd,</li>
-                            <li>No:93/94,Beligollawatta,Thimbirigama,</li>
-                            <li>Kiridiwela</li>
-                            <li>Sri Lanka</li>
-                            <li>Tel: +94 711-514-363 </li>
-                            <li>Email: <a href="#">delighthomesc@gmail.com</a></li>
+                            <li>TRAVEL MATE</li>
+                            <li>Yoobee College of Creative Innovation</li>
+                            <li>Auckland City Road Campus</li>
+                            <li>Auckland</li>
+                            <li>New Zealand</li>
+                            <li>Email: <a href="#">travelmate@gmail.com</a></li>
                         </ul>
                     </div>
                     <div class="newsletter" data-aos="zoom-in" data-aos-delay="200">
@@ -84,7 +87,7 @@
                     <div class="instagram" data-aos="zoom-in" data-aos-delay="200">
                         <h2>Instagram</h2>
                         <div class="flex-row">
-                            {% for img in ['abelpark2.jpg','abelpark3.jpg','abelpark4.jpg'] %}
+                            {% for img in ['wall_paper1.jpg','tourists3.jpg','tourists4.jpg'] %}
                             <img src="{{ url_for('static', filename='images/' ~ img) }}" alt="image">
                             {% endfor %}
                         </div>
@@ -102,7 +105,7 @@
                 </div>
                 <div class="rights flex-row" data-aos="zoom-in" data-aos-delay="200">
                     <h4 class="text-gray">
-                        Copyright &copy; 2019 All rights reserved | made by Delight Home Constructions
+                        Copyright &copy; 2025 All rights reserved | Travel With Love
                     </h4>
                 </div>
                 <div class="move-up">

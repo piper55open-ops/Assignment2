@@ -1,8 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from controllers.user_controller import UserController
 import os
 import json
 import math 
+import requests
+from dotenv import load_dotenv
+from openai import OpenAI
+
+
+load_dotenv()  # 🔹 loads .env file into environment
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+
 
 app = Flask(__name__)
 app.secret_key = "supersecret"  
@@ -67,6 +78,7 @@ def login():
 
     return render_template("login.html")
 
+client = OpenAI(api_key=OPENAI_API_KEY )
 @app.route("/locations")
 def locations():
     file_path = os.path.join(app.root_path, "data", "blogs.json")
@@ -95,7 +107,6 @@ def blog_detail(blog_id):
     with open(file_path, "r", encoding="utf-8") as f:
         blogs = json.load(f)
 
-    # Find blog by ID
     blog = next((b for b in blogs if b["id"] == blog_id), None)
     if blog is None:
         return "Blog not found", 404
@@ -103,13 +114,59 @@ def blog_detail(blog_id):
     return render_template(
         "blog_detail.html",
         blog=blog,
-        google_api_key="AIzaSyA7HzkKbOn0st0DCyNHbcF_h1qi3Q-nFN8"
+        google_api_key=GOOGLE_API_KEY
     )
 
 
-@app.route('/accommodations')
-def accommodations():
-    return render_template("accommodations.html")
+# 🔹 Proxy for Google Places API
+@app.route("/places_proxy")
+def places_proxy():
+    lat = request.args.get("lat")
+    lng = request.args.get("lng")
+    radius = 2000  # 2km search radius
+    type_ = "lodging"  # hotels, accommodations
+
+    url = (
+        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+        f"?location={lat},{lng}&radius={radius}&type={type_}&key={GOOGLE_API_KEY}"
+    )
+    response = requests.get(url).json()
+    return jsonify(response)
+
+
+# 🔹 AI Smart Recommendations
+@app.route("/ai_recommend", methods=["POST"])
+def ai_recommend():
+    data = request.get_json()
+    location = data.get("location", "")
+    traveler_type = data.get("traveler_type", "budget traveler")
+
+    prompt = f"Suggest the best accommodations near {location} for {traveler_type}. Include names, budget range, and reasons."
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",  # use your available model
+        messages=[
+            {"role": "system", "content": "You are a travel assistant."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    return jsonify({"recommendations": response.choices[0].message.content})
+
+@app.route("/ask_ai", methods=["POST"])
+def ask_ai():
+    data = request.get_json()
+    user_question = data.get("question", "")
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",  # Or "gpt-4o", "gpt-3.5-turbo"
+        messages=[
+            {"role": "system", "content": "You are a travel assistant."},
+            {"role": "user", "content": user_question}
+        ]
+    )
+
+    return jsonify({"answer": response.choices[0].message.content})
 
 @app.route('/stories')
 def stories():
