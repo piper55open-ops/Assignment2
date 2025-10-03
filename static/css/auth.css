@@ -1,0 +1,35 @@
+body {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.auth-card {
+    border-radius: 15px;
+    background: #ffffff;
+    animation: fadeInUp 0.8s ease-in-out;
+}
+
+.auth-card h2 {
+    font-weight: 600;
+}
+
+.btn-success {
+    background: #2e7d32;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-success:hover {
+    background: #1b5e20;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

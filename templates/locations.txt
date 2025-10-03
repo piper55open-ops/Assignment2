@@ -1,242 +1,180 @@
 {% extends "base.html" %}
-
-{% block title %}TRAVEL MATE{% endblock %}
+{% block title %}{{ blog.title }}{% endblock %}
 
 {% block content %}
+<div class="container blog-detail">
 
-<div class="container-fluid text-center heading">
-    <video src="{{ url_for('static', filename='videos/video4.mp4') }}" autoplay muted loop id="myVideo"></video>
-    <h1 class="h1" data-aos="fade-up" data-aos-delay="300">Welcome to the <span></span>TRAVEL MATE</h1>
-    <h3 class="h3" style="color:white" data-aos="fade-up" data-aos-delay="300"> Create memories. Explore cultures. Live
-        your adventure.</h3>
-    <a href="./contact.html" class="btn btn1">Register</a>
-    <a href="./portforlio.html" class="btn btn2">Explore</a>
-</div>
-</section>
-<!------------------Blog Page----------------------------------------->
-<section class="container">
-    <div class="site-content">
-        <div class="posts">
-             {% for blog in blogs %}
-            <div class="post-content" data-aos="zoom-in" data-aos-delay="200">
-                <div class="post-image">
-                    <div>
-                        <img src="{{ url_for('static', filename='images/' + blog.images[0]) }}" alt="">
-                    </div>
-                    <div class="post-info flex-row">
-                        <span>
-                            <i class="fas fa-user text-gray"></i> &nbsp;&nbsp; {{ blog.author }}</span>
-                        <span><i class="fas fa-calendar-alt text-gray"></i>&nbsp;&nbsp; {{ blog.date }}
-                        </span>
-                        <span>2 comments </span>
-                    </div>
-                </div>
-                <div class="post-title">
-                    <a href="{{ url_for('blog_detail', blog_id=blog.id) }}"> {{ blog.title }} </a>
-                    <p>{{ blog.story[:120] }}<span id="dots-{{ blog.id }}">.......</span><span id="more-{{ blog.id }}"> {{ blog.story[120:] }}</span></p>
-                    <button type="button" id="post-btn-{{ blog.id }}" class="read-btn"
-              onclick="toggleRead(1)">
-        Read More &nbsp;<i class="fas fa-arrow-right"></i>
-      </button>
-                </div>
-            </div>
-            <hr>
-            {% endfor %}
-             {% for blog in blogs %}
-            <div class="post-content" data-aos="zoom-in" data-aos-delay="200">
-                <div class="post-image">
-                    <div>
-                        <img src="{{ url_for('static', filename='images/' + blog.images[0]) }}" alt="">
-                    </div>
-                    <div class="post-info flex-row">
-                        <span>
-                            <i class="fas fa-user text-gray"></i> &nbsp;&nbsp;{{ blog.author }}</span>
-                        <span><i class="fas fa-calendar-alt text-gray"></i>&nbsp;&nbsp; {{ blog.date }}
-                        </span>
-                        <span>4 comments </span>
-                    </div>
-                </div>
-                <div class="post-title">
-                    <a href="#"> {{ blog.title }}  </a>
-                    <p>{{ blog.story[:120] }}<span id="dots-{{ blog.id }}">.......</span><span id="more-{{ blog.id }}"> {{ blog.story[120:] }}</span></p>
-                    <button type="button" id="post-btn-{{ blog.id }}" class="read-btn"
-                        onclick="toggleRead(2)">
-                    Read More &nbsp;<i class="fas fa-arrow-right"></i>
-                </button>
-                </div>
-            </div>
-            <hr>
-              {% endfor %}
-
-            {% for blog in blogs %}
-            <div class="post-content" data-aos="zoom-in" data-aos-delay="200">
-                <div class="post-image">
-                    <div>
-                        <img src="{{ url_for('static', filename='images/' + blog.images[0]) }}" alt="">
-                    </div>
-                    <div class="post-info flex-row">
-                        <span>
-                            <i class="fas fa-user text-gray"></i> &nbsp;&nbsp;{{ blog.author }}</span>
-                        <span><i class="fas fa-calendar-alt text-gray"></i>&nbsp;&nbsp; {{ blog.date }}
-                        </span>
-                        <span>4 comments </span>
-                    </div>
-                </div>
-                <div class="post-title">
-                    <a href="#"> {{ blog.title }}  </a>
-                    <p>{{ blog.story[:120] }}<span id="dots-{{ blog.id }}">.......</span><span id="more-{{ blog.id }}"> {{ blog.story[120:] }}</span></p>
-                    <button type="button" id="post-btn-{{ blog.id }}" class="read-btn"
-                        onclick="toggleRead(3)">
-                    Read More &nbsp;<i class="fas fa-arrow-right"></i>
-                </button>
-                </div>
-            </div>
-            <hr>
-              {% endfor %}
-            {% for blog in blogs %}
-            <div class="post-content" data-aos="zoom-in" data-aos-delay="200">
-                <div class="post-image">
-                    <div>
-                        <img src="{{ url_for('static', filename='images/' + blog.images[0]) }}" alt="">
-                    </div>
-                    <div class="post-info flex-row">
-                        <span>
-                            <i class="fas fa-user text-gray"></i> &nbsp;&nbsp;{{ blog.author }}</span>
-                        <span><i class="fas fa-calendar-alt text-gray"></i>&nbsp;&nbsp; {{ blog.date }}
-                        </span>
-                        <span>4 comments </span>
-                    </div>
-                </div>
-                <div class="post-title">
-                    <a href="#"> {{ blog.title }}  </a>
-                    <p>{{ blog.story[:120] }}<span id="dots-{{ blog.id }}">.......</span><span id="more-{{ blog.id }}"> {{ blog.story[120:] }}</span></p>
-                    <button type="button" id="post-btn-{{ blog.id }}" class="read-btn"
-                        onclick="toggleRead(1)">
-                    Read More &nbsp;<i class="fas fa-arrow-right"></i>
-                </button>
-                </div>
-            </div>
-              {% endfor %}
-            <div class="pagination flex-row">
-                <a href="#"><i class="fas fa-chevron-left"></i></a>
-                <a href="blog.html" class="pages">1</a>
-                <a href="blog2.html" class="pages">2</a>
-                <a href="#" class="pages">3</a>
-                <a href="blog2.html"><i class="fas fa-chevron-right"></i></a>
-            </div>
+    <!-- Location Info Card -->
+    <div class="location-card">
+        <div class="location-left">
+            <h2>{{ blog.title }}</h2>
+            <p>By {{ blog.author }} | {{ blog.date }}</p>
+            <p>{{ blog.story }}</p>
         </div>
-        <aside class="sidebar">
-            <div class="popular-post">
-                <h2>Popular Post</h2>
-                <div class="post-content" data-aos="flip-up" data-aos-delay="200">
-                    <p class="blog-meta">By Admin <span>January 26,2020</span></p>
-                    <img src="{{ url_for('static', filename='images/whbeach1.jpg') }}" alt="">
-                    <h2> Trends In Interior Designing </h2>
-                    <p class="blog-text">
-                        "One of my strongest convictions, and one of the first canons of good taste, i
-                        s that our houses, like the fish’s shell and the bird’s nest,
-                        ought to represent our individual taste and habits.
-                    </p>
-                    <p><a href="blog2.html" class="read-more-btn">Read More </a>
-                        <span><i class="fas fa-thumbs-up"></i> 5 people like,<i class="fas fa-comments"></i>2
-                            comments</span>
-                    </p>
+        <div class="location-right">
+            {% for img in blog.images %}
+                <div class="image-box">
+                    <img src="{{ img }}" alt="{{ blog.title }}">
                 </div>
-                <div class="post-content" data-aos="flip-up" data-aos-delay="300">
-                    <p class="blog-meta">By Admin <span>October 16,2019</span></p>
-                    <img src="{{ url_for('static', filename='images/Tauporo1.jpg') }}" alt="">
-                    <h2> Trends In Interior Designing </h2>
-                    <p class="blog-text">
-                        Interior design has become the subject of television shows. In the United Kingdom,
-                        popular interior design and decorating programs include 60 Minute Makeover (ITV),
-                        Changing Rooms (BBC), and Selling Houses (Channel 4).
-                    </p>
-                    <p><a href="blog2.html" class="read-more-btn">Read More </a>
-                        <span><i class="fas fa-thumbs-up"></i> 2 people like, &nbsp;<i class="fas fa-comments"></i>4
-                            comments</span>
-                    </p>
-                </div>
-                <div class="post-content" data-aos="flip-up" data-aos-delay="400">
-                    <p class="blog-meta">By Admin <span>Decembere 12,2019</span></p>
-                    <img src="{{ url_for('static', filename='images/kaikura1.jpg') }}" alt="">
-                    <h2> Trends In Interior Designing </h2>
-                    <p class="blog-text">
-                        Famous interior designers whose work is featured in these programs include Linda Barker and
-                        Laurence Llewelyn-Bowen. In the United States, the TLC Network aired a popular program called
-                        Trading Spaces,
-                        a show based on the UK program Changing Rooms.
-                    </p>
-                    <p><a href="blog2.html" class="read-more-btn">Read More </a>
-                        <span><i class="fas fa-thumbs-up"></i> 5 people like, &nbsp;<i class="fas fa-comments"></i>5
-                            comments</span>
-                    </p>
-                </div>
-                <div class="post-content" data-aos="flip-up" data-aos-delay="500">
-                    <p class="blog-meta">By Admin <span>November 26,2019</span></p>
-                    <img src="{{ url_for('static', filename='images/Kupe_sites1.jpg') }}" alt="">
-                    <h2> Trends In Interior Designing </h2>
-                    <p class="blog-text">
-                        Fictional interior decorators include the Sugarbaker sisters on Designing Women and Grace
-                        Adler on Will & Grace.
-                        There is also another show called Home MADE.
-                    </p>
-                    <p><a href="blog2.html" class="read-more-btn">Read More </a>
-                        <span><i class="fas fa-thumbs-up"></i> 5 people like, &nbsp;<i class="fas fa-comments"></i>3
-                            comments</span>
-                    </p>
-                </div>
-
-            </div>
-
-
-
-            <div class="newsletter" data-aos="fade-up" data-aos-delay="300">
-                <h2> Newsletter</h2>
-                <div class="form-element">
-                    <input type="text" class="input-element" placeholder="Email">
-                    <button class="btn form-btn">
-                        Subscribe
-                    </button>
-                </div>
-            </div>
-            <div class="popular-tags">
-                <h2>Popular Tags</h2>
-                <div class="tags flex-row">
-                    <span class="tag">Architecture</span>
-                    <span class="tag">Exterior</span>
-                    <span class="tag">Interior</span>
-                    <span class="tag">Planing</span>
-                    <span class="tag">Gardening</span>
-                    <span class="tag">Landscape</span>
-                </div>
-            </div>
-
-        </aside>
+            {% endfor %}
+        </div>
     </div>
 
-</section>
-<!----------footer--------------------------------->
+    <!-- Map Section -->
+    <div class="map-section">
+        <h3>Location Map</h3>
+        <div id="map"></div>
+    </div>
+
+    <!-- Accommodations Section -->
+    <div class="accommodation-section">
+        <h3>Nearby Accommodations</h3>
+        <div id="accommodations" class="accommodations-carousel">
+            <p>Loading nearby accommodations...</p>
+        </div>
+    </div>
+
+    <!-- Smart Recommendations -->
+    <div class="smart-recommendations">
+        <h3>Smart Recommendations</h3>
+        <p>Best suggestions for budget travelers near <strong>{{ blog.title }}</strong>:</p>
+        <div id="budget-accommodations" class="accommodations-carousel">
+            <p>Loading AI recommendations...</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- Styles -->
+<style>
+/* Ensure content is below navbar */
+.blog-detail { padding-top: 80px; }
+
+/* Location card */
+.location-card {
+    display: flex;
+    gap: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+.location-left { flex: 1; font-size: 1rem; }
+.location-right { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; justify-content: flex-end; }
+.image-box img { width: 150px; height: 100px; object-fit: cover; border-radius: 8px; }
+
+/* Map */
+.map-section { margin-bottom: 30px; }
+#map { width: 100%; height: 400px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+/* Accommodations */
+.accommodations-carousel {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding-bottom: 10px;
+    margin-top: 10px;
+}
+.accommodation-card {
+    flex: 0 0 250px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 10px;
+    text-align: center;
+}
+.accommodation-card img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; }
+.accommodation-card h4 { font-size: 1rem; margin: 10px 0 5px; color: #2e7d32; }
+.accommodation-card p { font-size: 0.9rem; color: #555; }
+</style>
+
+<!-- Scripts -->
+<script>
+let blogLocation = {% if blog.location %}{{ blog.location | tojson | safe }}{% else %}{ lat: -37.8720, lng: 175.6820 }{% endif %};
+
+function initMap() {
+    const map = new google.maps.Map(document.getElementById("map"), {
+        center: blogLocation,
+        zoom: 15
+    });
+
+    // Blog marker
+    new google.maps.Marker({
+        map,
+        position: blogLocation,
+        title: "{{ blog.title }}"
+    });
+
+    // Fetch accommodations from Flask
+    fetch(`/places_proxy?lat=${blogLocation.lat}&lng=${blogLocation.lng}`)
+    .then(res => res.json())
+    .then(data => {
+        const carousel = document.getElementById("accommodations");
+        carousel.innerHTML = ""; // clear loading text
+
+        if (!data.results || data.results.length === 0) {
+            carousel.innerHTML = "<p>No nearby accommodations found.</p>";
+            return;
+        }
+
+        data.results.forEach(place => {
+            const photoUrl = place.photos
+                ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key={{ google_api_key }}`
+                : "";
+
+            const card = document.createElement("div");
+            card.className = "accommodation-card";
+            card.innerHTML = `
+                <h4>${place.name}</h4>
+                ${photoUrl ? `<img src="${photoUrl}" alt="${place.name}">` : ""}
+                <p>${place.vicinity || ""}</p>
+            `;
+            carousel.appendChild(card);
+
+            // Map marker
+            new google.maps.marker.AdvancedMarkerElement({
+                map,
+                position: blogLocation,
+                title: "{{ blog.title }}"
+            });
+
+        });
+    })
+    .catch(err => {
+        console.error("Error fetching accommodations:", err);
+        document.getElementById("accommodations").innerHTML =
+            "<p>Could not load accommodations.</p>";
+    });
+
+    // Fetch AI recommendations
+    fetch("/ai_recommend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ location: "{{ blog.title }}", traveler_type: "budget traveler" })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const budgetDiv = document.getElementById("budget-accommodations");
+        budgetDiv.innerHTML = "";
+
+        if (data.error) {
+            budgetDiv.innerHTML = `<p>${data.error}</p>`;
+            return;
+        }
+
+        const aiCard = document.createElement("div");
+        aiCard.className = "accommodation-card";
+        aiCard.innerHTML = `<p>${data.recommendations}</p>`;
+        budgetDiv.appendChild(aiCard);
+    })
+    .catch(err => {
+        console.error("Error fetching AI recommendations:", err);
+        document.getElementById("budget-accommodations").innerHTML =
+            "<p>Could not load AI recommendations.</p>";
+    });
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap&libraries=places&loading=async" async defer></script>
 
 {% endblock %}
-<script>
-  function toggleRead(id) {
-    const dots = document.getElementById(`dots-${id}`);
-    const more = document.getElementById(`more-${id}`);
-    const btn = document.getElementById(`post-btn-${id}`);
-
-    if (!dots || !more || !btn) return; // safety check
-
-    if (more.style.display === "none" || more.style.display === "") {
-      // show more
-      dots.style.display = "none";
-      more.style.display = "inline";
-      btn.innerHTML = "Read Less &nbsp;<i class='fas fa-arrow-left'></i>";
-    } else {
-      // hide more
-      dots.style.display = "inline";
-      more.style.display = "none";
-      btn.innerHTML = "Read More &nbsp;<i class='fas fa-arrow-right'></i>";
-    }
-  }
-</script>
-
