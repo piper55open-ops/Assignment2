@@ -52,7 +52,7 @@ def register():
         except Exception as e:
             flash(f"Error: {str(e)}", "danger")
 
-    return render_template("register.html")
+    return render_template("auth/register.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -76,9 +76,9 @@ def login():
         else:
             flash("Invalid credentials or role", "danger")
 
-    return render_template("login.html")
+    return render_template("auth/login.html")
 
-client = OpenAI(api_key=OPENAI_API_KEY )
+
 @app.route("/locations")
 def locations():
     file_path = os.path.join(app.root_path, "data", "blogs.json")
@@ -135,6 +135,7 @@ def places_proxy():
 
 
 # 🔹 AI Smart Recommendations
+
 @app.route("/ai_recommend", methods=["POST"])
 def ai_recommend():
     data = request.get_json()
