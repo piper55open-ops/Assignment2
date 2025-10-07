@@ -1,0 +1,18 @@
+{
+  "Northland": {"name": "Northland, New Zealand", "lat": -35.6762, "lng": 174.2141},
+  "Auckland": {"name": "Auckland, New Zealand", "lat": -36.8485, "lng": 174.7633},
+  "Waikato": {"name": "Waikato, New Zealand", "lat": -37.7833, "lng": 175.2833},
+  "Bay of Plenty": {"name": "Bay of Plenty, New Zealand", "lat": -37.6878, "lng": 176.1651},
+  "Gisborne": {"name": "Gisborne, New Zealand", "lat": -38.6623, "lng": 178.0176},
+  "Hawke's Bay": {"name": "Hawke's Bay, New Zealand", "lat": -39.4928, "lng": 176.9120},
+  "Taranaki": {"name": "Taranaki, New Zealand", "lat": -39.2900, "lng": 174.0200},
+  "Manawatū-Whanganui": {"name": "Manawatu-Whanganui, New Zealand", "lat": -40.3500, "lng": 175.6100},
+  "Wellington": {"name": "Wellington, New Zealand", "lat": -41.2865, "lng": 174.7762},
+  "Tasman": {"name": "Tasman, New Zealand", "lat": -41.5000, "lng": 172.8000},
+  "Nelson": {"name": "Nelson, New Zealand", "lat": -41.2706, "lng": 173.2830},
+  "Marlborough": {"name": "Marlborough, New Zealand", "lat": -41.5000, "lng": 173.9500},
+  "West Coast": {"name": "West Coast, New Zealand", "lat": -42.4500, "lng": 171.2000},
+  "Canterbury": {"name": "Canterbury, New Zealand", "lat": -43.5000, "lng": 172.6000},
+  "Otago": {"name": "Otago, New Zealand", "lat": -45.8750, "lng": 170.5000},
+  "Southland": {"name": "Southland, New Zealand", "lat": -46.4132, "lng": 168.3538}
+}

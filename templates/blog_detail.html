@@ -65,6 +65,7 @@ function initMap() {
     const map = new google.maps.Map(document.getElementById("map"), {
         center: blogLocation,
         zoom: 15,
+        mapId: "637eba2a5ed228c0679b79b1"
     });
 
     const infoWindow = new google.maps.InfoWindow();
@@ -74,11 +75,11 @@ function initMap() {
         position: blogLocation,
         title: "{{ blog.title }}"
     });
-
+    
     const service = new google.maps.places.PlacesService(map);
     service.nearbySearch({
         location: blogLocation,
-        radius: 2000,
+        radius: 5000,
         type: "lodging"
     }, (results, status) => {
         const accommodationsDiv = document.getElementById('accommodations');
@@ -176,10 +177,9 @@ function initMap() {
     });
 }
 
+
 </script>
 
 <script src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap&libraries=places,marker" async defer></script>
 
-
-<script src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap&libraries=places,marker" async defer></script>
 {% endblock %}

@@ -3,6 +3,7 @@ import sqlite3
 
 class Database:
     _instance = None
+    connection = None 
 
     def __new__(cls):
         if cls._instance is None:
@@ -27,6 +28,14 @@ class Database:
 
         return cls._instance
     
+    def get_connection(self):
+        return self._instance.connection
+
+    def close_connection(self):
+        if self._instance and hasattr(self._instance, "connection"):
+            self._instance.connection.close()
+            type(self)._instance = None
+    
     def execute(self, query, params=None):
         cursor = self.connection.cursor()
         if params:
@@ -35,11 +44,21 @@ class Database:
             cursor.execute(query)
         self.connection.commit()
         return cursor
+    
+    def fetchone(self, query, params=None):
+        cursor = self.connection.cursor()
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        return cursor.fetchone()
 
-    def get_connection(self):
-        return self._instance.connection
+    def fetchall(self, query, params=None):
+        cursor = self.connection.cursor()
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        return cursor.fetchall()
 
-    def close_connection(self):
-        if self._instance and hasattr(self._instance, "connection"):
-            self._instance.connection.close()
-            type(self)._instance = None
+

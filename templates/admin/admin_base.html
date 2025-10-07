@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveller Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="position-fixed d-flex flex-column">
+        <div class="text-center py-3 mb-3 border-bottom">
+            <h4 class="text-white fw-bold">Admin</h4>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+            <a class="nav-link" href="#"><i class="fas fa-users"></i> <span>Users</span></a>
+            <a class="nav-link" href="#"><i class="fas fa-map-marker-alt"></i> <span>Destinations</span></a>
+            <a class="nav-link" href="#"><i class="fas fa-hotel"></i> <span>Accommodations</span></a>
+            <a class="nav-link" href="#"><i class="fas fa-calendar-alt"></i> <span>Events</span></a>
+            <a class="nav-link" href="#"><i class="fas fa-newspaper"></i> <span>Blogs</span></a>
+            <a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> <span>Analytics</span></a>
+            <a class="nav-link" href="#"><i class="fas fa-envelope"></i> <span>Feedback</span></a>
+            <a class="nav-link" href="#"><i class="fas fa-cog"></i> <span>Settings</span></a>
+             <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-cog"></i> <span>Log Out</span></a>
+        </nav>
+        <div class="mt-auto text-center mb-3">
+            <button id="toggleSidebar" class="btn btn-light btn-sm">Toggle</button>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div id="main-content">
+        <!-- Top Navbar -->
+        <nav class="navbar navbar-expand-lg mb-4">
+            <div class="container-fluid">
+                <span class="navbar-brand mb-0 h1">Traveller Admin</span>
+                <!-- Admin info (in navbar) -->
+                <div class="d-flex justify-content-end align-items-center mb-4">
+                   <img src="{{ url_for('static', filename='images/' ~ current_admin['image']) }}" 
+                        alt="{{ current_admin['username'] }}" 
+                        class="rounded-circle me-2" width="40" height="40">
+                    <span>{{ current_admin['username'] }}</span>
+                                        
+                </div>
+
+            </div>
+        </nav>
+
+        <!-- Content block for sub-pages -->
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+    </script>
+</body>
+</html>

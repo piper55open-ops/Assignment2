@@ -1,0 +1,74 @@
+
+        :root {
+            --sidebar-bg: #b08d57;
+            --sidebar-hover: #f5c06f;
+            --card-bg: #f5c06f;
+            --text-color: #333;
+        }
+
+        body {
+            background-color: #fff;
+            color: var(--text-color);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            min-height: 100vh;
+            transition: width 0.3s;
+        }
+
+        #sidebar.collapsed {
+            width: 80px;
+        }
+
+        #sidebar .nav-link {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        #sidebar .nav-link:hover {
+            background-color: var(--sidebar-hover);
+            color: #fff;
+        }
+
+        #sidebar .nav-link i {
+            margin-right: 10px;
+        }
+
+        #sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        /* Main content */
+        #main-content {
+            margin-left: 250px;
+            transition: margin-left 0.3s;
+            padding: 20px;
+        }
+
+        #sidebar.collapsed ~ #main-content {
+            margin-left: 80px;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Cards */
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Scrollable sidebar */
+        #sidebar .nav {
+            flex-direction: column;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+    

@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from models.database import Database
 
 class BlogModel:
@@ -26,4 +29,12 @@ class BlogModel:
 
     def get_blog_by_id(self, blog_id):
         return self.db.fetchone("SELECT * FROM blogs WHERE id = ?", (blog_id,))
+
+    def count_blogs(self):
+        result = self.db.fetchone("SELECT COUNT(*) as count FROM blogs")
+        return result["count"] if result else 0
+    
+    def delete_blog(self, blog_id):
+        self.db.execute("DELETE FROM blogs WHERE id = ?", (blog_id,))
+        
 

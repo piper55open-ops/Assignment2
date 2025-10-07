@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}{{ journey.title }}{% endblock %}
+
+{% block content %}
+
+<!-- Video Hero Section -->
+<div class="container-fluid text-center heading">
+    <video src="{{ url_for('static', filename='videos/video5.mp4') }}" autoplay muted loop id="myVideo"></video>
+    <h1 class="h1" data-aos="fade-up" data-aos-delay="300">Welcome to <span></span>TRAVEL MATE</h1>
+    <h3 class="h3" style="color:white" data-aos="fade-up" data-aos-delay="300">
+        Create memories. Explore cultures. Live your adventure.
+    </h3>
+    <a href="./contact.html" class="btn btn1">Register</a>
+    <a href="./portfolio.html" class="btn btn2">Explore</a>
+</div>
+
+<section class="section-store-intro">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="pray">
+                        <img src="{{ url_for('static', filename='images/tourists1.jpg') }}" alt="">
+                    </div>
+                </div>
+                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="panel-box text-left">
+                        <h4>Featured Stay</h4>
+                        <h1>Cozy Lakeview Retreat in Queenstown</h1>
+                        <p>Escape to serenity! Enjoy panoramic mountain views, warm hospitality, and modern amenities just minutes away from Queenstown’s vibrant center. 
+                            Perfect for couples or solo travelers seeking comfort and adventure.</p>
+                        <a href="login.html">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+      <section class="container">
+        <div class="site-content">
+            <div class="store-1">
+                <div class="container">
+                    <h2>Stories Captured</h2>
+                    <div class="image-gallery">
+                        <a href="{{ url_for('static', filename='images/wall_paper2.jpg') }}" class="img-1"><i class="icon ion-md-expand"></i></a>
+                        <a href="{{ url_for('static', filename='images/wall_paper1.jpg') }}" class="img-2"><i class="icon ion-md-expand"></i></a>
+                        <a href="{{ url_for('static', filename='images/wall_paper3.jpg') }}" class="img-3"><i class="icon ion-md-expand"></i></a>
+                        <a href="{{ url_for('static', filename='images/wall_paper4.jpg') }}" class="img-4"><i class="icon ion-md-expand"></i></a>
+                        <a href="{{ url_for('static', filename='images/wall_paper5.jpg') }}" class="img-5"><i class="icon ion-md-expand"></i></a>
+                        <a href="{{ url_for('static', filename='images/wall_paper2.jpg') }}" class="img-6"><i class="icon ion-md-expand"></i></a>
+                        <a href="{{ url_for('static', filename='images/wall_paper2.jpg') }}" class="img-7"><i class="icon ion-md-expand"></i></a>
+                        <a href="{{ url_for('static', filename='images/wall_paper2.jpg') }}" class="img-8"><i class="icon ion-md-expand"></i></a>
+                    </div>
+                    <section class="section-store-intro">
+                        <div class="container text-center">
+                            <div class="row">
+                                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+                                    <div class="pray">
+                                        <img src="{{ url_for('static', filename='images/wall_paper4.jpg') }}" alt="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+                                    <div class="panel-box text-left">
+                                        <h4>Premium Real Wood Experiance</h4>
+                                        <h1>Modern Style And Ultimate Functionality</h1>
+                                        <p>Delight Seasonal Offers.Please use the ‘Store Locator’ to find your nearest
+                                            Dilight showroom. For further enquires please contact or visit any
+                                            Dlight showroom where our friendly staff will gladly assist you.</p>
+                                        <a href="./login.html">SHOP NOW</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+
+            </div>
+
+            <aside class="sidebar">
+                <div class="popular-post">
+                    <h2>Featured Products</h2>
+                    <div class="post-content">
+                        <p class="blog-meta"> By Admin<span>February 26,2020</span></p>
+                        <img src="./images/furniture/furn13.jpg" alt="">
+                        <h2> Trends In Sofa Designing </h2>
+                        <p class="blog-text">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi atque earum velit dolore
+                            esse ducimu vero expedita illum magnam,
+                            aliquid voluptatem cumque deleniti numquam itaque?
+                        </p>
+                        <p><a href="./login.html" class="read-more-btn">Shop Now </a>
+                        </p>
+                    </div>
+                    <div class="post-content">
+                        <p class="blog-meta">By Admin <span>January 15,2020</span></p>
+                        <img src="./images/furniture/furn19.jpg" alt="">
+                        <h2> Trends In Leather Sofa Designing </h2>
+                        <p class="blog-text">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi atque earum velit dolore
+                            esse ducimu vero expedita illum magnam,
+                            aliquid voluptatem cumque deleniti numquam itaque?
+                        </p>
+                        <p><a href="./login.html" class="read-more-btn">Shop Now </a>
+                        </p>
+                    </div>
+                    <div class="post-content">
+                        <p class="blog-meta">By Admin <span>November 26,2019</span></p>
+                        <img src="./images/furniture/furn9.jpg" alt="">
+                        <h2> Trends In Wooden Sofa Designing </h2>
+                        <p class="blog-text">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi atque earum velit dolore
+                            esse ducimu vero expedita illum magnam,
+                            aliquid voluptatem cumque deleniti numquam itaque?
+                        </p>
+                        <p><a href="./login.html" class="read-more-btn">Shop Now </a>
+                        </p>
+                    </div>
+                    <div class="post-content">
+                        <p class="blog-meta">By Admin <span>December 25,2019</span></p>
+                        <img src="./images/furniture/furn4.jpg" alt="">
+                        <h2> Trends In Recliner Sofa Designing </h2>
+                        <p class="blog-text">
+                            The place where you meet your furniture expectations with the combination of
+                            world class designed and manufactured furniture.
+                        </p>
+                        <p><a href="./login.html" class="read-more-btn">Shop Now </a>
+                        </p>
+                    </div>
+                </div>
+
+             </aside>
+        </div>
+
+    </section>
+<section class="store" data-aos="fade-up" data-aos-delay="200">
+  <div class="container-fluid p-0">
+    <div class="section-heading my-5 text-center" data-aos="fade-up" data-aos-delay="300">
+      <h4 class="sub-headline">Discover & Join</h4>
+      <h1 class="display" style="font-family:var(--Anton)">Upcoming Social Events</h1>
+      <p class="text-muted">Experience culture, adventure, and unforgettable memories with fellow travelers.</p>
+    </div>
+
+    <!-- 🔹 First Row -->
+    <div class="row no-gutters">
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-1 order-xl-1">
+        <img src="{{ url_for('static', filename='images/events/event1.jpg') }}" alt="Queenstown Wine Festival"  class="img-fluid rounded">
+      </div>
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-2 order-xl-2 point-left">
+        <div class="menu-item-desc">
+          <h6>Nov 12, 2025</h6>
+          <h1>Queenstown Wine Festival</h1>
+          <p>Celebrate the region’s finest wines, live music, and stunning lakeside views.</p>
+          <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-4 order-xl-3">
+        <img src="{{ url_for('static', filename='images/events/event2.jpg') }}" alt="Auckland Lantern Festival" class="img-fluid rounded">
+      </div>
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-3 order-xl-4 point-left">
+        <div class="menu-item-desc">
+          <h6>Feb 8, 2026</h6>
+          <h1>Auckland Lantern Festival</h1>
+          <p>Immerse in beautiful lanterns, food stalls, and cultural performances.</p>
+          <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-5 order-xl-5">
+        <img src="{{ url_for('static', filename='images/events/event3.jpg') }}" alt="Rotorua Adventure Week" class="img-fluid rounded">
+      </div>
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-6 order-xl-6 point-left">
+        <div class="menu-item-desc">
+          <h6>Mar 20, 2026</h6>
+          <h1>Rotorua Adventure Week</h1>
+          <p>Adrenaline-packed adventures including zip-lining, rafting, and geothermal hikes.</p>
+          <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔹 Second Row -->
+    <div class="row no-gutters">
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-2 order-xl-2">
+        <img src="{{ url_for('static', filename='images/events/event4.jpg') }}" alt="Wellington Food Carnival" class="img-fluid rounded">
+      </div>
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-1 order-xl-1 point-right">
+        <div class="menu-item-desc">
+          <h6>Apr 10, 2026</h6>
+          <h1>Wellington Food Carnival</h1>
+          <p>Explore world flavors and street food in New Zealand’s culinary capital.</p>
+          <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-3 order-xl-4">
+        <img src="{{ url_for('static', filename='images/events/event5.jpg') }}" alt="Christchurch Art Parade" class="img-fluid rounded">
+      </div>
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-5 order-xl-3 point-right">
+        <div class="menu-item-desc">
+          <h6>May 2, 2026</h6>
+          <h1>Christchurch Art Parade</h1>
+          <p>Celebrate local art, creative workshops, and live street performances.</p>
+          <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-6 order-xl-6">
+        <img src="{{ url_for('static', filename='images/events/event6.jpg') }}" alt="Bay of Islands Music Fest" class="img-fluid rounded">
+      </div>
+      <div class="col-12 col-sm-6 col-xl-2 order-sm-5 order-xl-5 point-right">
+        <div class="menu-item-desc">
+          <h6>Jun 14, 2026</h6>
+          <h1>Bay of Islands Music Fest</h1>
+          <p>Live bands, sea breeze, and the perfect coastal vibe for every traveler.</p>
+          <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  AOS.init({ duration: 800, once: true });
+</script>
+{% endblock %}

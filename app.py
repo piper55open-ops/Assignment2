@@ -1,17 +1,21 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, send_file, url_for, session, flash, jsonify
 from controllers.user_controller import UserController
-import os
-import json
-import math 
-import requests
+import os,json,math,requests
 from dotenv import load_dotenv
 from openai import OpenAI
+from io import BytesIO
+from werkzeug.utils import secure_filename
+from models.user_model import UserModel
+from models.journey_models import JourneyModel
+from models.blog_model import BlogModel
+import time
 
 
 load_dotenv()  # 🔹 loads .env file into environment
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GOOGLE_API_KEY_NEW = os.getenv("GOOGLE_API_KEY_NEW")
 
 
 
@@ -20,12 +24,16 @@ app.secret_key = "supersecret"
 
 user_controller = UserController()
 
+client = OpenAI(api_key=OPENAI_API_KEY )
+user_model = UserModel()
+journey_model = JourneyModel()
+blog_model = BlogModel()
+
 @app.route('/')
 def home():
     return render_template('home.html')
 
-UPLOAD_FOLDER = os.path.join("static", "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'images')
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
@@ -38,22 +46,31 @@ def register():
         password = request.form["password"]
         role = request.form["role"]
 
-        image = None
+        image_filename = None
         if "image" in request.files:
             file = request.files["image"]
             if file.filename:
-                image = file.filename
-                file.save(os.path.join(app.config["UPLOAD_FOLDER"], image))
+                # secure the filename
+                filename = secure_filename(file.filename)
+                # optional: rename to include user role and timestamp to avoid conflicts
+                import time
+                new_filename = f"{role}_{int(time.time())}_{filename}"
+                # save inside static/images
+                file.save(os.path.join(app.config["UPLOAD_FOLDER"], new_filename))
+                image_filename = new_filename
 
         try:
-            user_controller.register_user(username, email, password, role, image)
+            # save user with image_filename
+            user_controller.register_user(username, email, password, role, image_filename)
             flash("Registration successful! Please log in.", "success")
             return redirect(url_for("login"))
         except Exception as e:
             flash(f"Error: {str(e)}", "danger")
 
-    return render_template("register.html")
+    return render_template("auth/register.html")
 
+
+# -------------------- LOGIN --------------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -67,8 +84,8 @@ def login():
             session["role"] = user["role"]
             flash("Login successful!", "success")
 
-            if role == "tourist":
-                return redirect(url_for("tourist_dashboard"))
+            if role == "traveller":
+                return redirect(url_for("traveller_dashboard"))
             elif role == "provider":
                 return redirect(url_for("provider_dashboard"))
             elif role == "admin":
@@ -76,9 +93,15 @@ def login():
         else:
             flash("Invalid credentials or role", "danger")
 
-    return render_template("login.html")
+    return render_template("auth/login.html")
 
-client = OpenAI(api_key=OPENAI_API_KEY )
+# -------------------- LOGOUT --------------------
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("You have been logged out.", "info")
+    return redirect(url_for("login"))
+
 @app.route("/locations")
 def locations():
     file_path = os.path.join(app.root_path, "data", "blogs.json")
@@ -123,15 +146,23 @@ def blog_detail(blog_id):
 def places_proxy():
     lat = request.args.get("lat")
     lng = request.args.get("lng")
-    radius = 2000  # 2km search radius
-    type_ = "lodging"  # hotels, accommodations
+    radius = request.args.get("radius", 2000)
+    type_ = request.args.get("type", "lodging")  # default to lodging if not provided
 
     url = (
         f"https://maps.googleapis.com/maps/api/place/nearbysearch/json"
         f"?location={lat},{lng}&radius={radius}&type={type_}&key={GOOGLE_API_KEY}"
     )
-    response = requests.get(url).json()
-    return jsonify(response)
+
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)}), 500
+
+    return jsonify(data)
+
 
 
 # 🔹 AI Smart Recommendations
@@ -168,17 +199,128 @@ def ask_ai():
 
     return jsonify({"answer": response.choices[0].message.content})
 
-@app.route('/stories')
-def stories():
-    return render_template("stories.html")
+@app.route('/journies')
+def journies():
+    return render_template("journeys.html")
 
 @app.route('/discover')
 def discover():
-    return render_template("discover.html")
+    # Get the absolute path to locations.json
+    base_dir = os.path.abspath(os.path.dirname(__file__))  # directory of app.py
+    json_path = os.path.join(base_dir, "data", "locations.json")
 
-@app.route('/dashboard')
-def dashboard():
-    return render_template("dashboard.html")
+    with open(json_path, "r", encoding="utf-8") as f:
+        regions = json.load(f)
+
+    return render_template("discover.html", regions=regions)
+
+@app.route("/discover_places_proxy")
+def discover_places_proxy():
+    lat = request.args.get("lat")
+    lng = request.args.get("lng")
+    if not lat or not lng:
+        return jsonify({"error": "Missing lat or lng"}), 400
+
+    # Google Places Nearby Search
+    places_url = (
+        "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+        f"?location={lat},{lng}&radius=2000&type=restaurant&key={GOOGLE_API_KEY}"
+    )
+
+    places_res = requests.get(places_url)
+    if places_res.status_code != 200:
+        return jsonify({"error": "Failed to fetch places"}), 500
+
+    data = places_res.json()
+    results = []
+
+    for place in data.get("results", []):
+        photo_url = ""
+        if "photos" in place and len(place["photos"]) > 0:
+            # Instead of returning Google's URL, return our own endpoint
+            photo_ref = place["photos"][0]["photo_reference"]
+            photo_url = f"/places_photo?photoref={photo_ref}"
+
+        results.append({
+            "name": place.get("name"),
+            "photo_url": photo_url,
+            "vicinity": place.get("formatted_address", ""),
+            "geometry": place.get("geometry", {})
+        })
+
+    return jsonify({"results": results})
+
+@app.route("/places_photo")
+def places_photo():
+    photoref = request.args.get("photoref")
+    if not photoref:
+        return "No photo reference provided", 400
+
+    # Google Place Photo URL
+    google_photo_url = (
+        f"https://maps.googleapis.com/maps/api/place/photo"
+        f"?maxwidth=400&photoreference={photoref}&key={GOOGLE_API_KEY}"
+    )
+
+    # Fetch the image from Google
+    response = requests.get(google_photo_url)
+    if response.status_code != 200:
+        return "Failed to fetch photo", response.status_code
+
+    # Convert content to a BytesIO stream
+    img_stream = BytesIO(response.content)
+
+    # Serve image as file
+    return send_file(img_stream, mimetype="image/jpeg")
+    
+# -------------------- DASHBOARDS --------------------
+@app.route("/admin/dashboard")
+def admin_dashboard():
+    # Check role
+    if "role" not in session or session["role"] != "admin":
+        flash("Unauthorized access", "danger")
+        return redirect(url_for("login"))
+
+    # Get current admin from session
+    admin_id = session.get("user_id")  # <-- use user_id from login session
+    admin = None
+    if admin_id:
+        admin = user_model.db.fetchone(
+            "SELECT * FROM users WHERE id=? AND role='admin'",
+            (admin_id,)
+        )
+
+    stats = {
+        "travellers": user_model.count_users_by_role("traveller"),
+        "providers": user_model.count_users_by_role("provider"),
+        "journeys": journey_model.count_journeys(),
+        "blogs": blog_model.count_blogs()
+    }
+
+    recent_journeys = journey_model.get_all_journeys()[:5]
+    recent_blogs = blog_model.get_all_blogs()[:5]
+
+    return render_template(
+        "admin/dashboard.html",
+        current_admin=admin,  # now Jinja will have this variable
+        stats=stats,
+        recent_journeys=recent_journeys,
+        recent_blogs=recent_blogs
+    )
+
+
+
+@app.route("/traveller/dashboard")
+def traveller_dashboard():
+    if session.get("role") == "traveller":
+        return render_template("Traveller_Dashboard/traveller_dashboard.html")
+    return redirect(url_for("login"))
+
+@app.route("/provider/dashboard")
+def provider_dashboard():
+    if session.get("role") == "provider":
+        return render_template("dashboards/provider_dashboard.html")
+    return redirect(url_for("login"))
 
 if __name__ == "__main__":
     app.run(debug=True)
