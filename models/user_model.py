@@ -24,4 +24,15 @@ class UserModel:
         )
 
     def get_user_by_email(self, email):
-        return self.db.fetchone("SELECT * FROM users WHERE email = ?", (email,))
+        cursor = self.db.execute("SELECT * FROM users WHERE email = ?", (email,))
+        row = cursor.fetchone()
+        if row:
+            return {
+                "id": row["id"],
+                "username": row["username"],
+                "email": row["email"],
+                "password": row["password"],
+                "role": row["role"],
+                "image": row["image"]
+            }
+        return None
