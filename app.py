@@ -95,12 +95,15 @@ def login():
 
     return render_template("auth/login.html")
 
+<<<<<<< HEAD
 # -------------------- LOGOUT --------------------
 @app.route("/logout")
 def logout():
     session.clear()
     flash("You have been logged out.", "info")
     return redirect(url_for("login"))
+=======
+>>>>>>> 86f519a1a1a4e54c28eb7a3cfe3f58dbe573bfd7
 
 @app.route("/locations")
 def locations():
@@ -166,6 +169,7 @@ def places_proxy():
 
 
 # 🔹 AI Smart Recommendations
+
 @app.route("/ai_recommend", methods=["POST"])
 def ai_recommend():
     data = request.get_json()
