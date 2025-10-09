@@ -1,0 +1,149 @@
+{% extends "admin/admin_base.html" %}
+{% block content %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<div class="container mt-5">
+  <h2 class="mb-5 fw-bold text-uppercase text-secondary" data-aos="fade-down">Analytics </h2>
+
+  <!-- Top Stat Cards -->
+  <div class="row g-4 text-center mb-5">
+    <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+      <div class="card shadow-lg border-0 rounded-4 stat-card bg-gradient-primary text-white">
+        <div class="card-body">
+          <h6>Total Travellers</h6>
+          <h2>{{ users_by_role['Tourist'] }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+      <div class="card shadow-lg border-0 rounded-4 stat-card bg-gradient-success text-white">
+        <div class="card-body">
+          <h6>Total Providers</h6>
+          <h2>{{ users_by_role['Provider'] }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+      <div class="card shadow-lg border-0 rounded-4 stat-card bg-gradient-warning text-white">
+        <div class="card-body">
+          <h6>Total Locations</h6>
+          <h2>{{ total_locations }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+      <div class="card shadow-lg border-0 rounded-4 stat-card bg-gradient-danger text-white">
+        <div class="card-body">
+          <h6>Active Events</h6>
+          <h2>{{ active_events }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-6" data-aos="fade-right">
+      <div class="card shadow p-4 rounded-4">
+        <h5 class="text-center mb-3 fw-semibold">Users by Role</h5>
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+
+    <div class="col-md-6" data-aos="fade-left">
+      <div class="card shadow p-4 rounded-4">
+        <h5 class="text-center mb-3 fw-semibold">Top Visited Regions</h5>
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" data-aos="zoom-in-up">
+    <div class="col-md-12">
+      <div class="card shadow p-4 rounded-4">
+        <h5 class="text-center mb-3 fw-semibold">Monthly Signups</h5>
+        <canvas id="lineChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  }
+
+  .bg-gradient-primary {
+    background: linear-gradient(45deg, #007bff, #6610f2);
+  }
+
+  .bg-gradient-success {
+    background: linear-gradient(45deg, #28a745, #20c997);
+  }
+
+  .bg-gradient-warning {
+    background: linear-gradient(45deg, #ffc107, #fd7e14);
+  }
+
+  .bg-gradient-danger {
+    background: linear-gradient(45deg, #dc3545, #e83e8c);
+  }
+</style>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+AOS.init();
+
+// Pie Chart
+new Chart(document.getElementById('pieChart'), {
+  type: 'pie',
+  data: {
+    labels: ['Travellers', 'Providers'],
+    datasets: [{
+      data: [{{ users_by_role['Traveller'] }}, {{ users_by_role['Provider'] }}],
+      backgroundColor: ['#007bff', '#28a745']
+    }]
+  }
+});
+
+// Bar Chart
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: [{% for r in top_regions %}'{{ r.region }}',{% endfor %}],
+    datasets: [{
+      label: 'Visits',
+      data: [{% for r in top_regions %}{{ r.visits }},{% endfor %}],
+      backgroundColor: '#ffc107'
+    }]
+  },
+  options: { scales: { y: { beginAtZero: true } } }
+});
+
+// Line Chart
+new Chart(document.getElementById('lineChart'), {
+  type: 'line',
+  data: {
+    labels: [{% for m in monthly_signups %}'{{ m.month }}',{% endfor %}],
+    datasets: [{
+      label: 'Signups',
+      data: [{% for m in monthly_signups %}{{ m.signups }},{% endfor %}],
+      borderColor: '#17a2b8',
+      backgroundColor: 'rgba(23, 162, 184, 0.2)',
+      tension: 0.3,
+      fill: true,
+      pointRadius: 5
+    }]
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,203 @@
+/* ======= Global Reset ======= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #8ec5fc 0%, #e0c3fc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+:root {
+    --primary-color: #4facfe;
+    --admin-color: #cd7f32;
+    --traveller-color: #064e3b;
+    --provider-color: #1e3a8a;
+}
+
+body {
+    transition: background 0.8s ease-in-out;
+}
+
+body.admin {
+    background: linear-gradient(135deg, var(--admin-color), #ffb347);
+}
+
+body.traveller {
+    background: linear-gradient(135deg, var(--traveller-color), #0f766e);
+}
+
+body.provider {
+    background: linear-gradient(135deg, var(--provider-color), #3b82f6);
+}
+
+button {
+    transition: background 0.4s ease-in-out, transform 0.3s ease;
+}
+
+/* ======= Auth Container ======= */
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
+}
+
+/* ======= Auth Card ======= */
+.auth-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    padding: 40px 50px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* ======= Typography ======= */
+h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+}
+
+/* ======= Inputs ======= */
+form input,
+form select {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 12px;
+    border: none;
+    margin: 10px 0;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: background 0.3s ease;
+}
+
+form input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+form select option {
+    color: #000;
+}
+
+form input:focus,
+form select:focus {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+/* ======= Buttons ======= */
+button {
+    width: 100%;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* ======= Links ======= */
+.links {
+    margin-top: 20px;
+}
+
+.links p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 8px;
+}
+
+.links a {
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.links a:hover {
+    color: #00f2fe;
+}
+
+.home-link {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+/* ======= Role Color Accents ======= */
+select[name="role"] {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+select[name="role"]:has(option[value="traveller"]:checked) {
+    border: 2px solid #00f2fe;
+}
+
+select[name="role"]:has(option[value="provider"]:checked) {
+    border: 2px solid #ffb347;
+}
+
+select[name="role"]:has(option[value="admin"]:checked) {
+    border: 2px solid #6a11cb;
+}
+.profile-img-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+/* ======= Animation ======= */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ======= Responsive ======= */
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 30px 25px;
+    }
+
+    h2 {
+        font-size: 1.6rem;
+    }
+}

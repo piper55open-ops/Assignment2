@@ -50,30 +50,38 @@
     <!-- Future Controls / Quick Links -->
     <div class="row">
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-center p-3">
-                <i class="fas fa-user-plus fa-2x mb-2"></i>
-                <h6>Add User</h6>
-            </div>
+            <a href="{{ url_for('admin.admin_users') }}" class="text-decoration-none">
+                <div class="card text-center p-3 shadow-sm">
+                    <i class="fas fa-user-plus fa-2x mb-2"></i>
+                    <h6>Add User</h6>
+                </div>
+            </a>
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-center p-3">
-                <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
-                <h6>Add Destination</h6>
-            </div>
+            <a href="{{ url_for('admin.admin_blogs') }}" class="text-decoration-none">
+                <div class="card text-center p-3 shadow-sm">
+                    <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                    <h6>Add Blog </h6>
+                </div>
+            </a>
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-center p-3">
-                <i class="fas fa-calendar-alt fa-2x mb-2"></i>
-                <h6>Add Event</h6>
-            </div>
+            <a href="{{ url_for('admin.admin_events') }}" class="text-decoration-none">
+                <div class="card text-center p-3 shadow-sm">
+                    <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                    <h6>Add Event</h6>
+                </div>
+            </a>
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-center p-3">
-                <i class="fas fa-newspaper fa-2x mb-2"></i>
-                <h6>Add Blog</h6>
-            </div>
+            <a href="{{ url_for('admin.admin_settings') }}" class="text-decoration-none">
+                <div class="card text-center p-3 shadow-sm">
+                    <i class="fas fa-cog fa-2x mb-2"></i>
+                    <h6>Go To Settings</h6>
+                </div>
+            </a>
         </div>
-    </div>
+</div>
 
 </div>
 

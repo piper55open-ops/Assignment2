@@ -9,7 +9,7 @@ from models.user_model import UserModel
 from models.journey_models import JourneyModel
 from models.blog_model import BlogModel
 import time
-
+from controllers.admin_routes import admin_bp
 
 load_dotenv()  # 🔹 loads .env file into environment
 
@@ -95,15 +95,13 @@ def login():
 
     return render_template("auth/login.html")
 
-<<<<<<< HEAD
 # -------------------- LOGOUT --------------------
 @app.route("/logout")
 def logout():
     session.clear()
     flash("You have been logged out.", "info")
     return redirect(url_for("login"))
-=======
->>>>>>> 86f519a1a1a4e54c28eb7a3cfe3f58dbe573bfd7
+
 
 @app.route("/locations")
 def locations():
@@ -277,7 +275,8 @@ def places_photo():
     # Serve image as file
     return send_file(img_stream, mimetype="image/jpeg")
     
-# -------------------- DASHBOARDS --------------------
+# -------------------- DASHBOARDS ---------------------------------------
+#--------------------------ADMIN DASHBOARD ------------------------------
 @app.route("/admin/dashboard")
 def admin_dashboard():
     # Check role
@@ -306,13 +305,45 @@ def admin_dashboard():
 
     return render_template(
         "admin/dashboard.html",
-        current_admin=admin,  # now Jinja will have this variable
+        current_admin=admin,  
         stats=stats,
         recent_journeys=recent_journeys,
         recent_blogs=recent_blogs
     )
+   
+
+app.register_blueprint(admin_bp)
 
 
+@app.route("/admin/destinations")
+def admin_destinations():
+    return render_template("admin/destinations.html")
+
+@app.route("/admin/accommodations")
+def admin_accommodations():
+    return render_template("admin/accommodations.html")
+
+@app.route("/admin/events")
+def admin_events():
+    return render_template("admin/events.html")
+
+@app.route("/admin/blogs")
+def admin_blogs():
+    return render_template("admin/blogs.html")
+
+@app.route("/admin/analytics")
+def admin_analytics():
+    return render_template("admin/analytics.html")
+
+@app.route("/admin/feedback")
+def admin_feedback():
+    return render_template("admin/feedback.html")
+
+@app.route("/admin/settings")
+def admin_settings():
+    return render_template("admin/settings.html")
+
+#--------------------------ADMIN DASHBOARD END ------------------------------
 
 @app.route("/traveller/dashboard")
 def traveller_dashboard():

@@ -1,0 +1,198 @@
+{% extends "admin/admin_base.html" %}
+{% block content %}
+
+<div class="container-fluid py-4">
+  <!-- Header Row -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-uppercase text-secondary">Blog Management</h3>
+    <button class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#addBlogModal">
+      <i class="bi bi-plus-circle me-2"></i>Add Blog
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="mb-3">
+    <input type="text" id="searchInput" class="form-control shadow-sm" placeholder="Search blogs by title...">
+  </div>
+
+  <!-- Blog Table -->
+  <div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body">
+      <table class="table align-middle table-hover text-center" id="blogTable">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Short Description</th>
+            <th>Image</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for blog in blogs %}
+          <tr>
+            <td>{{ blog.id }}</td>
+            <td>{{ blog.title }}</td>
+            <td>{{ blog.short_description }}</td>
+            <td>
+              {% if blog.image %}
+              <img src="{{ url_for('static', filename=blog.image) }}" class="rounded" width="80" height="60">
+              {% else %}
+              <span class="text-muted">No Image</span>
+              {% endif %}
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-gold me-2"
+                      data-bs-toggle="modal"
+                      data-bs-target="#updateBlogModal"
+                      onclick="openUpdateModal({{ blog.id }}, '{{ blog.title }}', '{{ blog.short_description }}', '{{ blog.full_description }}', '{{ blog.image }}')">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteBlog({{ blog.id }})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 🟢 Add Blog Modal -->
+<div class="modal fade" id="addBlogModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4 border-0 shadow">
+      <div class="modal-header bg-gold text-white">
+        <h5 class="modal-title fw-bold">Add New Blog</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="addBlogForm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" name="title" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Short Description</label>
+            <textarea name="short_description" class="form-control" rows="2" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Full Description</label>
+            <textarea name="full_description" class="form-control" rows="4" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Image Path (e.g., images/blogs/blog1.jpg)</label>
+            <input type="text" name="image" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-gold">Save Blog</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 🟡 Update Blog Modal -->
+<div class="modal fade" id="updateBlogModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4 border-0 shadow">
+      <div class="modal-header bg-gold text-white">
+        <h5 class="modal-title fw-bold">Update Blog</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="updateBlogForm">
+        <div class="modal-body">
+          <input type="hidden" name="id" id="updateBlogId">
+          <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" name="title" id="updateTitle" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Short Description</label>
+            <textarea name="short_description" id="updateShort" class="form-control" rows="2"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Full Description</label>
+            <textarea name="full_description" id="updateFull" class="form-control" rows="4"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Image Path</label>
+            <input type="text" name="image" id="updateImage" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-gold">Update Blog</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 🔍 Search
+  const searchInput = document.getElementById("searchInput");
+  searchInput.addEventListener("keyup", () => {
+    const filter = searchInput.value.toLowerCase();
+    document.querySelectorAll("#blogTable tbody tr").forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
+    });
+  });
+
+  // 🟢 Add Blog
+  document.getElementById("addBlogForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const response = await fetch("/admin/blogs/add", { method: "POST", body: formData });
+    const result = await response.json();
+    alert(result.message);
+    if (result.status === "success") location.reload();
+  });
+
+  // 🟡 Open Update Modal
+  function openUpdateModal(id, title, short, full, image) {
+    document.getElementById("updateBlogId").value = id;
+    document.getElementById("updateTitle").value = title;
+    document.getElementById("updateShort").value = short;
+    document.getElementById("updateFull").value = full;
+    document.getElementById("updateImage").value = image;
+  }
+
+  // 🟡 Update Blog
+  document.getElementById("updateBlogForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.getElementById("updateBlogId").value;
+    const formData = new FormData(e.target);
+    const response = await fetch(`/admin/blogs/update/${id}`, { method: "POST", body: formData });
+    const result = await response.json();
+    alert(result.message);
+    if (result.status === "success") location.reload();
+  });
+
+  // 🔴 Delete Blog
+  async function deleteBlog(id) {
+    if (!confirm("Are you sure you want to delete this blog?")) return;
+    const response = await fetch(`/admin/blogs/delete/${id}`, { method: "DELETE" });
+    const result = await response.json();
+    alert(result.message);
+    if (result.status === "success") location.reload();
+  }
+</script>
+
+<style>
+  .btn-gold { background-color: #b8860b; color: #fff; border: none; }
+  .btn-gold:hover { background-color: #a67c00; }
+  .btn-outline-gold { color: #b8860b; border: 1px solid #b8860b; }
+  .btn-outline-gold:hover { background-color: #b8860b; color: #fff; }
+  .bg-gold { background-color: #b8860b !important; }
+  .form-control:focus {
+    border-color: #b8860b;
+    box-shadow: 0 0 0 0.2rem rgba(184, 134, 11, 0.25);
+  }
+</style>
+
+{% endblock %}

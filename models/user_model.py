@@ -27,7 +27,6 @@ class UserModel:
         )
 
     def get_user_by_email(self, email):
-<<<<<<< HEAD
         return self.db.fetchone("SELECT * FROM users WHERE email = ?", (email,))
     
     def count_users_by_role(self, role):
@@ -39,18 +38,8 @@ class UserModel:
     
     def get_user_by_id(self, user_id):
         return self.db.fetchone("SELECT * FROM users WHERE id = ?", (user_id,))
+    
+    def get_users_by_role(self, role):
+        return self.db.fetchall("SELECT * FROM users WHERE role=?", (role,))
 
-=======
-        cursor = self.db.execute("SELECT * FROM users WHERE email = ?", (email,))
-        row = cursor.fetchone()
-        if row:
-            return {
-                "id": row["id"],
-                "username": row["username"],
-                "email": row["email"],
-                "password": row["password"],
-                "role": row["role"],
-                "image": row["image"]
-            }
-        return None
->>>>>>> 86f519a1a1a4e54c28eb7a3cfe3f58dbe573bfd7
+
