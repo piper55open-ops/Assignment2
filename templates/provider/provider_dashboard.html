@@ -1,0 +1,130 @@
+{% extends "provider/provider_base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card text-center p-3" style="background-color:#007bff;color:#fff;">
+                <h5>Total Properties</h5>
+                <h3>{{ total_properties }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card text-center p-3" style="background-color:#007bff;color:#fff;">
+                <h5>Total Promotions</h5>
+                <h3>{{ total_promotions }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card text-center p-3" style="background-color:#007bff;color:#fff;">
+                <h5>Total Bookings</h5>
+                <h3>{{ total_bookings }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card text-center p-3" style="background-color:#007bff;color:#fff;">
+                <h5>Total Reviews</h5>
+                <h3>{{ total_reviews }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card p-3">
+                <h5 class="card-title">Property Bookings Overview</h5>
+                <canvas id="bookingsChart" height="250"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card p-3">
+                <h5 class="card-title">Promotion Performance</h5>
+                <canvas id="promotionsChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <a href="#" class="text-decoration-none">
+                <div class="card text-center p-3 shadow-sm">
+                    <i class="fas fa-home fa-2x mb-2"></i>
+                    <h6>Add Property</h6>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <a href="#" class="text-decoration-none">
+                <div class="card text-center p-3 shadow-sm">
+                    <i class="fas fa-tags fa-2x mb-2"></i>
+                    <h6>Manage Promotions</h6>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <a href="#" class="text-decoration-none">
+                <div class="card text-center p-3 shadow-sm">
+                    <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                    <h6>View Bookings</h6>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <a href="#" class="text-decoration-none">
+                <div class="card text-center p-3 shadow-sm">
+                    <i class="fas fa-cog fa-2x mb-2"></i>
+                    <h6>Go To Settings</h6>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<!-- Charts JS -->
+<script>
+    // Bookings Chart
+    const ctxBookings = document.getElementById('bookingsChart').getContext('2d');
+    const bookingsChart = new Chart(ctxBookings, {
+        type: 'bar',
+        data: {
+            labels: {{ booking_labels | default([]) | safe }},
+            datasets: [{
+                label: 'Bookings',
+                data: {{ booking_data | default([]) | safe }},
+                backgroundColor: '#007bff'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Promotions Chart
+    const ctxPromotions = document.getElementById('promotionsChart').getContext('2d');
+    const promotionsChart = new Chart(ctxPromotions, {
+        type: 'pie',
+        data: {
+            labels: ['Active', 'Expired'],
+            datasets: [{
+                label: 'Promotions',
+                data: [{{ active_promotions | default(0) }}, {{ expired_promotions | default(0) }}],
+                backgroundColor: ['#007bff', '#5dade2'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>
+{% endblock %}

@@ -19,43 +19,62 @@
   <div class="card shadow-sm border-0 rounded-4">
     <div class="card-body">
       <table class="table align-middle table-hover text-center" id="blogTable">
-        <thead class="table-light">
-          <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Short Description</th>
-            <th>Image</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for blog in blogs %}
-          <tr>
-            <td>{{ blog.id }}</td>
-            <td>{{ blog.title }}</td>
-            <td>{{ blog.short_description }}</td>
-            <td>
-              {% if blog.image %}
-              <img src="{{ url_for('static', filename=blog.image) }}" class="rounded" width="80" height="60">
-              {% else %}
-              <span class="text-muted">No Image</span>
-              {% endif %}
-            </td>
-            <td>
-              <button class="btn btn-sm btn-outline-gold me-2"
-                      data-bs-toggle="modal"
-                      data-bs-target="#updateBlogModal"
-                      onclick="openUpdateModal({{ blog.id }}, '{{ blog.title }}', '{{ blog.short_description }}', '{{ blog.full_description }}', '{{ blog.image }}')">
-                <i class="bi bi-pencil-square"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-danger" onclick="deleteBlog({{ blog.id }})">
-                <i class="bi bi-trash"></i>
-              </button>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+              <thead class="table-light">
+                  <tr>
+                      <th>ID</th>
+                      <th>Title</th>
+                      <th>Author</th>
+                      <th>Date</th>
+                      <th>Short Description</th>
+                      <th>Image</th>
+                      <th>Actions</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for blog in blogs %}
+                  <tr>
+                      <td>{{ blog.id }}</td>
+                      <td>{{ blog.title }}</td>
+                      <td>{{ blog.author }}</td>
+                      <td>{{ blog.date }}</td>
+                      
+                      <!-- Short description truncated to 100 chars, with full text in tooltip -->
+                      <td title="{{ blog.short_description }}">{{ blog.short_description[:40] }}{% if blog.short_description|length > 100 %}...{% endif %}</td>
+                      
+                      <!-- Image handling -->
+                      <td>
+                          {% if blog.image %}
+                          <img src="{{ url_for('static', filename='images/' ~ blog.image.split('/')[-1]) }}" 
+                              class="rounded" width="80" height="60">
+                          {% else %}
+                          <span class="text-muted">No Image</span>
+                          {% endif %}
+                      </td>
+                      
+                      <!-- Actions buttons with safe JS escaping -->
+                      <td>
+                          <button class="btn btn-sm btn-outline-gold me-2"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#updateBlogModal"
+                                  onclick="openUpdateModal(
+                                      {{ blog.id }},
+                                      {{ blog.title|tojson }},
+                                      {{ blog.author|tojson }},
+                                      {{ blog.date|tojson }},
+                                      {{ blog.short_description|tojson }},
+                                      {{ blog.full_description|tojson }},
+                                      {{ blog.image|tojson }}
+                                  )">
+                              <i class="bi bi-pencil-square"></i> UPDATE
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger" onclick="deleteBlog({{ blog.id }})">
+                              <i class="bi bi-trash"></i> DELETE
+                          </button>
+                      </td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
     </div>
   </div>
 </div>
@@ -183,16 +202,5 @@
   }
 </script>
 
-<style>
-  .btn-gold { background-color: #b8860b; color: #fff; border: none; }
-  .btn-gold:hover { background-color: #a67c00; }
-  .btn-outline-gold { color: #b8860b; border: 1px solid #b8860b; }
-  .btn-outline-gold:hover { background-color: #b8860b; color: #fff; }
-  .bg-gold { background-color: #b8860b !important; }
-  .form-control:focus {
-    border-color: #b8860b;
-    box-shadow: 0 0 0 0.2rem rgba(184, 134, 11, 0.25);
-  }
-</style>
 
 {% endblock %}

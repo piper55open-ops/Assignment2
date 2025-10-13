@@ -1,15 +1,25 @@
-from flask import Flask, render_template, request, redirect, send_file, url_for, session, flash, jsonify
-from controllers.user_controller import UserController
-import os,json,math,requests
-from dotenv import load_dotenv
-from openai import OpenAI
-from io import BytesIO
+from flask import Blueprint, render_template, request, redirect, send_file, url_for,flash, jsonify,session
+import os
+import json
 from werkzeug.utils import secure_filename
+import math
+from io import BytesIO
+
+import requests
+from dotenv import load_dotenv
+from flask import Flask, session
+from openai import OpenAI
+
+from controllers.user_controller import UserController
 from models.user_model import UserModel
 from models.journey_models import JourneyModel
 from models.blog_model import BlogModel
-import time
+from models.provider_model import ProviderModel
+from models.property_model import PropertyModel
+from models.promotion_model import PromotionModel
+
 from controllers.admin_routes import admin_bp
+from controllers.provider_routes import provider_bp
 
 load_dotenv()  # 🔹 loads .env file into environment
 
@@ -17,10 +27,8 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GOOGLE_API_KEY_NEW = os.getenv("GOOGLE_API_KEY_NEW")
 
-
-
 app = Flask(__name__)
-app.secret_key = "supersecret"  
+app.secret_key = "super_secret_key_123" 
 
 user_controller = UserController()
 
@@ -28,6 +36,9 @@ client = OpenAI(api_key=OPENAI_API_KEY )
 user_model = UserModel()
 journey_model = JourneyModel()
 blog_model = BlogModel()
+provider_model = ProviderModel()
+property_model = PropertyModel()
+promotion_model = PromotionModel()
 
 @app.route('/')
 def home():
@@ -74,26 +85,29 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
-        role = request.form["role"]
+        email = request.form["email"].strip()
+        password = request.form["password"].strip()
+        role = request.form["role"].lower().strip()
 
         user = user_controller.login_user(email, password)
-        if user and user["role"] == role:
+
+        if user and user["role"].lower() == role:
             session["user_id"] = user["id"]
-            session["role"] = user["role"]
+            session["role"] = user["role"].lower()
             flash("Login successful!", "success")
+            print("SESSION DATA:", dict(session)) 
 
             if role == "traveller":
                 return redirect(url_for("traveller_dashboard"))
             elif role == "provider":
-                return redirect(url_for("provider_dashboard"))
+                return redirect(url_for("provider.provider_dashboard"))
             elif role == "admin":
                 return redirect(url_for("admin_dashboard"))
         else:
             flash("Invalid credentials or role", "danger")
 
     return render_template("auth/login.html")
+
 
 # -------------------- LOGOUT --------------------
 @app.route("/logout")
@@ -315,34 +329,6 @@ def admin_dashboard():
 app.register_blueprint(admin_bp)
 
 
-@app.route("/admin/destinations")
-def admin_destinations():
-    return render_template("admin/destinations.html")
-
-@app.route("/admin/accommodations")
-def admin_accommodations():
-    return render_template("admin/accommodations.html")
-
-@app.route("/admin/events")
-def admin_events():
-    return render_template("admin/events.html")
-
-@app.route("/admin/blogs")
-def admin_blogs():
-    return render_template("admin/blogs.html")
-
-@app.route("/admin/analytics")
-def admin_analytics():
-    return render_template("admin/analytics.html")
-
-@app.route("/admin/feedback")
-def admin_feedback():
-    return render_template("admin/feedback.html")
-
-@app.route("/admin/settings")
-def admin_settings():
-    return render_template("admin/settings.html")
-
 #--------------------------ADMIN DASHBOARD END ------------------------------
 
 @app.route("/traveller/dashboard")
@@ -351,11 +337,12 @@ def traveller_dashboard():
         return render_template("Traveller_Dashboard/traveller_dashboard.html")
     return redirect(url_for("login"))
 
-@app.route("/provider/dashboard")
-def provider_dashboard():
-    if session.get("role") == "provider":
-        return render_template("dashboards/provider_dashboard.html")
-    return redirect(url_for("login"))
+#--------------------------PROVIDER DASHBOARD------------------------------
+
+app.register_blueprint(provider_bp)
+
+#--------------------------PROVIDER DASHBOARD------------------------------
 
 if __name__ == "__main__":
     app.run(debug=True)
+    

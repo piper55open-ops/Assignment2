@@ -7,17 +7,12 @@ class Database:
 
     def __new__(cls):
         if cls._instance is None:
-            # Determine path for the database
             db_path = os.path.join(os.path.dirname(__file__), "..", "database", "app.db")
-            db_path = os.path.abspath(db_path)  # convert to absolute path
-
-            # Ensure the folder exists
+            db_path = os.path.abspath(db_path)
             os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
-            # Create the instance
             cls._instance = super(Database, cls).__new__(cls)
-            
-            # Connect to the SQLite database (it will create the file if it doesn't exist)
+
             try:
                 cls._instance.connection = sqlite3.connect(db_path, check_same_thread=False)
                 cls._instance.connection.row_factory = sqlite3.Row
@@ -27,15 +22,16 @@ class Database:
                 raise e
 
         return cls._instance
-    
+
     def get_connection(self):
-        return self._instance.connection
+        return self.connection
 
     def close_connection(self):
-        if self._instance and hasattr(self._instance, "connection"):
-            self._instance.connection.close()
+        if self.connection:
+            self.connection.close()
             type(self)._instance = None
-    
+
+    # -------------------- EXECUTE --------------------
     def execute(self, query, params=None):
         cursor = self.connection.cursor()
         if params:
@@ -44,21 +40,25 @@ class Database:
             cursor.execute(query)
         self.connection.commit()
         return cursor
-    
+
+    # -------------------- FETCH SINGLE --------------------
     def fetchone(self, query, params=None):
         cursor = self.connection.cursor()
         if params:
             cursor.execute(query, params)
         else:
             cursor.execute(query)
-        return cursor.fetchone()
+        row = cursor.fetchone()
+        if row:
+            return dict(row)  # <-- Automatically convert to dict
+        return None
 
+    # -------------------- FETCH ALL --------------------
     def fetchall(self, query, params=None):
         cursor = self.connection.cursor()
         if params:
             cursor.execute(query, params)
         else:
             cursor.execute(query)
-        return cursor.fetchall()
-
-
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]  # <-- Automatically convert all rows to dict

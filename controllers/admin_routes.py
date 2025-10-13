@@ -184,26 +184,29 @@ def admin_blogs():
 @admin_bp.route("/blogs/add", methods=["POST"])
 def add_blog():
     title = request.form.get("title")
+    author = request.form.get("author") or "Admin"  # Default if not provided
+    date = request.form.get("date") or "2025-10-09"  # Optional: auto-fill or use datetime.now().strftime(...)
     short_description = request.form.get("short_description")
     full_description = request.form.get("full_description")
     image = request.form.get("image")
 
-    blog_model.add_blog(title, short_description, full_description, image)
-    return jsonify({"status": "success", "message": "Blog added successfully!"})
+    try:
+        blog_model.add_blog(title, author, date, short_description, full_description, image)
+        return jsonify({"status": "success", "message": "Blog added successfully!"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 # 🟡 Update Blog
 @admin_bp.route("/blogs/update/<int:blog_id>", methods=["POST"])
 def update_blog(blog_id):
     title = request.form.get("title")
+    author = request.form.get("author") or "Admin"
+    date = request.form.get("date") or "2025-10-09"
     short_description = request.form.get("short_description")
     full_description = request.form.get("full_description")
     image = request.form.get("image")
 
-    # Reuse add_blog logic (you can create an update method if needed)
-    blog_model.db.execute(
-        "UPDATE blogs SET title=?, short_description=?, full_description=?, image=? WHERE id=?",
-        (title, short_description, full_description, image, blog_id)
-    )
+    blog_model.update_blog(blog_id, title, author, date, short_description, full_description, image)
     return jsonify({"status": "success", "message": "Blog updated successfully!"})
 
 # 🔴 Delete Blog

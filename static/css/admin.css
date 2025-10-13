@@ -71,14 +71,12 @@ body {
     overflow-y: auto;
 }
 
-.btn-gold {
-    background-color: #b8860b !important;
-    /* added !important */
-    color: #fff !important;
-    border: none !important;
-}
-
-.btn-gold:hover {
-    background-color: #a67c00 !important;
-    color: #fff !important;
-}
+  .btn-gold { background-color: #b8860b; color: #fff; border: none; }
+  .btn-gold:hover { background-color: #a67c00; }
+  .btn-outline-gold { color: #b8860b; border: 1px solid #b8860b; }
+  .btn-outline-gold:hover { background-color: #b8860b; color: #fff; }
+  .bg-gold { background-color: #b8860b !important; }
+  .form-control:focus {
+    border-color: #b8860b;
+    box-shadow: 0 0 0 0.2rem rgba(184, 134, 11, 0.25);
+  }

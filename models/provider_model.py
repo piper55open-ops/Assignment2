@@ -1,45 +1,51 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from models.database import Database
 
 class ProviderModel:
     def __init__(self):
         self.db = Database()
-        self.create_table()
 
     def create_table(self):
-        # Drop table if exists
-        self.db.execute("DROP TABLE IF EXISTS providers")
-
-        # Create new providers table
         self.db.execute("""
-            CREATE TABLE providers (
+            CREATE TABLE IF NOT EXISTS providers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
+                user_id INTEGER UNIQUE NOT NULL,
                 hotel_name TEXT NOT NULL,
                 hotel_address TEXT NOT NULL,
                 website_url TEXT,
                 image TEXT,
-                registered_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                registered_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
             )
         """)
 
-    def add_provider(self, username, email, hotel_name, hotel_address, website_url=None, image=None):
-        self.db.execute(
-            "INSERT INTO providers (username, email, hotel_name, hotel_address, website_url, image) VALUES (?, ?, ?, ?, ?, ?)",
-            (username, email, hotel_name, hotel_address, website_url, image)
-        )
+    def get_current_provider(self,user_id):
+        query = """
+            SELECT p.*, u.username, u.email
+            FROM providers p
+            JOIN users u ON p.user_id = u.id
+            WHERE p.user_id = ?
+        """
+        return self.db.fetchone(query, (user_id,))
 
+
+    def count_properties(self, provider_id):
+        """Count total properties owned by provider"""
+        result = self.db.fetchone("SELECT COUNT(*) as total FROM properties WHERE provider_id = ?", (provider_id,))
+        return result["total"] if result else 0
+
+    def count_promotions(self, provider_id):
+        """Count total promotions created by provider"""
+        result = self.db.fetchone("SELECT COUNT(*) as total FROM promotions WHERE provider_id = ?", (provider_id,))
+        return result["total"] if result else 0
+
+    def calculate_profile_completion(self, provider):
+        """Rough profile completion calculation"""
+        filled_fields = sum(bool(provider[field]) for field in ["hotel_name", "hotel_address", "website_url", "image"])
+        total_fields = 4
+        return int((filled_fields / total_fields) * 100)
+    
     def get_all_providers(self):
-        return self.db.fetchall("SELECT * FROM providers")
-
-    def get_provider_by_id(self, provider_id):
-        return self.db.fetchone("SELECT * FROM providers WHERE id=?", (provider_id,))
-
-    def update_provider(self, provider_id, username, email, hotel_name, hotel_address, website_url=None, image=None):
-        self.db.execute("""
-            UPDATE providers SET username=?, email=?, hotel_name=?, hotel_address=?, website_url=?, image=?
-            WHERE id=?
-        """, (username, email, hotel_name, hotel_address, website_url, image, provider_id))
-
-    def delete_provider(self, provider_id):
-        self.db.execute("DELETE FROM providers WHERE id=?", (provider_id,))
+        return self.db.fetchall("SELECT * FROM users WHERE role = 'provider' ")
