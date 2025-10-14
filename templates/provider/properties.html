@@ -1,0 +1,279 @@
+{% extends "provider/provider_base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-uppercase text-secondary">My Property Management</h3>
+    <button class="btn btn-blue" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
+      <i class="bi bi-house-add me-2"></i>Add Property
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-3">
+    <input type="text" id="propertySearch" class="form-control shadow-sm" placeholder="Search properties by name or location...">
+  </div>
+
+  <!-- Property Table -->
+  <div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body">
+      <h5 class="fw-bold mb-3 text-secondary">My Properties</h5>
+      <table class="table align-middle table-hover" id="propertyTable">
+        <thead class="table-light text-center">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Price/Day ($)</th>
+            <th>Max Guests</th>
+            <th>Food</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody class="text-center">
+          {% for property in properties %}
+          <tr>
+            <td>{{ property.id }}</td>
+            <td>{{ property.name }}</td>
+            <td>{{ property.property_type }}</td>
+            <td>{{ property.location }}</td>
+            <td>{{ property.price_per_day }}</td>
+            <td>{{ property.max_guests }}</td>
+            <td>{{ 'Yes' if property.food_available else 'No' }}</td>
+            <td>
+              <span class="badge bg-{{ 'success' if property.status == 'Active' else 'secondary' }}">
+                {{ property.status }}
+              </span>
+            </td>
+            <td>{{ property.created_date }}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-blue me-2"
+                      data-bs-toggle="modal"
+                      data-bs-target="#updatePropertyModal"
+                      onclick="openUpdateModal({{ property.id }}, '{{ property.name }}', '{{ property.property_type }}', '{{ property.location }}', {{ property.price_per_day }}, {{ property.max_guests }}, {{ property.food_available }}, '{{ property.facilities }}', '{{ property.status }}')">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteProperty({{ property.id }})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 🟤 Add Property Modal -->
+<div class="modal fade" id="addPropertyModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow">
+      <div class="modal-header bg-blue text-white">
+        <h5 class="modal-title fw-bold">Add New Property</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="addPropertyForm" enctype="multipart/form-data">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Property Name</label>
+              <input type="text" class="form-control" name="name" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Type</label>
+              <select class="form-select" name="property_type" required>
+                <option value="">Select Type</option>
+                <option>House</option>
+                <option>Apartment</option>
+                <option>Room</option>
+                <option>Hut</option>
+                <option>Cabin</option>
+                <option>Villa</option>
+                <option>Bungalow</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Location</label>
+              <input type="text" class="form-control" name="location">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Price per Day ($)</label>
+              <input type="number" step="0.01" class="form-control" name="price_per_day" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Max Guests</label>
+              <input type="number" class="form-control" name="max_guests" min="1" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Food Available</label>
+              <select class="form-select" name="food_available">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Facilities</label>
+              <textarea class="form-control" name="facilities" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Image</label>
+              <input type="file" class="form-control" name="image" accept="image/*">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-blue">Save Property</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 🟤 Update Property Modal -->
+<div class="modal fade" id="updatePropertyModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow">
+      <div class="modal-header bg-blue text-white">
+        <h5 class="modal-title fw-bold">Update Property</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="updatePropertyForm">
+        <div class="modal-body">
+          <input type="hidden" name="id">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Property Name</label>
+              <input type="text" class="form-control" name="name" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Type</label>
+              <select class="form-select" name="property_type">
+                <option>House</option>
+                <option>Apartment</option>
+                <option>Room</option>
+                <option>Hut</option>
+                <option>Cabin</option>
+                <option>Villa</option>
+                <option>Bungalow</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Location</label>
+              <input type="text" class="form-control" name="location">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Price per Day ($)</label>
+              <input type="number" step="0.01" class="form-control" name="price_per_day">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Max Guests</label>
+              <input type="number" class="form-control" name="max_guests">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Food Available</label>
+              <select class="form-select" name="food_available">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Facilities</label>
+              <textarea class="form-control" name="facilities" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Status</label>
+              <select class="form-select" name="status">
+                <option>Active</option>
+                <option>Inactive</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-blue">Update Property</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- JS -->
+{% block extra_js %}
+<script>
+  // 🟢 ADD PROPERTY
+  document.getElementById("addPropertyForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    const response = await fetch("/provider/properties/add", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+    alert(data.message);
+    location.reload();
+  });
+
+  // 🟡 OPEN UPDATE MODAL
+  function openUpdateModal(id, name, property_type, location, price_per_day, max_guests, food_available, facilities, status) {
+    const form = document.getElementById("updatePropertyForm");
+    form.querySelector("[name='id']").value = id;
+    form.querySelector("[name='name']").value = name;
+    form.querySelector("[name='property_type']").value = property_type;
+    form.querySelector("[name='location']").value = location;
+    form.querySelector("[name='price_per_day']").value = price_per_day;
+    form.querySelector("[name='max_guests']").value = max_guests;
+    form.querySelector("[name='food_available']").value = food_available;
+    form.querySelector("[name='facilities']").value = facilities;
+    form.querySelector("[name='status']").value = status;
+  }
+
+  // 🟠 UPDATE PROPERTY
+  document.getElementById("updatePropertyForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const response = await fetch("/provider/properties/update", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+    alert(data.message);
+    location.reload();
+  });
+
+  // 🔴 DELETE PROPERTY
+  async function deleteProperty(id) {
+    if (confirm("Are you sure you want to delete this property?")) {
+      const response = await fetch(`/provider/properties/delete/${id}`, { method: "POST" });
+      const data = await response.json();
+      alert(data.message);
+      location.reload();
+    }
+  }
+
+  // 🔍 SEARCH BAR
+  document.getElementById("propertySearch")?.addEventListener("keyup", function() {
+    const filter = this.value.toLowerCase();
+    document.querySelectorAll("#propertyTable tbody tr").forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
+    });
+  });
+</script>
+{% endblock %}
+
+{% endblock %}
+
+
+

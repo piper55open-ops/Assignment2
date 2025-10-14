@@ -49,3 +49,4 @@ class ProviderModel:
     
     def get_all_providers(self):
         return self.db.fetchall("SELECT * FROM users WHERE role = 'provider' ")
+    

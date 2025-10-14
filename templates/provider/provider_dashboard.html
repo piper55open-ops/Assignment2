@@ -50,7 +50,7 @@
     <!-- Quick Links -->
     <div class="row">
         <div class="col-md-3 col-sm-6 mb-3">
-            <a href="#" class="text-decoration-none">
+            <a href="{{ url_for('provider.properties') }}" class="text-decoration-none">
                 <div class="card text-center p-3 shadow-sm">
                     <i class="fas fa-home fa-2x mb-2"></i>
                     <h6>Add Property</h6>
@@ -58,7 +58,7 @@
             </a>
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
-            <a href="#" class="text-decoration-none">
+            <a href="{{ url_for('provider.promotions') }}" class="text-decoration-none">
                 <div class="card text-center p-3 shadow-sm">
                     <i class="fas fa-tags fa-2x mb-2"></i>
                     <h6>Manage Promotions</h6>
@@ -74,10 +74,10 @@
             </a>
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
-            <a href="#" class="text-decoration-none">
+            <a href="{{ url_for('provider.profile') }}" class="text-decoration-none">
                 <div class="card text-center p-3 shadow-sm">
                     <i class="fas fa-cog fa-2x mb-2"></i>
-                    <h6>Go To Settings</h6>
+                    <h6>Go To Profile</h6>
                 </div>
             </a>
         </div>
