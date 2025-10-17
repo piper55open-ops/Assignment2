@@ -1,0 +1,80 @@
+{% extends "traveller/traveller_base.html" %}
+
+{% block content %}
+
+
+<div class="container-fluid mt-4 fade-in">
+  <!-- Welcome Header -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="welcome-box">
+        <h3>Welcome, {{ traveller_name }}</h3>
+        <p>Plan your next adventure, track your memories, and explore New Zealand’s best destinations!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Row -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <!-- Seasonal Recommendations -->
+      <h5 class="mt-4 text-primary">🌤 Recommended Places This Season</h5>
+      <div class="row g-3">
+        {% for place in seasonal_places %}
+        <div class="col-md-4">
+          <div class="card shadow-sm border-0 rounded-4 place-card fade-in">
+            <img src="{{ place.image }}" class="card-img-top" height="180" style="object-fit:cover;">
+            <div class="card-body">
+              <h6 class="card-title fw-semibold">{{ place.name }}</h6>
+              <p class="card-text small text-muted">{{ place.description }}</p>
+              <a href="{{ place.link }}" class="btn btn-sm btn-primary" target="_blank">Explore</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Right Side -->
+    <div class="col-md-4">
+      <!-- Calendar -->
+      <div class="card calendar-card shadow-sm mb-4 fade-in">
+        <div class="card-body">
+          <h6 class="fw-semibold mb-3 text-success">🗓 My Calendar</h6>
+          <iframe src="https://calendar.google.com/calendar/embed?mode=MONTH&height=300&wkst=1&bgcolor=%23ffffff"
+                  style="border:0" width="100%" height="300" frameborder="0" scrolling="no"></iframe>
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div class="card map-card shadow-sm fade-in">
+        <div class="card-body">
+          <h6 class="fw-semibold mb-3 text-danger">🗺 New Zealand Map</h6>
+          <div id="nzMap" style="height:300px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Map Script -->
+<script>
+  // Leaflet map setup
+  const map = L.map('nzMap').setView([-41.2865, 174.7762], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  const regions = [
+    { name: "Auckland", coords: [-36.8485, 174.7633] },
+    { name: "Wellington", coords: [-41.2865, 174.7762] },
+    { name: "Christchurch", coords: [-43.5320, 172.6306] },
+    { name: "Queenstown", coords: [-45.0312, 168.6626] },
+    { name: "Rotorua", coords: [-38.1368, 176.2497] }
+  ];
+
+  regions.forEach(r => {
+    L.marker(r.coords).addTo(map).bindPopup(`<b>${r.name}</b>`);
+  });
+</script>
+{% endblock %}

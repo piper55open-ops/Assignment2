@@ -4,7 +4,7 @@ import json
 from werkzeug.utils import secure_filename
 import math
 from io import BytesIO
-
+import time
 import requests
 from dotenv import load_dotenv
 from flask import Flask, session
@@ -20,6 +20,7 @@ from models.promotion_model import PromotionModel
 
 from controllers.admin_routes import admin_bp
 from controllers.provider_routes import provider_bp
+from controllers.traveller_routes import traveller_bp
 
 load_dotenv()  # 🔹 loads .env file into environment
 
@@ -63,8 +64,6 @@ def register():
             if file.filename:
                 # secure the filename
                 filename = secure_filename(file.filename)
-                # optional: rename to include user role and timestamp to avoid conflicts
-                import time
                 new_filename = f"{role}_{int(time.time())}_{filename}"
                 # save inside static/images
                 file.save(os.path.join(app.config["UPLOAD_FOLDER"], new_filename))
@@ -97,8 +96,8 @@ def login():
             flash("Login successful!", "success")
             print("SESSION DATA:", dict(session)) 
 
-            if role == "traveller":
-                return redirect(url_for("traveller_dashboard"))
+            if role == "tourist":
+                return redirect(url_for("traveller.traveller_dashboard"))
             elif role == "provider":
                 return redirect(url_for("provider.provider_dashboard"))
             elif role == "admin":
@@ -331,17 +330,15 @@ app.register_blueprint(admin_bp)
 
 #--------------------------ADMIN DASHBOARD END ------------------------------
 
-@app.route("/traveller/dashboard")
-def traveller_dashboard():
-    if session.get("role") == "traveller":
-        return render_template("Traveller_Dashboard/traveller_dashboard.html")
-    return redirect(url_for("login"))
-
 #--------------------------PROVIDER DASHBOARD------------------------------
 
 app.register_blueprint(provider_bp)
 
-#--------------------------PROVIDER DASHBOARD------------------------------
+#--------------------------PROVIDER DASHBOARD END------------------------------
+#--------------------------TRAVELLER DASHBOARD -------------------------------
+app.register_blueprint(traveller_bp)
+#--------------------------TRAVELLER DASHBOARD -------------------------------
+
 
 if __name__ == "__main__":
     app.run(debug=True)

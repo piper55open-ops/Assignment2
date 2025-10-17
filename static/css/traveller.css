@@ -1,0 +1,174 @@
+body {
+  background-color: #f9fafc;
+  font-family: 'Poppins', sans-serif;
+}
+
+.navbar {
+  background: linear-gradient(120deg, #42a5f5, #66bb6a);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  color: white !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.navbar-text {
+  color: white;
+  font-weight: 500;
+}
+
+.navbar-text i {
+  margin-right: 6px;
+}
+
+.sidebar {
+  height: 100vh;
+  background: linear-gradient(180deg, #f5f5f5, #ffffff);
+  border-right: 1px solid #e0e0e0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+}
+
+.sidebar a {
+  display: block;
+  color: #555;
+  padding: 14px 20px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.sidebar a i {
+  margin-right: 10px;
+  color: #0288d1;
+}
+
+.sidebar a:hover {
+  background-color: #e3f2fd;
+  color: #0288d1;
+  border-left: 4px solid #0288d1;
+  transform: translateX(3px);
+}
+
+.sidebar a.active {
+  background-color: #bbdefb;
+  color: #0277bd;
+  border-left: 4px solid #0277bd;
+}
+
+/* ✨ Content Area */
+.content-area {
+  background-color: #ffffff;
+  min-height: 100vh;
+  padding: 25px;
+}
+
+/* 📱 Responsive Adjustments */
+@media (max-width: 991px) {
+  .sidebar {
+    height: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .sidebar a {
+    display: inline-block;
+    padding: 10px 15px;
+  }
+
+  .content-area {
+    padding: 15px;
+  }
+}
+
+h3,
+h5,
+h6 {
+  font-weight: 600;
+}
+
+.welcome-box {
+  background: linear-gradient(120deg, #42a5f5, #66bb6a);
+  color: white;
+  border-radius: 15px;
+  padding: 25px 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.welcome-box h3 {
+  font-size: 1.8rem;
+}
+
+.welcome-box p {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.card {
+  border-radius: 20px !important;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-body h6 {
+  color: #0288d1;
+}
+
+.card-body .btn-primary {
+  background-color: #0288d1;
+  border: none;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.card-body .btn-primary:hover {
+  background-color: #0277bd;
+  transform: scale(1.05);
+}
+
+.calendar-card,
+.map-card {
+  border: none;
+  border-radius: 15px;
+  background: white;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+
+#nzMap {
+  border-radius: 10px;
+}
+
+.place-card img {
+  border-radius: 15px 15px 0 0;
+}
+
+.place-card .card-body {
+  background: #fafafa;
+}
+
+/* Fade-in animation */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeInUp 0.6s ease forwards;
+}
