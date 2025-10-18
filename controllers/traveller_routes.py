@@ -1,11 +1,13 @@
 import datetime
-from flask import Blueprint, render_template, session, redirect, url_for,json,flash
+from flask import Blueprint, render_template, session, redirect, url_for,json,flash,request,jsonify
 from datetime import datetime
 import requests
-import os
 from dotenv import load_dotenv
+import os
+import openai
 from models.database import Database
 from models.trip_model import TripModel
+
 
 traveller_bp = Blueprint("traveller", __name__, url_prefix="/traveller")
 
@@ -18,6 +20,10 @@ LOCATIONS_FILE = os.path.join(BASE_DIR, "..", "data", "locations.json")
 load_dotenv()  # 🔹 loads .env file into environment
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+openai.api_key = OPENAI_API_KEY
+
 
 with open(LOCATIONS_FILE, 'r') as f:
     NZ_LOCATIONS = json.load(f)
@@ -90,110 +96,109 @@ def traveller_dashboard():
         seasonal_places=seasonal_places,
         current_season=season
     )
-# --------- HELPER FUNCTIONS ---------
 
-def get_current_season(month: int):
-    """Return the current season in New Zealand based on month."""
-    if month in [12, 1, 2]:
-        return "Summer"
-    elif month in [3, 4, 5]:
-        return "Autumn"
-    elif month in [6, 7, 8]:
-        return "Winter"
-    else:
-        return "Spring"
-
-def get_seasonal_places(season: str):
-    """Return sample seasonal recommendations."""
-    if season == "Summer":
-        return [
-            {
-                "name": "Bay of Islands",
-                "description": "Enjoy crystal-clear beaches, sailing, and island-hopping adventures.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/3/33/Bay_of_Islands.jpg",
-                "link": "https://www.newzealand.com/nz/bay-of-islands/"
-            },
-            {
-                "name": "Abel Tasman National Park",
-                "description": "Perfect for kayaking, golden sands, and summer hikes.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Abel_Tasman_National_Park.jpg",
-                "link": "https://www.newzealand.com/nz/abel-tasman-national-park/"
-            },
-            {
-                "name": "Coromandel Peninsula",
-                "description": "Famous for its Hot Water Beach and scenic coastal drives.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Coromandel_Peninsula_Coast.jpg",
-                "link": "https://www.newzealand.com/nz/coromandel/"
-            }
-        ]
-
-    elif season == "Winter":
-        return [
-            {
-                "name": "Queenstown",
-                "description": "New Zealand’s winter capital for skiing and snowboarding.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Queenstown_winter.jpg",
-                "link": "https://www.newzealand.com/nz/queenstown/"
-            },
-            {
-                "name": "Mount Ruapehu",
-                "description": "Hit the slopes or explore Tongariro National Park’s alpine beauty.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Mount_Ruapehu.jpg",
-                "link": "https://www.newzealand.com/nz/tongariro-national-park/"
-            },
-            {
-                "name": "Tekapo",
-                "description": "Famous for stargazing and stunning winter landscapes.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Lake_Tekapo_Church_of_the_Good_Shepherd.jpg",
-                "link": "https://www.newzealand.com/nz/lake-tekapo/"
-            }
-        ]
-
-    elif season == "Autumn":
-        return [
-            {
-                "name": "Arrowtown",
-                "description": "Historic gold-mining village glowing with autumn colors.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Arrowtown_Autumn.jpg",
-                "link": "https://www.newzealand.com/nz/arrowtown/"
-            },
-            {
-                "name": "Hawke’s Bay",
-                "description": "Vineyards and autumn festivals under mild weather.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/3/36/Hawkes_Bay_Vineyards.jpg",
-                "link": "https://www.newzealand.com/nz/hawkes-bay/"
-            }
-        ]
-
-    else:  # Spring
-        return [
-            {
-                "name": "Christchurch Botanic Gardens",
-                "description": "See tulips and cherry blossoms in full bloom.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Christchurch_Botanic_Gardens.jpg",
-                "link": "https://www.newzealand.com/nz/christchurch/"
-            },
-            {
-                "name": "Rotorua",
-                "description": "Hot springs and geothermal wonders — perfect spring getaway.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/d/db/Rotorua_Pohutu_Geyser.jpg",
-                "link": "https://www.newzealand.com/nz/rotorua/"
-            },
-            {
-                "name": "Kaikōura",
-                "description": "Watch whales and dolphins as the coast blooms with life.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/2/26/Kaikoura_coast.jpg",
-                "link": "https://www.newzealand.com/nz/kaikoura/"
-            }
-        ]
-
-
-@traveller_bp.route('/ai-trip-planner')
+@traveller_bp.route("/trip-planner", methods=["GET", "POST"])
 def ai_planner():
-    """Page to show all NZ regions from locations.json"""
-    traveller_name = session.get('traveller_name', 'Guest Traveller')
-    return render_template('traveller/trip_planner_regions.html',
-                           traveller_name=traveller_name,
-                           locations=NZ_LOCATIONS)
+    if "role" not in session or session["role"] != "tourist":
+        flash("Unauthorized access. Please log in as a traveller.", "danger")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        data = request.json
+        destination = data.get("destination")
+        nights = data.get("nights")
+        adults = data.get("adults")
+        children = data.get("children")
+        budget = data.get("budget")
+        preferences = data.get("preferences", [])
+        selected_places = data.get("selected_places", [])
+
+        prompt = f"""
+        Create a {nights}-night travel itinerary for {adults} adults and {children} children in {destination}.
+        Budget: ${budget}.
+        Preferences: {', '.join(preferences)}.
+        Must include these places: {', '.join(selected_places)}.
+        Provide day-wise activities, suggested accommodations, dining, and local experiences in JSON format:
+        [
+          {{
+            "day": 1,
+            "activities": [
+              {{
+                "name": "Activity name",
+                "time": "Morning/Afternoon/Evening",
+                "location": "Place",
+                "description": "Brief description",
+                "image": "Image URL"
+              }}
+            ],
+            "accommodation": "Hotel suggestion",
+            "notes": "Any extra tips"
+          }}
+        ]
+        """
+
+        response =openai.ChatCompletion.create( # pylint: disable=no-member
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7
+        )
+
+        itinerary_text = response.choices[0].message.content
+        # Convert text to JSON safely
+        
+        try:
+            itinerary = json.loads(itinerary_text)
+        except:
+            itinerary = {"error": "Failed to parse AI response", "raw": itinerary_text}
+
+        return jsonify(itinerary)
+
+    return render_template("traveller/trip_planner.html")
+
+def generate_itinerary(destination, days, adults, children, budget):
+    """
+    Generate a travel itinerary using OpenAI.
+    """
+    system_prompt = "You are an expert travel planner."
+    user_prompt = f"""
+    Plan a {days}-day trip to {destination} for {adults} adults and {children} children.
+    Include recommended activities, attractions, and budget-friendly options.
+    """
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+
+    itinerary = response.choices[0].message.content
+    return itinerary
+def get_nearby_accommodations(destination, radius=5000):
+    """
+    Fetch nearby hotels or stays using Google Places API.
+    """
+    url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
+    params = {
+        "query": f"hotels in {destination}",
+        "radius": radius,
+        "key": GOOGLE_API_KEY
+    }
+
+    res = requests.get(url, params=params)
+    data = res.json()
+    accommodations = []
+
+    for place in data.get("results", []):
+        accommodations.append({
+            "name": place.get("name"),
+            "address": place.get("formatted_address"),
+            "rating": place.get("rating"),
+            "location": place.get("geometry", {}).get("location")
+        })
+
+    return accommodations
+
     
     

@@ -1,0 +1,141 @@
+{% extends "traveller/traveller_base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+  <h3 class="fw-bold mb-4">AI Trip Planner 🗺️</h3>
+
+  <!-- Trip Details Form -->
+  <div class="card mb-4 p-4 shadow-sm rounded-4">
+    <form id="tripForm">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Destination</label>
+          <input type="text" class="form-control" name="destination" placeholder="Rotorua" required>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-control" name="start_date" required>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Nights</label>
+          <input type="number" class="form-control" name="nights" value="3" min="1" required>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Adults</label>
+          <input type="number" class="form-control" name="adults" value="2" min="1" required>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Children</label>
+          <input type="number" class="form-control" name="children" value="0" min="0" required>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-3">
+        <div class="col-md-4">
+          <label class="form-label">Budget ($)</label>
+          <input type="number" class="form-control" name="budget" value="1500" required>
+        </div>
+        <div class="col-md-8">
+          <label class="form-label">Preferences</label>
+          <select class="form-select" name="preferences" multiple>
+            <option value="Adventure">Adventure</option>
+            <option value="Relaxation">Relaxation</option>
+            <option value="Sightseeing">Sightseeing</option>
+            <option value="Food">Food</option>
+            <option value="Culture">Culture</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary mt-3">Generate Itinerary</button>
+    </form>
+  </div>
+
+  <!-- Map Section -->
+  <div class="card mb-4 shadow-sm rounded-4 p-3">
+    <h5>Select Places on Map</h5>
+    <div id="tripMap" style="height:400px;"></div>
+  </div>
+
+  <!-- AI Generated Itinerary -->
+  <div id="itinerary" class="row g-3"></div>
+</div>
+
+<script>
+const map = L.map('tripMap').setView([-41.2865, 174.7762], 5);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+let selectedPlaces = [];
+
+// Example markers for demo
+const places = [
+  { name: "Redwoods Forest", coords: [-38.1368, 176.2497] },
+  { name: "Polynesian Spa", coords: [-38.1369, 176.2470] },
+  { name: "Lake Rotorua", coords: [-38.1390, 176.2460] }
+];
+
+places.forEach(p => {
+  const marker = L.marker(p.coords, {icon: L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+      iconSize: [35, 35]
+    })}).addTo(map).bindPopup(`<b>${p.name}</b><br><small>Click to select</small>`);
+
+  marker.on('click', () => {
+    if (!selectedPlaces.includes(p.name)) {
+      selectedPlaces.push(p.name);
+      marker.setOpacity(0.7); // visually mark selection
+    } else {
+      selectedPlaces = selectedPlaces.filter(x => x !== p.name);
+      marker.setOpacity(1);
+    }
+  });
+});
+
+// Handle form submission
+document.getElementById('tripForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const data = {
+    destination: formData.get('destination'),
+    nights: formData.get('nights'),
+    adults: formData.get('adults'),
+    children: formData.get('children'),
+    budget: formData.get('budget'),
+    preferences: Array.from(formData.getAll('preferences')),
+    selected_places: selectedPlaces
+  };
+
+  const res = await fetch("/traveller/trip-planner", {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  const itinerary = await res.json();
+  displayItinerary(itinerary);
+});
+
+function displayItinerary(itinerary) {
+  const container = document.getElementById('itinerary');
+  container.innerHTML = '';
+
+  if (itinerary.error) {
+    container.innerHTML = '<div class="alert alert-danger">${itinerary.error}</div>';
+    return;
+  }
+
+  itinerary.forEach(day => {
+    const card = document.createElement('div');
+    card.className = 'col-md-4';
+    card.innerHTML =  
+      <div class="card shadow-sm rounded-4 p-3 mb-3">
+        <h6 class="fw-bold">Day ${day.day}</h6>
+        <p><strong>Accommodation:</strong> ${day.accommodation}</p>
+        <ul>
+          ${day.activities.map(a => '<li>${a.time}: ${a.name} at ${a.location}</li>').join('')}
+        </ul>
+      </div>
+    ;
+    container.appendChild(card);
+  });
+}
+</script>
+{% endblock %}

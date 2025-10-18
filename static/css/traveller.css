@@ -147,7 +147,30 @@ h6 {
 #nzMap {
   border-radius: 10px;
 }
+.map-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
 
+.map-header {
+  background: linear-gradient(135deg, #10b981, #3b82f6); /* green-blue gradient */
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.3px;
+  border-bottom: 3px solid #2563eb;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.map-header h6 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.map-header .badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 10px;
+}
 .place-card img {
   border-radius: 15px 15px 0 0;
 }

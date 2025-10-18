@@ -57,6 +57,28 @@
             </div>
             <!-- Page Content -->
             {% block content %}{% endblock %}
+            <!-- ================= Chatbot Widget ================= -->
+                <!-- Chatbot Floating Button and Window -->
+                <div id="chatbot-container">
+                <button id="chatbot-toggle">
+                    💬
+                </button>
+
+                <div id="chatbot-box" class="hidden">
+                    <div id="chatbot-header">
+                    <span>Travel Mate Assistant 🤖</span>
+                    <button id="chatbot-close">✖</button>
+                    </div>
+                    <div id="chatbot-messages"></div>
+                    <div id="chatbot-input-area">
+                    <input type="text" id="chatbot-input" placeholder="Ask me about New Zealand..." />
+                    <button id="chatbot-send">➤</button>
+                    </div>
+                </div>
+                </div>
+
+
+
 
             <!----------footer--------------------------------->
 
@@ -113,11 +135,12 @@
                     </span>
                 </div>
             </footer>
-
+            
             <!-- jQuery -->
 
-            <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+            
+           <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
 
             <!-- Popper.js and Bootstrap JS -->
             <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -132,6 +155,81 @@
 
             <!-- Your main JS -->
             <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+           <script>
+                const toggleBtn = document.getElementById("chatbot-toggle");
+                const chatBox = document.getElementById("chatbot-box");
+                const closeBtn = document.getElementById("chatbot-close");
+                const sendBtn = document.getElementById("chatbot-send");
+                const inputField = document.getElementById("chatbot-input");
+                const messagesDiv = document.getElementById("chatbot-messages");
+
+                // ✅ Toggle open/close properly
+                toggleBtn.addEventListener("click", () => {
+                if (chatBox.classList.contains("hidden")) {
+                    chatBox.classList.remove("hidden");
+                } else {
+                    chatBox.classList.add("hidden");
+                }
+                });
+
+                closeBtn.addEventListener("click", () => {
+                chatBox.classList.add("hidden");
+                });
+
+                async function sendMessage() {
+                const message = inputField.value.trim();
+                if (!message) return;
+
+                // Add user message
+                const userMsg = document.createElement("div");
+                userMsg.classList.add("user-msg");
+                userMsg.textContent = message;
+                messagesDiv.appendChild(userMsg);
+                inputField.value = "";
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                // Typing indicator
+                const typing = document.createElement("div");
+                typing.classList.add("bot-msg");
+                typing.id = "typing";
+                typing.textContent = "Typing...";
+                messagesDiv.appendChild(typing);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                try {
+                    const res = await fetch("/chatbot_reply", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message }),
+                    });
+
+                    const data = await res.json();
+                    typing.remove();
+
+                    const botMsg = document.createElement("div");
+                    botMsg.classList.add("bot-msg");
+                    botMsg.textContent = data.reply || "Sorry, I couldn’t understand that.";
+                    messagesDiv.appendChild(botMsg);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                } catch (err) {
+                    console.error("Chatbot error:", err);
+                    typing.remove();
+                    const botMsg = document.createElement("div");
+                    botMsg.classList.add("bot-msg");
+                    botMsg.textContent = "⚠️ Connection error. Please try again later.";
+                    messagesDiv.appendChild(botMsg);
+                }
+                }
+
+                sendBtn.addEventListener("click", sendMessage);
+                inputField.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") sendMessage();
+                });
+                </script>
+
+
 
 
 </body>

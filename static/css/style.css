@@ -1619,6 +1619,132 @@ footer.footer .move-up span:hover{
 	margin-top: 10%;
 }
 
+/* Floating Chatbot Button */
+#chatbot-toggle {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: none;
+  background-color: #0077b6;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+#chatbot-toggle:hover {
+  background-color: #005f8a;
+}
+
+/* Chatbox Window */
+#chatbot-box {
+  position: fixed;
+  bottom: 90px;
+  right: 25px;
+  width: 320px;
+  height: 400px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 999;
+  transition: all 0.3s ease;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Header */
+#chatbot-header {
+  background-color: #0077b6;
+  color: white;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+
+#chatbot-header button {
+  background: transparent;
+  color: white;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Messages */
+#chatbot-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+.user-msg, .bot-msg {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 80%;
+  word-wrap: break-word;
+}
+
+.user-msg {
+  background-color: #d1ecf1;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.bot-msg {
+  background-color: #e2e3e5;
+  align-self: flex-start;
+}
+
+/* Input Area */
+#chatbot-input-area {
+  display: flex;
+  border-top: 1px solid #ccc;
+}
+
+#chatbot-input {
+  flex: 1;
+  border: none;
+  padding: 10px;
+  outline: none;
+}
+
+#chatbot-send {
+  background-color: #0077b6;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+#chatbot-send:hover {
+  background-color: #005f8a;
+}
+#chatbot-box {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+#chatbot-box.hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+
 @media only screen and(max-width:1130px)	{
 	.site-content .post-content > .post-image .post-info{
 		left: 2rem !important;

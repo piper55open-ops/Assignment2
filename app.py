@@ -287,6 +287,49 @@ def places_photo():
 
     # Serve image as file
     return send_file(img_stream, mimetype="image/jpeg")
+
+# ================== Chatbot API Route ==================
+
+@app.route("/chatbot", methods=["POST"])
+def chatbot():
+    user_message = request.json.get("message", "")
+    if not user_message.strip():
+        return jsonify({"response": "Please type a message."})
+
+    try:
+        # Simple AI or placeholder logic
+        if "hello" in user_message.lower():
+            bot_reply = "Hello traveller! 😊 How can I help you plan your next trip?"
+        elif "recommend" in user_message.lower():
+            bot_reply = "I recommend visiting Queenstown for adventure or Rotorua for culture!"
+        elif "thank" in user_message.lower():
+            bot_reply = "You're most welcome! 🧳"
+        else:
+            bot_reply = "I'm here to help you with travel tips and planning ideas!"
+
+        return jsonify({"response": bot_reply})
+
+    except Exception as e:
+        print("Chatbot Error:", e)
+        return jsonify({"response": "Sorry, I’m having trouble responding right now. Please try again soon."})
+    
+@app.route("/chatbot_reply", methods=["POST"])
+def chatbot_reply():
+    data = request.get_json()
+    user_message = data.get("message", "")
+
+    # Very basic AI logic for now
+    if "hello" in user_message.lower():
+        reply = "Hi there! How can I help you explore New Zealand today?"
+    elif "place" in user_message.lower() or "visit" in user_message.lower():
+        reply = "There are so many beautiful places! Try visiting Hobbiton, Queenstown, or Rotorua!"
+    else:
+        reply = "I'm still learning 😊 Try asking me about places or travel tips in New Zealand."
+
+    return jsonify({"reply": reply})
+
+
+
     
 # -------------------- DASHBOARDS ---------------------------------------
 #--------------------------ADMIN DASHBOARD ------------------------------
