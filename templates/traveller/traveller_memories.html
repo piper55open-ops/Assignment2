@@ -1,0 +1,117 @@
+{% extends "traveller/traveller_base.html" %}
+{% block content %}
+<style>
+/* Masonry layout (Pinterest Style) */
+.memories-gallery {
+  column-count: 3; /* Desktop */
+  column-gap: 20px;
+}
+
+@media (max-width: 992px) {
+  .memories-gallery {
+    column-count: 2; /* Tablet */
+  }
+}
+
+@media (max-width: 576px) {
+  .memories-gallery {
+    column-count: 1; /* Mobile */
+  }
+}
+
+/* Memory Card */
+.memory-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin: 0 0 20px;
+  break-inside: avoid;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Images */
+.memory-card img {
+  width: 100%;
+  display: block;
+  border-bottom: 1px solid #eee;
+  transition: transform 0.25s ease;
+  object-fit: cover;
+}
+
+/* Hover effect */
+.memory-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.memory-card:hover img {
+  transform: scale(1.05);
+}
+
+.card-body {
+  padding: 14px 18px;
+}
+
+.card-body h6 {
+  margin-bottom: 6px;
+  font-size: 1.05rem;
+}
+
+.card-body small {
+  color: #777;
+}
+
+.card-body p {
+  margin-top: 8px;
+  color: #555;
+}
+
+
+</style>
+
+<div class="container-fluid py-4">
+  <h3 class="fw-bold mb-4">My Travel Memories ✈️</h3>
+
+  <!-- Upload Form -->
+  <div class="card shadow-sm p-4 rounded-4 mb-5">
+    <h5 class="fw-semibold mb-3">Share a New Memory</h5>
+    <form method="POST" enctype="multipart/form-data">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-control" name="title" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-control" name="date" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Photo</label>
+          <input type="file" class="form-control" name="image" accept="image/*" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Story / Caption</label>
+          <textarea class="form-control" name="story" rows="3" placeholder="Write something memorable..." required></textarea>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary mt-3">Upload Memory</button>
+    </form>
+  </div>
+
+  <!-- Memories Gallery -->
+  <div class="memories-gallery">
+  {% for m in memories %}
+  <div class="memory-card">
+    <img src="{{ url_for('static', filename='images/' ~ m.image) }}" alt="{{ m.title }}">
+    <div class="card-body">
+      <h6 class="fw-bold">{{ m.title }}</h6>
+      <small class="text-muted">{{ m.date }}</small>
+      <p class="mt-2 small">{{ m.story }}</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+
+{% endblock %}

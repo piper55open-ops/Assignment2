@@ -1,16 +1,16 @@
-import datetime
-from flask import Blueprint, render_template, session, redirect, url_for,json,flash,request,jsonify
+from flask import Blueprint, render_template, session, redirect, url_for, flash, request, jsonify
+import os, json, re, requests
+import uuid
 from datetime import datetime
-import requests
 from dotenv import load_dotenv
-import os
-import openai
+from openai import OpenAI
 from models.database import Database
 from models.trip_model import TripModel
-
+from werkzeug.utils import secure_filename
+from models.database import Database
 
 traveller_bp = Blueprint("traveller", __name__, url_prefix="/traveller")
-
+trip_model = TripModel()
 
 # --- Load NZ locations ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -22,7 +22,11 @@ load_dotenv()  # 🔹 loads .env file into environment
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-openai.api_key = OPENAI_API_KEY
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    organization=os.getenv("OPENAI_ORG_ID"),
+    project=os.getenv("OPENAI_PROJECT_ID")
+)
 
 
 with open(LOCATIONS_FILE, 'r') as f:
@@ -36,7 +40,7 @@ def traveller_dashboard():
         return redirect(url_for("login"))
 
     db = Database()
-    trip_model = TripModel()
+  
     user_id = session.get("user_id")
 
     traveller = db.fetchone("SELECT * FROM users WHERE id=?", (user_id,))
@@ -96,7 +100,6 @@ def traveller_dashboard():
         seasonal_places=seasonal_places,
         current_season=season
     )
-
 @traveller_bp.route("/trip-planner", methods=["GET", "POST"])
 def ai_planner():
     if "role" not in session or session["role"] != "tourist":
@@ -104,14 +107,17 @@ def ai_planner():
         return redirect(url_for("login"))
 
     if request.method == "POST":
+        if not request.is_json:
+            return jsonify({"error": "Invalid content type. Expected JSON."}), 400
+
         data = request.json
-        destination = data.get("destination")
-        nights = data.get("nights")
-        adults = data.get("adults")
-        children = data.get("children")
-        budget = data.get("budget")
-        preferences = data.get("preferences", [])
-        selected_places = data.get("selected_places", [])
+        destination = data.get("destination", "unknown destination")
+        nights = data.get("nights", 1)
+        adults = data.get("adults", 1)
+        children = data.get("children", 0)
+        budget = data.get("budget", 0)
+        preferences = data.get("preferences") or []
+        selected_places = data.get("selected_places") or []
 
         prompt = f"""
         Create a {nights}-night travel itinerary for {adults} adults and {children} children in {destination}.
@@ -137,23 +143,41 @@ def ai_planner():
         ]
         """
 
-        response =openai.ChatCompletion.create( # pylint: disable=no-member
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7
-        )
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are a helpful AI trip planner that always outputs valid JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+            )
+        except Exception as e:
+            print("AI Error:", e)
+            return jsonify({"error": "AI request failed", "details": str(e)}), 500
 
-        itinerary_text = response.choices[0].message.content
-        # Convert text to JSON safely
-        
+        if not response or not response.choices:
+            return jsonify({"error": "No response from AI"}), 500
+
+        itinerary_text = response.choices[0].message.content.strip()
+
         try:
             itinerary = json.loads(itinerary_text)
-        except:
-            itinerary = {"error": "Failed to parse AI response", "raw": itinerary_text}
+        except json.JSONDecodeError:
+            match = re.search(r"\[.*\]", itinerary_text, re.DOTALL)
+            if match:
+                try:
+                    itinerary = json.loads(match.group(0))
+                except Exception as e:
+                    itinerary = {"error": "AI returned invalid JSON", "details": str(e), "raw": itinerary_text}
+            else:
+                itinerary = {"error": "No valid JSON found", "raw": itinerary_text}
 
         return jsonify(itinerary)
 
     return render_template("traveller/trip_planner.html")
+
+
 
 def generate_itinerary(destination, days, adults, children, budget):
     """
@@ -165,7 +189,7 @@ def generate_itinerary(destination, days, adults, children, budget):
     Include recommended activities, attractions, and budget-friendly options.
     """
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": system_prompt},
@@ -175,6 +199,7 @@ def generate_itinerary(destination, days, adults, children, budget):
 
     itinerary = response.choices[0].message.content
     return itinerary
+
 def get_nearby_accommodations(destination, radius=5000):
     """
     Fetch nearby hotels or stays using Google Places API.
@@ -200,5 +225,166 @@ def get_nearby_accommodations(destination, radius=5000):
 
     return accommodations
 
-    
-    
+@traveller_bp.route("/memories", methods=["GET", "POST"])
+def memories():
+    if request.method == "POST":
+        title = request.form["title"]
+        story = request.form["story"]
+        date = request.form["date"]
+        image = request.files["image"]
+
+        if image and image.filename != "":
+            filename = image.filename
+            upload_folder = os.path.join("static", "images")
+
+            # 👇 create the folder if it doesn't exist
+            os.makedirs(upload_folder, exist_ok=True)
+
+            upload_path = os.path.join(upload_folder, filename)
+            image.save(upload_path)
+
+            # Store in DB (update this part according to your DB helper)
+            db =  Database()  # replace with your actual db instance
+            db.execute(
+                "INSERT INTO travel_memories (user_id, title, story, date, image) VALUES (?, ?, ?, ?, ?)",
+                (session["user_id"], title, story, date, filename),
+            )
+            flash("Memory added successfully!", "success")
+            return redirect(url_for("traveller.memories"))
+
+    # Retrieve all memories for this user
+    db =  Database()  # replace with your actual db instance
+    memories = db.execute(
+        "SELECT * FROM travel_memories WHERE user_id = ?", (session["user_id"],)
+    ).fetchall()
+
+    return render_template("traveller/traveller_memories.html", memories=memories)
+
+@traveller_bp.route("/nearby_stays")
+def nearby_stays():
+    """Render the Nearby Stays page."""
+    return render_template("traveller/nearby_stays.html", google_api_key=GOOGLE_API_KEY)
+
+
+@traveller_bp.route("/get_nearby_hotels", methods=["POST"])
+def get_nearby_hotels():
+    """Fetch nearby hotels using Google Places API and Distance Matrix."""
+    data = request.get_json()
+    location = data.get("location")  # { "lat": ..., "lng": ... }
+
+    if not location:
+        return jsonify({"error": "Location not provided"}), 400
+
+    # Google Places Nearby Search API
+    places_url = (
+        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+        f"?location={location['lat']},{location['lng']}"
+        f"&radius=3000&type=lodging&key={GOOGLE_API_KEY}"
+    )
+    places_response = requests.get(places_url).json()
+
+    hotels = []
+    if "results" in places_response:
+        for place in places_response["results"]:
+            name = place.get("name")
+            address = place.get("vicinity")
+            rating = place.get("rating", "N/A")
+            photo_ref = (
+                place.get("photos", [{}])[0].get("photo_reference")
+                if place.get("photos")
+                else None
+            )
+
+            photo_url = (
+                f"https://maps.googleapis.com/maps/api/place/photo"
+                f"?maxwidth=400&photoreference={photo_ref}&key={GOOGLE_API_KEY}"
+                if photo_ref
+                else "/static/images/noimage.jpg"
+            )
+
+            # Distance Matrix for duration
+            dest_lat = place["geometry"]["location"]["lat"]
+            dest_lng = place["geometry"]["location"]["lng"]
+
+            dist_url = (
+                f"https://maps.googleapis.com/maps/api/distancematrix/json?"
+                f"origins={location['lat']},{location['lng']}&"
+                f"destinations={dest_lat},{dest_lng}&key={GOOGLE_API_KEY}"
+            )
+
+            dist_data = requests.get(dist_url).json()
+            distance = "N/A"
+            duration = "N/A"
+            if (
+                "rows" in dist_data
+                and dist_data["rows"][0]["elements"][0]["status"] == "OK"
+            ):
+                distance = dist_data["rows"][0]["elements"][0]["distance"]["text"]
+                duration = dist_data["rows"][0]["elements"][0]["duration"]["text"]
+
+            hotels.append(
+                {
+                    "name": name,
+                    "address": address,
+                    "rating": rating,
+                    "photo": photo_url,
+                    "distance": distance,
+                    "duration": duration,
+                }
+            )
+
+    return jsonify(hotels)
+
+UPLOAD_FOLDER = os.path.join('static', 'images')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+@traveller_bp.route("/my-trips", methods=["GET", "POST"])
+def traveller_trips():
+    user_id = session.get("user_id")
+    if not user_id:
+        flash("Please login first", "warning")
+        return redirect(url_for("login"))
+
+    # Handle new trip upload
+    if request.method == "POST":
+        title = request.form.get("title")
+        destination = request.form.get("destination")
+        start_date = request.form.get("start_date")
+        end_date = request.form.get("end_date")
+        budget = request.form.get("budget")
+        description = request.form.get("description")
+        status = request.form.get("status")
+        google_maps_url = request.form.get("google_maps_url")
+        cover_image_file = request.files.get("cover_image")
+        cover_image_filename = None
+
+        if cover_image_file and cover_image_file.filename != "":
+            cover_image_filename = secure_filename(cover_image_file.filename)
+            cover_image_path = os.path.join(UPLOAD_FOLDER, cover_image_filename)
+            cover_image_file.save(cover_image_path)
+
+        trip_model.add_trip(
+            user_id=user_id,
+            title=title,
+            destination=destination,
+            start_date=start_date,
+            end_date=end_date,
+            budget=budget,
+            description=description,
+            status=status,
+            cover_image=cover_image_filename,
+            google_maps_url=google_maps_url
+        )
+        flash("Trip added successfully!", "success")
+        return redirect(url_for("traveller.memories"))
+
+    # Fetch all trips for this user
+    trips = trip_model.get_trips_by_user(user_id)
+    return render_template("traveller/traveller_trips.html", trips=trips)
+
+@traveller_bp.route("/profile", methods=["GET"])
+def profile():
+    if "role" not in session or session["role"] != "tourist":
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for("login"))
+    return render_template("traveller/traveller_profile.html")

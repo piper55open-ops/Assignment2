@@ -26,14 +26,18 @@ load_dotenv()  # 🔹 loads .env file into environment
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-GOOGLE_API_KEY_NEW = os.getenv("GOOGLE_API_KEY_NEW")
+
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key_123" 
 
 user_controller = UserController()
 
-client = OpenAI(api_key=OPENAI_API_KEY )
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    organization=os.getenv("OPENAI_ORG_ID"),
+    project=os.getenv("OPENAI_PROJECT_ID")
+)
 user_model = UserModel()
 journey_model = JourneyModel()
 blog_model = BlogModel()
@@ -41,13 +45,14 @@ provider_model = ProviderModel()
 property_model = PropertyModel()
 promotion_model = PromotionModel()
 
+print("OpenAI Key Loaded:", os.getenv("OPENAI_API_KEY"))
+
 @app.route('/')
 def home():
     return render_template('home.html')
 
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'images')
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -324,7 +329,7 @@ def chatbot_reply():
     elif "place" in user_message.lower() or "visit" in user_message.lower():
         reply = "There are so many beautiful places! Try visiting Hobbiton, Queenstown, or Rotorua!"
     else:
-        reply = "I'm still learning 😊 Try asking me about places or travel tips in New Zealand."
+        reply = "I'm still learning. Try asking me about places or travel tips in New Zealand."
 
     return jsonify({"reply": reply})
 
@@ -366,7 +371,6 @@ def admin_dashboard():
         recent_journeys=recent_journeys,
         recent_blogs=recent_blogs
     )
-   
 
 app.register_blueprint(admin_bp)
 
@@ -381,6 +385,7 @@ app.register_blueprint(provider_bp)
 #--------------------------TRAVELLER DASHBOARD -------------------------------
 app.register_blueprint(traveller_bp)
 #--------------------------TRAVELLER DASHBOARD -------------------------------
+
 
 
 if __name__ == "__main__":

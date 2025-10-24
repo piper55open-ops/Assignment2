@@ -93,6 +93,10 @@ places.forEach(p => {
 // Handle form submission
 document.getElementById('tripForm').addEventListener('submit', async e => {
   e.preventDefault();
+  const button = e.target.querySelector('button');
+  button.disabled = true;
+  button.textContent = "Generating itinerary... 🧭";
+
   const formData = new FormData(e.target);
   const data = {
     destination: formData.get('destination'),
@@ -104,38 +108,68 @@ document.getElementById('tripForm').addEventListener('submit', async e => {
     selected_places: selectedPlaces
   };
 
-  const res = await fetch("/traveller/trip-planner", {
-    method: "POST",
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  const itinerary = await res.json();
-  displayItinerary(itinerary);
+  try {
+    const res = await fetch("/traveller/trip-planner", {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
+    const itinerary = await res.json();
+    displayItinerary(itinerary);
+  } catch (err) {
+    document.getElementById('itinerary').innerHTML =
+      `<div class="alert alert-danger">Error generating itinerary. Please try again.</div>`;
+  } finally {
+    button.disabled = false;
+    button.textContent = "Generate Itinerary";
+  }
 });
 
 function displayItinerary(itinerary) {
   const container = document.getElementById('itinerary');
   container.innerHTML = '';
 
+  // handle errors/invalid responses
+  if (!itinerary) {
+    container.innerHTML = `<div class="alert alert-warning">No itinerary returned.</div>`;
+    return;
+  }
   if (itinerary.error) {
-    container.innerHTML = '<div class="alert alert-danger">${itinerary.error}</div>';
+    container.innerHTML = `<div class="alert alert-danger">${itinerary.error}</div>`;
     return;
   }
 
-  itinerary.forEach(day => {
+  // ensure it's an array
+  const days = Array.isArray(itinerary) ? itinerary : [itinerary];
+
+  days.forEach(day => {
     const card = document.createElement('div');
     card.className = 'col-md-4';
-    card.innerHTML =  
+
+    // Use backticks for template literal
+    card.innerHTML = `
       <div class="card shadow-sm rounded-4 p-3 mb-3">
-        <h6 class="fw-bold">Day ${day.day}</h6>
-        <p><strong>Accommodation:</strong> ${day.accommodation}</p>
-        <ul>
-          ${day.activities.map(a => '<li>${a.time}: ${a.name} at ${a.location}</li>').join('')}
-        </ul>
+        <div class="card-header bg-gradient rounded-top-3 mb-2" style="background: linear-gradient(90deg,#6dd5ed,#2193b0); color: white;">
+          <h6 class="mb-0 fw-bold">Day ${day.day || '—'}</h6>
+        </div>
+        <div class="card-body p-2">
+          <p class="mb-2"><strong>Accommodation:</strong> ${day.accommodation || 'N/A'}</p>
+          <ul class="small mb-0">
+            ${Array.isArray(day.activities) && day.activities.length
+              ? day.activities.map(a => `<li>${a.time || ''}: ${a.name || ''} ${a.location ? ' — ' + a.location : ''}</li>`).join('')
+              : '<li>No activities suggested</li>'}
+          </ul>
+        </div>
       </div>
-    ;
+    `;
+
     container.appendChild(card);
   });
 }
+
 </script>
 {% endblock %}

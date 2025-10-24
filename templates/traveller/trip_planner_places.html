@@ -1,85 +1,92 @@
 {% extends "traveller/traveller_base.html" %}
-
 {% block content %}
-<div class="container py-4">
-    <!-- Header -->
-    <div class="text-center mb-5">
-        <h2 class="fw-bold text-primary">{{ region_name }} Adventures</h2>
-        <p class="text-muted">Discover top attractions and plan your AI-powered trip itinerary.</p>
-    </div>
+<section class="trip-planner container">
+  <h2>🗺️ Plan Your New Zealand Trip</h2>
+  <div class="planner-form">
+    <label>Destination</label>
+    <input type="text" id="destination" placeholder="Enter city or place">
 
-    <!-- Map Section -->
-    <div class="mb-4 text-center">
-        <iframe
-            width="100%"
-            height="400"
-            frameborder="0" style="border-radius:12px;"
-            src="https://www.google.com/maps?q={{ region.lat }},{{ region.lng }}&hl=es;z=8&output=embed">
-        </iframe>
-    </div>
+    <label>Start Date</label>
+    <input type="date" id="start_date">
 
-    <!-- Places Cards -->
-    <div class="row g-4 mb-5">
-        {% for place in places %}
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 h-100">
-                <img src="{{ url_for('static', filename='images/' ~ place.image) }}" class="card-img-top rounded-top" alt="{{ place.name }}">
-                <div class="card-body">
-                    <h5 class="card-title text-primary">{{ place.name }}</h5>
-                    <p class="card-text">{{ place.desc }}</p>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+    <label>Number of Nights</label>
+    <input type="number" id="nights" value="3">
 
-    <!-- AI Trip Planner -->
-    <div class="card shadow-lg p-4 border-0 mb-5">
-        <h4 class="fw-bold text-primary mb-3">Plan Your Trip with AI</h4>
-        <form id="tripPlannerForm">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Trip Duration (days)</label>
-                    <input type="number" name="days" id="days" class="form-control" placeholder="e.g., 5" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Budget (NZD)</label>
-                    <input type="number" name="budget" id="budget" class="form-control" placeholder="e.g., 1000" required>
-                </div>
-            </div>
+    <label>Adults</label>
+    <input type="number" id="adults" value="2">
 
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Interests</label>
-                <input type="text" name="interests" id="interests" class="form-control" placeholder="e.g., beaches, hiking, food">
-            </div>
+    <label>Children</label>
+    <input type="number" id="children" value="0">
 
-            <button type="button" id="planTripBtn" class="btn btn-primary w-100">
-                <i class="fa-solid fa-robot me-2"></i> Generate AI Trip Plan
-            </button>
-        </form>
+    <label>Budget (NZD)</label>
+    <input type="text" id="budget" placeholder="e.g., 2000">
 
-        <div id="tripPlanResult" class="mt-4" style="display:none;">
-            <h5 class="text-success fw-bold">Your Personalized Itinerary:</h5>
-            <pre id="planOutput" class="bg-light p-3 rounded border"></pre>
-        </div>
-    </div>
-</div>
+    <label>Preferred Activities</label>
+    <input type="text" id="preferences" placeholder="Beaches, Hiking, Nature...">
 
+    <button id="generate-plan">Generate Plan</button>
+  </div>
+
+  <div id="trip-plan-output"></div>
+
+  <h3>🗺️ Choose Destinations on Map</h3>
+  <div id="map" style="height:400px; border-radius: 10px;"></div>
+</section>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+<script src="{{ url_for('static', filename='js/trip_planner.js') }}"></script>
 <script>
-document.getElementById("planTripBtn").addEventListener("click", async () => {
-    const days = document.getElementById("days").value;
-    const budget = document.getElementById("budget").value;
-    const interests = document.getElementById("interests").value;
-    const outputDiv = document.getElementById("tripPlanResult");
-    const outputText = document.getElementById("planOutput");
+    let map;
+function initMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: -41.2865, lng: 174.7762 }, // Wellington default
+    zoom: 6,
+  });
 
-    outputDiv.style.display = "block";
-    outputText.textContent = "🧠 Thinking... generating your itinerary...";
+  const input = document.getElementById("destination");
+  const autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.bindTo("bounds", map);
 
-    // You can later replace this with a fetch() to your OpenAI endpoint
-    setTimeout(() => {
-        outputText.textContent = `Your ${days}-day trip to {{ region_name }} planned under NZ$${budget} focusing on ${interests}. 🌄🏖️🍴`;
-    }, 2000);
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace();
+    if (!place.geometry) return;
+    map.setCenter(place.geometry.location);
+    map.setZoom(10);
+    new google.maps.Marker({
+      map: map,
+      position: place.geometry.location,
+      title: place.name
+    });
+  });
+}
+
+window.initMap = initMap;
+
+document.getElementById("generate-plan").addEventListener("click", async () => {
+  const data = {
+    destination: document.getElementById("destination").value,
+    start_date: document.getElementById("start_date").value,
+    nights: document.getElementById("nights").value,
+    adults: document.getElementById("adults").value,
+    children: document.getElementById("children").value,
+    budget: document.getElementById("budget").value,
+    preferences: document.getElementById("preferences").value,
+  };
+
+  const res = await fetch("/generate_plan", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  const result = await res.json();
+
+  document.getElementById("trip-plan-output").innerHTML = `
+    <div class="trip-plan-box">
+      <h3>🧭 Your AI Trip Plan</h3>
+      <pre>${result.plan}</pre>
+    </div>
+  `;
 });
+
 </script>
 {% endblock %}

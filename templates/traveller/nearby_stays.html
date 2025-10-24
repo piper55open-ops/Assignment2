@@ -1,0 +1,110 @@
+{% extends "traveller/traveller_base.html" %}
+{% block content %}
+<style>
+#results .card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+#results .card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+.card img {
+  height: 200px;
+  object-fit: cover;
+}
+</style>
+
+<div class="container py-5">
+  <h3 class="fw-bold mb-4">Find Nearby Stays 🏨</h3>
+
+  <!-- Search -->
+  <div class="card p-4 shadow-sm rounded-4 mb-4">
+    <h5 class="fw-semibold mb-3">Search Location</h5>
+    <form id="location-form">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-8">
+          <input
+            type="text"
+            id="location-input"
+            class="form-control"
+            placeholder="Enter a location..."
+            required
+          />
+        </div>
+        <div class="col-md-4 text-md-start text-center">
+          <button class="btn btn-primary" type="submit">Find Nearby Hotels</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div id="results" class="row g-4"></div>
+</div>
+
+<!-- Google Maps Script -->
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&libraries=places"></script>
+
+<script>
+let autocomplete, selectedPlace;
+
+function initAutocomplete() {
+  const input = document.getElementById("location-input");
+  autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.addListener("place_changed", () => {
+    selectedPlace = autocomplete.getPlace();
+  });
+}
+
+document.getElementById("location-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  if (!selectedPlace || !selectedPlace.geometry) {
+    alert("Please select a valid location from suggestions.");
+    return;
+  }
+
+  const location = {
+    lat: selectedPlace.geometry.location.lat(),
+    lng: selectedPlace.geometry.location.lng(),
+  };
+
+  fetch("/traveller/get_nearby_hotels", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ location }),
+  })
+    .then((res) => res.json())
+    .then((data) => showHotels(data))
+    .catch(() => alert("Failed to load hotels."));
+});
+
+function showHotels(hotels) {
+  const results = document.getElementById("results");
+  results.innerHTML = "";
+  if (!hotels.length) {
+    results.innerHTML = "<p class='text-muted'>No nearby hotels found 🏕️</p>";
+    return;
+  }
+
+  hotels.forEach((hotel) => {
+    const card = `
+      <div class="col-md-4">
+        <div class="card shadow-sm rounded-4 overflow-hidden">
+          <img src="${hotel.photo}" class="card-img-top" alt="${hotel.name}">
+          <div class="card-body">
+            <h6 class="fw-bold">${hotel.name}</h6>
+            <p class="text-muted small mb-1">${hotel.address}</p>
+            <p class="small mb-1">⭐ Rating: ${hotel.rating}</p>
+            <p class="small mb-2">🚗 ${hotel.distance} – ${hotel.duration}</p>
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotel.name)}"
+               target="_blank"
+               class="btn btn-sm btn-outline-primary">View on Map</a>
+          </div>
+        </div>
+      </div>`;
+    results.innerHTML += card;
+  });
+}
+
+window.onload = initAutocomplete;
+</script>
+{% endblock %}

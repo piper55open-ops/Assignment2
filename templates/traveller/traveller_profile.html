@@ -1,0 +1,168 @@
+{% extends "traveller/traveller_base.html" %}
+
+{% block title %}Traveller Profile & Preferences{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <h3 class="fw-bold text-uppercase text-secondary mb-4">Traveller Profile & Preferences</h3>
+
+  <!-- 🔹 Tabs -->
+  <ul class="nav nav-tabs mb-4" id="profileTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
+        Profile Details
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="preferences-tab" data-bs-toggle="tab" data-bs-target="#preferences" type="button" role="tab">
+        Preferences
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="theme-tab" data-bs-toggle="tab" data-bs-target="#theme" type="button" role="tab">
+        Dashboard Theme
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="language-tab" data-bs-toggle="tab" data-bs-target="#language" type="button" role="tab">
+        Language
+      </button>
+    </li>
+  </ul>
+
+  <!-- 🔹 Tab Content -->
+  <div class="tab-content" id="profileTabContent">
+
+    <!-- 👤 Profile Details -->
+    <div class="tab-pane fade show active" id="profile" role="tabpanel">
+      <div class="card shadow-sm border-0 rounded-4 p-4">
+        <form id="profileForm" enctype="multipart/form-data" method="POST" action="#">
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" name="full_name" class="form-control" value="{{ traveller.full_name }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" value="{{ traveller.email }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Profile Image</label>
+            <input type="file" name="image" class="form-control">
+            {% if traveller.image %}
+            <img src="{{ url_for('static', filename='images/' ~ traveller.image) }}" class="rounded mt-2" width="100">
+            {% endif %}
+          </div>
+          <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ⚙️ Preferences -->
+    <div class="tab-pane fade" id="preferences" role="tabpanel">
+      <div class="card shadow-sm border-0 rounded-4 p-4">
+        <div class="mb-3">
+          <label class="form-label">Preferred Travel Mode</label>
+          <select name="travel_mode" class="form-select">
+            <option value="car" {% if traveller.travel_mode == 'car' %}selected{% endif %}>Car</option>
+            <option value="flight" {% if traveller.travel_mode == 'flight' %}selected{% endif %}>Flight</option>
+            <option value="train" {% if traveller.travel_mode == 'train' %}selected{% endif %}>Train</option>
+            <option value="bus" {% if traveller.travel_mode == 'bus' %}selected{% endif %}>Bus</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Notification Preferences</label>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="email_notifications" value="1" {% if traveller.email_notifications %}checked{% endif %}>
+            <label class="form-check-label">Email Notifications</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="sms_notifications" value="1" {% if traveller.sms_notifications %}checked{% endif %}>
+            <label class="form-check-label">SMS Notifications</label>
+          </div>
+        </div>
+        <button class="btn btn-primary">Update Preferences</button>
+      </div>
+    </div>
+
+    <!-- 🎨 Dashboard Theme -->
+    <div class="tab-pane fade" id="theme" role="tabpanel">
+      <div class="card shadow-sm border-0 rounded-4 p-4">
+        <div class="mb-3">
+          <label class="form-label">Select Theme Color</label>
+          <select id="themeColorSelect" class="form-select">
+            <option value="gold">Gold (Default)</option>
+            <option value="blue">Blue</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🌐 Language Settings -->
+    <div class="tab-pane fade" id="language" role="tabpanel">
+      <div class="card shadow-sm border-0 rounded-4 p-4">
+        <div class="mb-3">
+          <label class="form-label">Select Language</label>
+          <select id="languageSelect" class="form-select">
+            <option value="en">English</option>
+            <option value="zh">Chinese</option>
+            <option value="mou">Māori (MOURYA)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Similar theme & language JS as provider dashboard
+window.addEventListener("DOMContentLoaded", () => {
+    const themeSelect = document.getElementById("themeColorSelect");
+    const languageSelect = document.getElementById("languageSelect");
+
+    const sidebarLinks = document.querySelectorAll("#sidebar .nav-link span");
+    const navbarBrand = document.querySelector(".navbar-brand");
+
+    const translations = {
+        en: { dashboard: "Dashboard", trips: "My Trips", memories: "My Memories", planner: "Trip Planner", profile: "Profile", settings: "Settings", logout: "Logout" },
+        zh: { dashboard: "仪表板", trips: "我的行程", memories: "我的回忆", planner: "旅行规划器", profile: "个人资料", settings: "设置", logout: "登出" },
+        mou: { dashboard: "Raupapa", trips: "Oku Haerenga", memories: "Oku Mahara", planner: "Rerenga Mahere", profile: "Kōtaha", settings: "Tautuhinga", logout: "Rauwhi" }
+    };
+
+    // Apply saved theme & language from cookie
+    const savedTheme = getCookie("theme_color") || "gold";
+    const savedLang = getCookie("language") || "en";
+    applyTheme(savedTheme); if(themeSelect) themeSelect.value = savedTheme;
+    applyLanguage(savedLang); if(languageSelect) languageSelect.value = savedLang;
+
+    themeSelect?.addEventListener("change", function(){ applyTheme(this.value); setCookie("theme_color", this.value, 365); });
+    languageSelect?.addEventListener("change", function(){ applyLanguage(this.value); setCookie("language", this.value, 365); });
+
+    function applyTheme(theme){
+        const sidebar = document.getElementById("sidebar"); const navbar = document.querySelector(".navbar");
+        if(!sidebar || !navbar) return;
+        switch(theme){
+            case "gold": sidebar.style.backgroundColor="#b8860b"; navbar.style.backgroundColor="#ffffffff"; break;
+            case "blue": sidebar.style.backgroundColor="#007bff"; navbar.style.backgroundColor="#f9fbfcff"; break;
+            case "dark": sidebar.style.backgroundColor="#343a40"; navbar.style.backgroundColor="#fefefeff"; break;
+        }
+    }
+
+    function applyLanguage(lang){
+        if(!translations[lang]) return;
+        sidebarLinks[0].textContent = translations[lang].dashboard;
+        sidebarLinks[1].textContent = translations[lang].trips;
+        sidebarLinks[2].textContent = translations[lang].memories;
+        sidebarLinks[3].textContent = translations[lang].planner;
+        sidebarLinks[4].textContent = translations[lang].profile;
+        sidebarLinks[5].textContent = translations[lang].settings;
+        sidebarLinks[6].textContent = translations[lang].logout;
+        navbarBrand && (navbarBrand.textContent = translations[lang].dashboard);
+    }
+
+    function setCookie(name,value,days){ const d=new Date(); d.setTime(d.getTime()+(days*24*60*60*1000)); document.cookie=name+"="+value+";path=/;expires="+d.toUTCString(); }
+    function getCookie(name){ const match=document.cookie.match(new RegExp('(^| )'+name+'=([^;]+)')); return match ? match[2] : null; }
+});
+</script>
+{% endblock %}

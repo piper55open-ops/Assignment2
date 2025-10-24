@@ -1,0 +1,171 @@
+{% extends "traveller/traveller_base.html" %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h3 class="fw-bold mb-4">My Trips 📅</h3>
+
+    <!-- Add Trip Form Card -->
+    <div class="card shadow-sm p-4 rounded-4 mb-5">
+        <h5 class="fw-semibold mb-3">Add a New Trip</h5>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" name="title" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Destination</label>
+                    <input type="text" class="form-control" name="destination" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Start Date</label>
+                    <input type="text" class="form-control datepicker" name="start_date" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">End Date</label>
+                    <input type="text" class="form-control datepicker" name="end_date" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Budget ($)</label>
+                    <input type="number" class="form-control" name="budget">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" name="status">
+                        <option value="planned">Planned</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Google Maps URL</label>
+                    <input type="url" class="form-control" name="google_maps_url">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Cover Image</label>
+                    <input type="file" class="form-control" name="cover_image" accept="image/*">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" name="description" rows="3"></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Add Trip</button>
+        </form>
+    </div>
+
+    <!-- Main Row: Gallery + Calendar -->
+    <div class="row g-4">
+        <!-- Left: Trips Gallery -->
+        <div class="col-lg-8">
+            {% if trips %}
+            <div class="trips-gallery" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px;">
+                {% for t in trips %}
+                <div class="trip-card" style="background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08); display:grid; grid-row-end:span var(--row-span);">
+                    <img src="{{ url_for('static', filename='images/' ~ (t.cover_image or 'default_trip.jpg')) }}" alt="{{ t.title }}" style="width:100%; height:180px; object-fit:cover;">
+                    <div class="card-body" style="padding:12px 16px;">
+                        <h6 class="fw-bold">{{ t.title }}</h6>
+                        <small class="text-muted">{{ t.start_date }} - {{ t.end_date }}</small>
+                        <p class="mt-2 small">{{ t.description }}</p>
+                        {% if t.google_maps_url %}
+                        <a href="{{ t.google_maps_url }}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">Open Map</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">No trips yet. Add your first trip! 🌍</p>
+            {% endif %}
+        </div>
+
+        <!-- Right: Calendar Card -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm rounded-4 p-3" style="background:#fff; min-height:500px;">
+                <h5 class="fw-semibold mb-3 text-center">My Trips Calendar 📅</h5>
+                <div id="calendar" style="min-height:450px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<script>
+// ===== Flatpickr =====
+flatpickr("input[name='start_date']", {
+    altInput: true, altFormat: "F j, Y", dateFormat: "Y-m-d",
+    minDate: "today",
+    onChange: function(selectedDates) {
+        const endInput = document.querySelector("input[name='end_date']");
+        if (endInput._flatpickr) endInput._flatpickr.set('minDate', selectedDates[0]);
+    }
+});
+flatpickr("input[name='end_date']", { altInput: true, altFormat: "F j, Y", dateFormat: "Y-m-d", minDate:"today" });
+
+// ===== Masonry layout for trips =====
+function resizeMasonryItems() {
+    const gallery = document.querySelector('.trips-gallery');
+    if (!gallery) return;
+    const rowHeight = parseInt(getComputedStyle(gallery).getPropertyValue('grid-auto-rows') || 10);
+    const rowGap = parseInt(getComputedStyle(gallery).getPropertyValue('gap') || 16);
+
+    gallery.querySelectorAll('.trip-card').forEach(item => {
+        const imgHeight = item.querySelector('img').offsetHeight;
+        const bodyHeight = item.querySelector('.card-body').offsetHeight;
+        const rowSpan = Math.ceil((imgHeight + bodyHeight + rowGap) / (rowHeight + rowGap));
+        item.style.setProperty('--row-span', rowSpan);
+    });
+}
+window.addEventListener('load', resizeMasonryItems);
+window.addEventListener('resize', resizeMasonryItems);
+document.querySelectorAll('.trip-card img').forEach(img => img.addEventListener('load', resizeMasonryItems));
+
+// ===== FullCalendar =====
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) return;
+
+    const tripEvents = [
+        {% for t in trips %}
+        {
+            title: '{{ t.title }}',
+            start: '{{ t.start_date }}',
+            end: '{{ t.end_date }}',
+            allDay: true,
+            classNames: ['{{ t.status }}'] // planned/completed for styling
+        },
+        {% endfor %}
+    ];
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,listWeek'
+        },
+        events: tripEvents,
+        eventClick: function(info) {
+            alert('Trip: ' + info.event.title + '\nStarts: ' + info.event.startStr);
+        }
+    });
+    calendar.render();
+});
+</script>
+
+<style>
+/* Calendar Styling */
+#calendar { width:100%; border-radius:12px; }
+.fc-toolbar-title { font-weight:600; font-size:1.2rem; }
+.fc-daygrid-event { border-radius:8px; padding:4px 6px; font-size:0.85rem; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+.fc-daygrid-event.planned { background-color:#007bff !important; }
+.fc-daygrid-event.completed { background-color:#28a745 !important; }
+</style>
+{% endblock %}
