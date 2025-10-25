@@ -1,5 +1,6 @@
 import sys
 import os
+import hashlib
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from models.database import Database
 
@@ -42,4 +43,25 @@ class UserModel:
     def get_users_by_role(self, role):
         return self.db.fetchall("SELECT * FROM users WHERE role=?", (role,))
 
+    def update_profile(self, user_id, username, email, image=None):
+        if image:
+            self.db.execute(
+                "UPDATE users SET username=?, email=?, image=? WHERE id=?",
+                (username, email, image, user_id)
+            )
+        else:
+            self.db.execute(
+                "UPDATE users SET username=?, email=? WHERE id=?",
+                (username, email, user_id)
+            )
 
+    def update_password(self, user_id, new_password):
+        hashed_pw = self.hash_password(new_password)
+        self.db.execute("UPDATE users SET password=? WHERE id=?", (hashed_pw, user_id))
+
+    # 🔒 Password utilities
+    def hash_password(self, password):
+        return hashlib.sha256(password.encode()).hexdigest()
+
+    def check_password(self, password, hashed_password):
+        return self.hash_password(password) == hashed_password

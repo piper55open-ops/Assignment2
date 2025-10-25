@@ -7,53 +7,39 @@ import sqlite3
 db = Database()
 
 
-def update_tables():
+import os
+import sqlite3
+from models.database import Database  # make sure path is correct
 
+def create_tables():
+    db = Database()
 
-    # --- Update trips table ---
-    try:
-        db.execute("ALTER TABLE trips ADD COLUMN title TEXT")
-    except sqlite3.OperationalError:
-        print("Column 'title' already exists in trips")
-    try:
-        db.execute("ALTER TABLE trips ADD COLUMN status TEXT DEFAULT 'planned'")
-    except sqlite3.OperationalError:
-        print("Column 'status' already exists in trips")
-    try:
-        db.execute("ALTER TABLE trips ADD COLUMN description TEXT")
-    except sqlite3.OperationalError:
-        print("Column 'description' already exists in trips")
-    try:
-       db.execute("ALTER TABLE trips ADD COLUMN cover_image TEXT")
-    except sqlite3.OperationalError:
-        print("Column 'cover_image' already exists in trips")
-    try:
-        db.execute("ALTER TABLE trips ADD COLUMN google_maps_url TEXT")
-    except sqlite3.OperationalError:
-        print("Column 'google_maps_url' already exists in trips")
-
-    # --- Update travel_memories table ---
-    try:
-        db.execute("ALTER TABLE travel_memories ADD COLUMN trip_id INTEGER")
-    except sqlite3.OperationalError:
-        print("Column 'trip_id' already exists in travel_memories")
-    try:
-        db.execute("ALTER TABLE travel_memories ADD COLUMN hotel_id INTEGER")
-    except sqlite3.OperationalError:
-        print("Column 'hotel_id' already exists in travel_memories")
-
-    # --- Create trip_hotels linking table ---
+    # ------------------ Properties Table ------------------
     db.execute("""
-        CREATE TABLE IF NOT EXISTS trip_hotels (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            trip_id INTEGER NOT NULL,
-            hotel_id INTEGER NOT NULL,
-            FOREIGN KEY (trip_id) REFERENCES trips(id),
-            FOREIGN KEY (hotel_id) REFERENCES saved_stays(id)
-        )
+        CREATE TABLE IF NOT EXISTS properties (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                provider_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                description TEXT,
+                property_type TEXT CHECK(property_type IN ('House', 'Apartment', 'Room', 'Hut', 'Cabin', 'Villa', 'Bungalow')),
+                location TEXT,
+                price_per_day REAL NOT NULL,
+                max_guests INTEGER DEFAULT 1,
+                food_available INTEGER DEFAULT 0,
+                facilities TEXT,
+                image TEXT,
+                created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                status TEXT DEFAULT 'Active',
+                FOREIGN KEY (provider_id) REFERENCES providers(id)
+            )
     """)
 
-    print("Tables updated successfully!")
+    print("✅ Table 'properties' created or already exists.")
+
+    
+
+    
+    print("\n🎉 All required tables created successfully!")
 
 if __name__ == "__main__":
-    update_tables()
+    create_tables()

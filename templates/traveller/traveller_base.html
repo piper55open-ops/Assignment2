@@ -35,17 +35,19 @@
       <a class="navbar-brand" href="#"><i class="fas fa-globe-americas me-2"></i>Travel Mate – Traveller</a>
 
       <!-- Profile Dropdown -->
-      <div class="dropdown">
-        <button class="btn btn-light rounded-pill dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="fas fa-user-circle me-1 text-primary"></i> {{ traveller_name }}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-id-card me-2"></i>Profile</a></li>
-          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-cog me-2"></i>Settings</a></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
-        </ul>
+        <div class="d-flex justify-content-end align-items-center mb-4">
+          {% if current_traveller and current_traveller['image'] %}
+              <img src="{{ url_for('static', filename='images/' ~ current_traveller['image']) }}" 
+                  alt="{{ current_traveller['username'] }}" 
+                  class="rounded-circle me-2" width="40" height="40">
+          {% else %}
+              <img src="{{ url_for('static', filename='images/default_user.jpg') }}" 
+                  alt="Traveller" 
+                  class="rounded-circle me-2" width="40" height="40">
+          {% endif %}
+          <span>{{ current_traveller['username'] if current_traveller else 'Traveller' }}</span>
       </div>
+
     </div>
   </nav>
 

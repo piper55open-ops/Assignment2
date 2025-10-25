@@ -177,21 +177,42 @@ def profile():
     provider = provider_model.get_current_provider(user_id) # fetch from session or DB
     return render_template("provider/provider_profile.html", provider=provider)
 
+UPLOAD_FOLDER = "app/static/images"  # Adjust if your folder is different
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 @provider_bp.route("/profile/update", methods=["POST"])
 def update_profile():
-    # handle hotel_address + image update
-    # save changes to DB
+    if "role" not in session or session["role"] != "provider":
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for("login"))
+
+    user_id = session.get("user_id")
+    provider = provider_model.get_current_provider(user_id)
+
+    # Get form data
+    hotel_address = request.form.get("hotel_address")
+    hotel_name = request.form.get("hotel_name")
+    website_url = request.form.get("website_url")
+
+    # Handle image upload
+    file = request.files.get("image")
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(UPLOAD_FOLDER, filename))
+        image_to_save = filename
+    else:
+        image_to_save = provider.get("image")  # Keep existing image if no new upload
+
+    # Update provider in DB
+    update_query = """
+        UPDATE providers
+        SET hotel_name = ?, hotel_address = ?, website_url = ?, image = ?
+        WHERE user_id = ?
+    """
+    provider_model.db.execute(update_query, (hotel_name, hotel_address, website_url, image_to_save, user_id))
+    flash("Profile updated successfully!", "success")
     return redirect(url_for("provider.profile"))
-
-@provider_bp.route("/profile/theme", methods=["POST"])
-def update_theme():
-    # update provider.theme_color in DB
-    return redirect(url_for("provider.profile"))
-
-
-@provider_bp.route("/profile/language", methods=["POST"])
-def update_language():
-    # update provider.language in DB
-    return redirect(url_for("provider.profile"))
-
-

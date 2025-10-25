@@ -6,11 +6,13 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from models.database import Database
 from models.trip_model import TripModel
+from models.user_model import UserModel
 from werkzeug.utils import secure_filename
 from models.database import Database
 
 traveller_bp = Blueprint("traveller", __name__, url_prefix="/traveller")
 trip_model = TripModel()
+User = UserModel()
 
 # --- Load NZ locations ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,6 +33,19 @@ client = OpenAI(
 
 with open(LOCATIONS_FILE, 'r') as f:
     NZ_LOCATIONS = json.load(f)
+
+
+# Inside traveller_routes.py (or wherever your blueprint is defined)
+@traveller_bp.context_processor
+def inject_traveller_user():
+    traveller_id = session.get("user_id")
+    traveller = None
+    if traveller_id and session.get("role") == "tourist":
+        # Use your UserModel instance
+        from models.user_model import UserModel
+        user_model = UserModel()
+        traveller = user_model.get_user_by_id(traveller_id)
+    return dict(current_traveller=traveller)
 
 @traveller_bp.route("/dashboard")
 def traveller_dashboard():
@@ -95,6 +110,7 @@ def traveller_dashboard():
 
     return render_template(
         "traveller/traveller_dashboard.html",
+        traveller=traveller,
         traveller_name=traveller_name,
         total_trips=total_trips,
         seasonal_places=seasonal_places,
@@ -105,6 +121,9 @@ def ai_planner():
     if "role" not in session or session["role"] != "tourist":
         flash("Unauthorized access. Please log in as a traveller.", "danger")
         return redirect(url_for("login"))
+    
+    user_id = session.get("user_id")
+    traveller = User.get_user_by_id(user_id)
 
     if request.method == "POST":
         if not request.is_json:
@@ -175,7 +194,7 @@ def ai_planner():
 
         return jsonify(itinerary)
 
-    return render_template("traveller/trip_planner.html")
+    return render_template("traveller/trip_planner.html",current_traveller=traveller)
 
 
 
@@ -227,6 +246,13 @@ def get_nearby_accommodations(destination, radius=5000):
 
 @traveller_bp.route("/memories", methods=["GET", "POST"])
 def memories():
+    if "role" not in session or session["role"] != "tourist":
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for("login"))
+
+    user_id = session.get("user_id")
+    traveller = User.get_user_by_id(user_id)
+    
     if request.method == "POST":
         title = request.form["title"]
         story = request.form["story"]
@@ -258,12 +284,19 @@ def memories():
         "SELECT * FROM travel_memories WHERE user_id = ?", (session["user_id"],)
     ).fetchall()
 
-    return render_template("traveller/traveller_memories.html", memories=memories)
+    return render_template("traveller/traveller_memories.html", memories=memories,current_traveller=traveller)
 
 @traveller_bp.route("/nearby_stays")
 def nearby_stays():
     """Render the Nearby Stays page."""
-    return render_template("traveller/nearby_stays.html", google_api_key=GOOGLE_API_KEY)
+    if "role" not in session or session["role"] != "tourist":
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for("login"))
+
+    user_id = session.get("user_id")
+    traveller = User.get_user_by_id(user_id)
+    
+    return render_template("traveller/nearby_stays.html", google_api_key=GOOGLE_API_KEY,current_traveller=traveller)
 
 
 @traveller_bp.route("/get_nearby_hotels", methods=["POST"])
@@ -340,10 +373,13 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @traveller_bp.route("/my-trips", methods=["GET", "POST"])
 def traveller_trips():
-    user_id = session.get("user_id")
-    if not user_id:
-        flash("Please login first", "warning")
+    if "role" not in session or session["role"] != "tourist":
+        flash("Unauthorized access.", "danger")
         return redirect(url_for("login"))
+
+    user_id = session.get("user_id")
+    traveller = User.get_user_by_id(user_id)
+    
 
     # Handle new trip upload
     if request.method == "POST":
@@ -380,11 +416,43 @@ def traveller_trips():
 
     # Fetch all trips for this user
     trips = trip_model.get_trips_by_user(user_id)
-    return render_template("traveller/traveller_trips.html", trips=trips)
+    return render_template("traveller/traveller_trips.html", trips=trips,current_traveller=traveller)
 
-@traveller_bp.route("/profile", methods=["GET"])
+UPLOAD_FOLDER = 'static/images'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@traveller_bp.route('/profile', methods=['GET'])
 def profile():
     if "role" not in session or session["role"] != "tourist":
         flash("Unauthorized access.", "danger")
         return redirect(url_for("login"))
-    return render_template("traveller/traveller_profile.html")
+    traveller = User.get_user_by_id(session.get('user_id'))
+    user_id = session.get("user_id")
+    return render_template('traveller/traveller_profile.html', traveller=traveller)
+
+
+@traveller_bp.route('/update_profile', methods=['POST'])
+def update_profile():
+    if "role" not in session or session["role"] != "tourist":
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for("login"))
+
+    user_id = session.get('user_id')
+    username = request.form['username']
+    email = request.form['email']
+
+    image = None
+    if 'image' in request.files and request.files['image'].filename != '':
+        img_file = request.files['image']
+        filename = img_file.filename
+        path = os.path.join(UPLOAD_FOLDER, filename)
+        img_file.save(path)
+        image = filename
+
+    User.update_profile(user_id, username, email, image)
+    flash("Profile updated successfully!", "success")
+    return redirect(url_for("traveller_bp.profile"))
+
