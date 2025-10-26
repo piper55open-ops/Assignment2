@@ -8,6 +8,7 @@ from models.event_model import EventModel
 from models.blog_model import BlogModel
 from models.journey_models import JourneyModel
 from models.feedback_model import FeedbackModel
+from models.promotion_model import PromotionModel
 import os
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -18,6 +19,7 @@ event_model = EventModel()
 blog_model = BlogModel()
 journey_model = JourneyModel()
 feedback_model = FeedbackModel()
+promotion_model = PromotionModel()
     
 @admin_bp.context_processor
 def inject_admin_user():
@@ -106,26 +108,77 @@ def admin_users():
 # --- Providers Page ---
 @admin_bp.route("/providers")
 def admin_providers():
-    # Fetch all providers from the new providers table
+    if session.get("role") != "admin":
+        flash("Unauthorized access", "danger")
+        return redirect(url_for("login"))
+
+    # Fetch all registered providers
     providers = provider_model.get_all_providers()
+
+    # Fetch promotions by status
+    pending_promotions = promotion_model.get_promotions_by_status("Pending")
+    confirmed_promotions = promotion_model.get_promotions_by_status("Confirmed")
+    rejected_promotions = promotion_model.get_promotions_by_status("Rejected")
+
+    return render_template(
+        "admin/accommodations.html",
+        providers=providers,
+        pending_promotions=pending_promotions,
+        confirmed_promotions=confirmed_promotions,
+        rejected_promotions=rejected_promotions
+    )
     
-    # Fetch all ad requests (pending or approved)
-    ads = ad_model.get_all_ads_pending_or_approved()
-    
-    return render_template("admin/accommodations.html", providers=providers, ads=ads)
+    # -------------------- ADD PROVIDER --------------------
+@admin_bp.route("/providers/add", methods=["POST"])
+def add_provider_route():
+    user_id = request.form.get("user_id")
+    hotel_name = request.form.get("hotel_name")
+    hotel_address = request.form.get("hotel_address")
+    website_url = request.form.get("website_url")
+    image_file = request.files.get("image")
 
+    image_name = None
+    if image_file and image_file.filename:
+        image_name = image_file.filename
+        image_file.save(f"static/images/{image_name}")
 
-# --- Approve Ad ---
-@admin_bp.route("/ads/approve/<int:ad_id>", methods=["POST"])
-def approve_ad(ad_id):
-    ad_model.update_status(ad_id, "Approved")
-    return jsonify({"status": "success", "message": "Advertisement approved successfully!"})
+    result = provider_model.add_provider(user_id, hotel_name, hotel_address, website_url, image_name)
+    if result["success"]:
+        flash(result["message"], "success")
+    else:
+        flash(result["message"], "danger")
 
-# --- Reject Ad ---
-@admin_bp.route("/ads/reject/<int:ad_id>", methods=["POST"])
-def reject_ad(ad_id):
-    ad_model.update_status(ad_id, "Rejected")
-    return jsonify({"status": "success", "message": "Advertisement rejected."})
+    return redirect(url_for("admin.providers"))
+
+# -------------------- PROMOTION MANAGEMENT --------------------
+@admin_bp.route("/promotions")
+def admin_promotions():
+    if session.get("role") != "admin":
+        flash("Unauthorized access", "danger")
+        return redirect(url_for("login"))
+
+    # Fetch all pending promotions
+    pending_promotions = promotion_model.get_promotions_by_status("Pending")
+    confirmed_promotions = promotion_model.get_promotions_by_status("Confirmed")
+    rejected_promotions = promotion_model.get_promotions_by_status("Rejected")
+
+    return render_template("admin/promotions.html",
+                           pending_promotions=pending_promotions,
+                           confirmed_promotions=confirmed_promotions,
+                           rejected_promotions=rejected_promotions)
+
+@admin_bp.route("/promotions/<int:promo_id>/approve", methods=["POST"])
+def approve_promotion(promo_id):
+    promotion_model.update_status(promo_id, "Confirmed")
+    flash("Promotion approved successfully!", "success")
+    return redirect(url_for("admin.admin_promotions"))
+
+@admin_bp.route("/promotions/<int:promo_id>/reject", methods=["POST"])
+def reject_promotion(promo_id):
+    promotion_model.update_status(promo_id, "Rejected")
+    flash("Promotion rejected.", "danger")
+    return redirect(url_for("admin.admin_promotions"))
+
 
 #----------------------Events -----------------------------
 @admin_bp.route("/events")

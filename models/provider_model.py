@@ -20,6 +20,21 @@ class ProviderModel:
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         """)
+    def add_provider(self, user_id, hotel_name, hotel_address, website_url=None, image=None):
+        # Check if provider already exists
+        existing = self.db.fetchone("SELECT * FROM providers WHERE user_id = ?", (user_id,))
+        if existing:
+            return {"success": False, "message": "Provider for this user already exists."}
+
+        self.db.execute(
+            """
+            INSERT INTO providers (user_id, hotel_name, hotel_address, website_url, image)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (user_id, hotel_name, hotel_address, website_url, image)
+        )
+        return {"success": True, "message": "Provider added successfully."}
+
 
     def get_current_provider(self,user_id):
         query = """
@@ -48,5 +63,11 @@ class ProviderModel:
         return int((filled_fields / total_fields) * 100)
     
     def get_all_providers(self):
-        return self.db.fetchall("SELECT * FROM users WHERE role = 'provider' ")
-    
+        query = """
+            SELECT p.*, u.username, u.email
+            FROM providers p
+            JOIN users u ON p.user_id = u.id
+            ORDER BY p.id ASC
+        """
+        return self.db.fetchall(query)
+

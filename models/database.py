@@ -7,8 +7,10 @@ class Database:
 
     def __new__(cls):
         if cls._instance is None:
-            db_path = os.path.join(os.path.dirname(__file__), "..", "database", "app.db")
-            db_path = os.path.abspath(db_path)
+            # ✅ Your actual DB file path
+            db_path = r"C:\Users\oshad\OneDrive\Documents\Yobee\TravelMate\Assignment2\database\app.db"
+            
+            # Make sure folder exists
             os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
             cls._instance = super(Database, cls).__new__(cls)
@@ -16,9 +18,9 @@ class Database:
             try:
                 cls._instance.connection = sqlite3.connect(db_path, check_same_thread=False)
                 cls._instance.connection.row_factory = sqlite3.Row
-                print(f"Database connected successfully at: {db_path}")
+                print(f"✅ Database connected successfully at: {db_path}")
             except sqlite3.OperationalError as e:
-                print(f"Error connecting to database: {e}")
+                print(f"❌ Error connecting to database: {e}")
                 raise e
 
         return cls._instance
@@ -31,7 +33,6 @@ class Database:
             self.connection.close()
             type(self)._instance = None
 
-    # -------------------- EXECUTE --------------------
     def execute(self, query, params=None):
         cursor = self.connection.cursor()
         if params:
@@ -41,7 +42,6 @@ class Database:
         self.connection.commit()
         return cursor
 
-    # -------------------- FETCH SINGLE --------------------
     def fetchone(self, query, params=None):
         cursor = self.connection.cursor()
         if params:
@@ -49,11 +49,8 @@ class Database:
         else:
             cursor.execute(query)
         row = cursor.fetchone()
-        if row:
-            return dict(row)  # <-- Automatically convert to dict
-        return None
+        return dict(row) if row else None
 
-    # -------------------- FETCH ALL --------------------
     def fetchall(self, query, params=None):
         cursor = self.connection.cursor()
         if params:
@@ -61,4 +58,4 @@ class Database:
         else:
             cursor.execute(query)
         rows = cursor.fetchall()
-        return [dict(row) for row in rows]  # <-- Automatically convert all rows to dict
+        return [dict(row) for row in rows]

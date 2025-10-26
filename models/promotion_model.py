@@ -10,62 +10,59 @@ class PromotionModel:
     def create_table(self):
         """Create the promotions table."""
         self.db.execute("""
-            CREATE TABLE IF NOT EXISTS promotions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                provider_id INTEGER NOT NULL,
-                title TEXT NOT NULL,
-                description TEXT,
-                image TEXT,
-                created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (provider_id) REFERENCES providers(id)
-            )
+        CREATE TABLE IF NOT EXISTS promotions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            provider_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT,
+            image TEXT,
+            start_date TEXT,
+            end_date TEXT,
+            status TEXT CHECK(status IN ('Pending', 'Rejected', 'Confirmed')) DEFAULT 'Pending',
+            created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (provider_id) REFERENCES providers(id)
+        )
         """)
 
-    def add_promotion(self, provider_id, title, description, image):
-        query = """
-            INSERT INTO promotions (provider_id, title, description, image)
-            VALUES (?, ?, ?, ?)
-        """
-        self.db.execute(query, (provider_id, title, description, image))
-        return True
+    def add_promotion(self,provider_id, title, description, image, start_date, end_date):
+        self.db.execute("""
+            INSERT INTO promotions (provider_id, title, description, image, start_date, end_date, status)
+            VALUES (?, ?, ?, ?, ?, ?, 'Pending')
+        """, (provider_id, title, description, image, start_date, end_date))
 
-    # Read
     def get_promotions_by_provider(self, provider_id):
-        query = "SELECT * FROM promotions WHERE provider_id = ? ORDER BY id DESC"
-        return self.db.fetchall(query, (provider_id,))
+        return self.db.fetchall("SELECT * FROM promotions WHERE provider_id = ?", (provider_id,))
 
-    # Update
-    def update_promotion(self, promo_id, title, description, image=None):
+    def update_promotion(self,promo_id, title, description, image, start_date, end_date):
         if image:
-            query = """
+            self.db.execute("""
                 UPDATE promotions
-                SET title = ?, description = ?, image = ?
-                WHERE id = ?
-            """
-            self.db.execute(query, (title, description, image, promo_id))
+                SET title=?, description=?, image=?, start_date=?, end_date=?, status='Pending'
+                WHERE id=?
+            """, (title, description, image, start_date, end_date, promo_id))
         else:
-            query = """
+            self.db.execute("""
                 UPDATE promotions
-                SET title = ?, description = ?
-                WHERE id = ?
-            """
-            self.db.execute(query, (title, description, promo_id))
-        return True
+                SET title=?, description=?, start_date=?, end_date=?, status='Pending'
+                WHERE id=?
+            """, (title, description, start_date, end_date, promo_id))
 
-    # Delete
-    def delete_promotion(self, promo_id):
-        query = "DELETE FROM promotions WHERE id = ?"
-        self.db.execute(query, (promo_id,))
-        return True
+    def delete_promotion(self,promo_id):
+        self.db.execute("DELETE FROM promotions WHERE id=?", (promo_id,))
 
+    def update_status(self,promo_id, new_status):
+        self.db.execute("UPDATE promotions SET status=? WHERE id=?", (new_status, promo_id))
+
+    def get_promotions_by_status(self,status):
+        return self.db.fetchall("SELECT * FROM promotions WHERE status=?", (status,))
+    
     def get_promotion_by_id(self, promotion_id):
-        return self.db.fetchone(
-            "SELECT * FROM promotions WHERE id = ?", (promotion_id,)
-        )
-
+            return self.db.fetchone(
+                "SELECT * FROM promotions WHERE id = ?", (promotion_id,)
+            )
 
     def count_promotions(self, provider_id):
-        result = self.db.fetchone(
-            "SELECT COUNT(*) as count FROM promotions WHERE provider_id=?", (provider_id,)
-        )
-        return result["count"] if result else 0
+            result = self.db.fetchone(
+                "SELECT COUNT(*) as count FROM promotions WHERE provider_id=?", (provider_id,)
+            )
+            return result["count"] if result else 0

@@ -30,7 +30,7 @@ def provider_dashboard():
 
     provider_id = provider["id"]
     total_properties = provider_model.count_properties(user_id)
-    total_promotions = provider_model.count_promotions(user_id)
+    total_promotions = promotion_model.count_promotions(user_id)
     profile_completion = provider_model.calculate_profile_completion(provider)
 
     return render_template(
@@ -119,48 +119,74 @@ def delete_property(property_id):
 
 
 #------------------------------PROMOTION --------------------------------------------
-
-@provider_bp.route('/promotions')
-def promotions():
-    if session.get("role") != "provider":
-        flash("Unauthorized access", "danger")
+# -------------------- VIEW PROMOTIONS --------------------
+@provider_bp.route("/promotions", endpoint="promotions")
+def provider_promotions():
+    if "role" not in session or session["role"] != "provider":
+        flash("Unauthorized access.", "danger")
         return redirect(url_for("login"))
 
     user_id = session.get("user_id")
-    provider = provider_model.get_current_provider(user_id) 
-    promotions = promotion_model.get_promotions_by_provider(user_id)
-    return render_template('provider/promotions.html', promotions=promotions,provider=provider )
+    provider = provider_model.get_current_provider(user_id)
+    if not provider:
+        flash("Provider profile not found.", "warning")
+        return redirect(url_for("provider.profile"))
 
+    promotions = promotion_model.get_promotions_by_provider(provider["id"])
+
+    return render_template(
+        "provider/promotions.html",
+        provider=provider,
+        promotions=promotions
+    )
+
+# -------------------- ADD PROMOTION --------------------
 @provider_bp.route('/promotions/add', methods=['POST'])
 def add_promotion():
-    if "provider_id" not in session:
+    if session.get("role") != "provider":
         return jsonify({"message": "Unauthorized"}), 403
-    provider_id = session["provider_id"]
+
+    user_id = session["user_id"]
+    provider = provider_model.get_current_provider(user_id)
+    if not provider:
+        return jsonify({"message": "Provider profile not found"}), 404
+
     title = request.form.get('title')
     description = request.form.get('description')
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
     image_file = request.files.get('image')
+
     image_name = None
-    if image_file:
+    if image_file and image_file.filename:
         image_name = image_file.filename
         image_file.save(f"static/images/{image_name}")
 
-    promotion_model.add_promotion(provider_id, title, description, image_name)
-    return jsonify({'message': 'Promotion added successfully!'})
+    # Use provider["id"] here!
+    promotion_model.add_promotion(provider["id"], title, description, image_name, start_date, end_date)
+    return jsonify({'message': 'Promotion request sent for admin approval!'})
 
+
+# -------------------- UPDATE PROMOTION --------------------
 @provider_bp.route('/promotions/update', methods=['POST'])
 def update_promotion():
     promo_id = request.form.get('id')
     title = request.form.get('title')
     description = request.form.get('description')
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+
     image_file = request.files.get('image')
     image_name = None
     if image_file and image_file.filename != "":
         image_name = image_file.filename
         image_file.save(f"static/images/{image_name}")
 
-    promotion_model.update_promotion(promo_id, title, description, image_name)
-    return jsonify({'message': 'Promotion updated successfully!'})
+    promotion_model.update_promotion(promo_id, title, description, image_name, start_date, end_date)
+    return jsonify({'message': 'Promotion updated successfully and sent for re-approval!'})
 
+
+# -------------------- DELETE PROMOTION --------------------
 @provider_bp.route('/promotions/delete/<int:promo_id>', methods=['POST'])
 def delete_promotion(promo_id):
     promotion_model.delete_promotion(promo_id)

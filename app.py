@@ -334,8 +334,6 @@ def chatbot_reply():
     return jsonify({"reply": reply})
 
 
-
-    
 # -------------------- DASHBOARDS ---------------------------------------
 #--------------------------ADMIN DASHBOARD ------------------------------
 @app.route("/admin/dashboard")

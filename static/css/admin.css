@@ -80,3 +80,7 @@ body {
     border-color: #b8860b;
     box-shadow: 0 0 0 0.2rem rgba(184, 134, 11, 0.25);
   }
+  #promotionsTable th, #promotionsTable td {
+    vertical-align: middle;
+    white-space: nowrap;  /* prevent wrapping of buttons */
+}
