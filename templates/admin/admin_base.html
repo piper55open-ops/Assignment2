@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
   
@@ -23,7 +24,7 @@
             <h4 class="text-white fw-bold">Admin</h4>
         </div>
         <nav class="nav flex-column">
-            <a class="nav-link" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+            <a class="nav-link" href="{{ url_for('admin.admin_dashboard') }}"><i class="fas fa-home"></i> <span>Dashboard</span></a>
             <a class="nav-link" href="{{ url_for('admin.admin_users') }}"><i class="fas fa-users"></i> <span>Users</span></a>
             <a class="nav-link" href="{{ url_for('admin.admin_providers') }}"><i class="fas fa-hotel"></i> <span>Accommodations</span></a>
             <a class="nav-link" href="{{ url_for('admin.admin_events') }}"><i class="fas fa-calendar-alt"></i> <span>Events</span></a>

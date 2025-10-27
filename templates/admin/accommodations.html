@@ -185,25 +185,33 @@
 
 <!-- JS Scripts -->
 <script>
-  // Search
-  document.getElementById("providerSearch").addEventListener("keyup", function() {
+  // 🔍 Search filter for table
+  document.getElementById("providerSearch")?.addEventListener("keyup", function() {
     const filter = this.value.toLowerCase();
-    document.querySelectorAll("#providerTable tbody tr").forEach(row => {
+    document.querySelectorAll("#promotionsTable tbody tr").forEach(row => {
       row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
     });
   });
 
-  /async function updatePromotionStatus(id, status) {
-    const res = await fetch(`/admin/promotions/update/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    const data = await res.json();
-    alert(data.message);
-    location.reload();
+  // ✅ Approve / Reject Promotion
+  async function updatePromotionStatus(id, status) {
+    try {
+      const response = await fetch(`/admin/promotions/update/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: status }),
+      });
+
+      const data = await response.json();
+      alert(data.message);
+      location.reload();
+    } catch (error) {
+      console.error("Error updating promotion:", error);
+      alert("Something went wrong while updating promotion status!");
+    }
   }
 </script>
+
 
 <style>
   .btn-gold {

@@ -17,7 +17,7 @@ from models.blog_model import BlogModel
 from models.provider_model import ProviderModel
 from models.property_model import PropertyModel
 from models.promotion_model import PromotionModel
-
+from models.event_model import EventModel
 from controllers.admin_routes import admin_bp
 from controllers.provider_routes import provider_bp
 from controllers.traveller_routes import traveller_bp
@@ -44,6 +44,7 @@ blog_model = BlogModel()
 provider_model = ProviderModel()
 property_model = PropertyModel()
 promotion_model = PromotionModel()
+event_model = EventModel()
 
 print("OpenAI Key Loaded:", os.getenv("OPENAI_API_KEY"))
 
@@ -51,8 +52,9 @@ print("OpenAI Key Loaded:", os.getenv("OPENAI_API_KEY"))
 def home():
     return render_template('home.html')
 
-UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'images')
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'images')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -106,7 +108,7 @@ def login():
             elif role == "provider":
                 return redirect(url_for("provider.provider_dashboard"))
             elif role == "admin":
-                return redirect(url_for("admin_dashboard"))
+                return redirect(url_for("admin.admin_dashboard"))
         else:
             flash("Invalid credentials or role", "danger")
 
@@ -221,7 +223,15 @@ def ask_ai():
 
 @app.route('/journies')
 def journies():
-    return render_template("journeys.html")
+    events = event_model.get_all_events()  # List of all events
+    # Split into chunks of 3 for each row
+    def chunks(lst, n):
+        for i in range(0, len(lst), n):
+            yield lst[i:i + n]
+    event_rows = list(chunks(events, 3))
+    return render_template('journeys.html', event_rows=event_rows)
+
+
 
 @app.route('/discover')
 def discover():
@@ -336,39 +346,7 @@ def chatbot_reply():
 
 # -------------------- DASHBOARDS ---------------------------------------
 #--------------------------ADMIN DASHBOARD ------------------------------
-@app.route("/admin/dashboard")
-def admin_dashboard():
-    # Check role
-    if "role" not in session or session["role"] != "admin":
-        flash("Unauthorized access", "danger")
-        return redirect(url_for("login"))
 
-    # Get current admin from session
-    admin_id = session.get("user_id")  # <-- use user_id from login session
-    admin = None
-    if admin_id:
-        admin = user_model.db.fetchone(
-            "SELECT * FROM users WHERE id=? AND role='admin'",
-            (admin_id,)
-        )
-
-    stats = {
-        "travellers": user_model.count_users_by_role("traveller"),
-        "providers": user_model.count_users_by_role("provider"),
-        "journeys": journey_model.count_journeys(),
-        "blogs": blog_model.count_blogs()
-    }
-
-    recent_journeys = journey_model.get_all_journeys()[:5]
-    recent_blogs = blog_model.get_all_blogs()[:5]
-
-    return render_template(
-        "admin/dashboard.html",
-        current_admin=admin,  
-        stats=stats,
-        recent_journeys=recent_journeys,
-        recent_blogs=recent_blogs
-    )
 
 app.register_blueprint(admin_bp)
 

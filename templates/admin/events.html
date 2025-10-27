@@ -43,10 +43,10 @@
                       data-bs-toggle="modal"
                       data-bs-target="#updateEventModal"
                       onclick="openUpdateEventModal({{ event.id }}, '{{ event.title }}', '{{ event.description|e }}', '{{ event.date }}', '{{ event.location }}')">
-                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-pencil-square"></i>Edit
               </button>
               <button class="btn btn-sm btn-outline-danger" onclick="deleteEvent({{ event.id }})">
-                <i class="bi bi-trash"></i>
+                <i class="bi bi-trash"></i>Delete
               </button>
             </td>
           </tr>

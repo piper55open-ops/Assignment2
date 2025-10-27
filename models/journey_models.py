@@ -78,3 +78,4 @@ class JourneyModel:
     
     def delete_journey(self, journey_id):
         self.db.execute("DELETE FROM journeys WHERE id = ?", (journey_id,))
+        

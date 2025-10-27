@@ -65,3 +65,6 @@ class UserModel:
 
     def check_password(self, password, hashed_password):
         return self.hash_password(password) == hashed_password
+    
+    def deactivate_user(self, user_id):
+        self.db.execute("UPDATE users SET status='inactive' WHERE id=?", (user_id,))

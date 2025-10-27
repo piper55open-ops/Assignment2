@@ -32,79 +32,81 @@ def inject_admin_user():
         )
     return dict(current_admin=admin)
 
-# 🟤 Display traveller management page
-@admin_bp.route("/users")
-def manage_users():
-    travellers = user_model.db.fetchall("SELECT * FROM users WHERE role='tourist'")
-    return render_template("admin/users.html", travellers=travellers)
-
-
-# 🟤 Add new traveller
-@admin_bp.route("/add_traveller", methods=["POST"])
-def add_traveller():
-    data = request.form
-    username = data.get("username")
-    email = data.get("email")
-    country = data.get("country")
-
-    # Temporary password (you can randomize or send email later)
-    password = "123456"
-
-    try:
-        user_model.add_user(username, email, password, "tourist", None)
-        return jsonify({"status": "success", "message": "Traveller added successfully!"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
-
-
-# 🟤 Update traveller
-@admin_bp.route("/update_traveller/<int:user_id>", methods=["POST"])
-def update_traveller(user_id):
-    data = request.form
-    username = data.get("username")
-    email = data.get("email")
-    country = data.get("country")
-
-    try:
-        user_model.db.execute(
-            "UPDATE users SET username=?, email=?, image=? WHERE id=?",
-            (username, email, None, user_id),
-        )
-        return jsonify({"status": "success", "message": "Traveller updated successfully!"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
-
-
-# 🟤 Delete traveller
-@admin_bp.route("/delete_traveller/<int:user_id>", methods=["DELETE"])
-def delete_traveller(user_id):
-    try:
-        user_model.db.execute("DELETE FROM users WHERE id=?", (user_id,))
-        return jsonify({"status": "success", "message": "Traveller deleted successfully!"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
-    
-@admin_bp.route("/users")
-def admin_users():
-    # Check if logged in as admin
+@admin_bp.route("/dashboard")
+def admin_dashboard():
     if "role" not in session or session["role"] != "admin":
         flash("Unauthorized access", "danger")
         return redirect(url_for("login"))
 
-    # Get current admin
-    admin_id = session.get("user_id")
-    admin = None
-    if admin_id:
-        admin = user_model.db.fetchone("SELECT * FROM users WHERE id=?", (admin_id,))
+    # Stats
+    stats = {
+        "travellers": user_model.count_users_by_role("traveller"),
+        "providers": user_model.count_users_by_role("provider"),
+        "journeys": journey_model.count_journeys(),
+        "blogs": blog_model.count_blogs()
+    }
 
-    # Get all travellers (reuse your UserModel method)
-    travellers = user_model.get_users_by_role("tourist")
+    # Top locations
+    top_locations = journey_model.db.fetchall(
+        "SELECT location, COUNT(*) AS count FROM journeys "
+        "GROUP BY location ORDER BY count DESC LIMIT 5"
+    )
+    location_labels = [loc["location"] or "Unknown" for loc in top_locations]
+    location_data = [loc["count"] for loc in top_locations]
+
+    # Recent journeys & blogs
+    recent_journeys = journey_model.get_all_journeys()[:5]
+    recent_blogs = blog_model.get_all_blogs()[:5]
 
     return render_template(
-        "admin/users.html",
-        current_admin=admin,
-        travellers=travellers
+        "admin/dashboard.html",
+        stats=stats,
+        travellers_count=stats["travellers"],
+        providers_count=stats["providers"],
+        total_users=stats["travellers"] + stats["providers"],
+        total_destinations=0,  # replace if you have destination count
+        total_events=0,        # replace if you have events count
+        total_blogs=stats["blogs"],
+        regions_labels=location_labels,
+        regions_data=location_data,
+        recent_journeys=recent_journeys,
+        recent_blogs=recent_blogs
     )
+
+# Get all users
+@admin_bp.route('/users')
+def admin_users():
+    users = user_model.get_all_users()
+    return render_template("admin/users.html", users=users)
+
+# Add new user
+@admin_bp.route('/add_user', methods=['POST'])
+def add_user():
+    username = request.form.get('username')
+    email = request.form.get('email')
+    role = request.form.get('role')
+    password = "default123"  # or let admin set
+    try:
+        user_model.add_user(username, email, user_model.hash_password(password), role)
+        return jsonify({"status":"success", "message":"User added successfully"})
+    except Exception as e:
+        return jsonify({"status":"error", "message": str(e)})
+
+# Update user
+@admin_bp.route('/update_user/<int:user_id>', methods=['POST'])
+def update_user(user_id):
+    username = request.form.get('username')
+    email = request.form.get('email')
+    role = request.form.get('role')
+    user_model.update_profile(user_id, username, email)
+    return jsonify({"status":"success", "message":"User updated successfully"})
+
+# Deactivate user
+@admin_bp.route('/deactivate_user/<int:user_id>', methods=['POST'])
+def deactivate_user(user_id):
+    user_model.deactivate_user(user_id)
+    return jsonify({"status":"success", "message":"User deactivated successfully"})
+
 # --- Providers Page ---
 @admin_bp.route("/providers")
 def admin_providers():
@@ -166,6 +168,18 @@ def admin_promotions():
                            pending_promotions=pending_promotions,
                            confirmed_promotions=confirmed_promotions,
                            rejected_promotions=rejected_promotions)
+    
+@admin_bp.route("/promotions/update/<int:promo_id>", methods=["POST"])
+def update_promotion_status(promo_id):
+    data = request.get_json()
+    status = data.get("status")
+
+    if status not in ["Confirmed", "Rejected"]:
+        return jsonify({"message": "Invalid status"}), 400
+
+    promotion_model.update_status(promo_id, status)
+    return jsonify({"message": f"Promotion {status.lower()} successfully!"})
+
 
 @admin_bp.route("/promotions/<int:promo_id>/approve", methods=["POST"])
 def approve_promotion(promo_id):

@@ -56,10 +56,10 @@
                       data-bs-toggle="modal"
                       data-bs-target="#updatePropertyModal"
                       onclick="openUpdateModal({{ property.id }}, '{{ property.name }}', '{{ property.property_type }}', '{{ property.location }}', {{ property.price_per_day }}, {{ property.max_guests }}, {{ property.food_available }}, '{{ property.facilities }}', '{{ property.status }}')">
-                <i class="bi bi-pencil-square"></i>
+                <i class="bi bi-pencil-square"></i>Update
               </button>
               <button class="btn btn-sm btn-outline-danger" onclick="deleteProperty({{ property.id }})">
-                <i class="bi bi-trash"></i>
+                <i class="bi bi-trash"></i>Delete
               </button>
             </td>
           </tr>

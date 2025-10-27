@@ -6,27 +6,21 @@
     <!-- Stat Cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3" style="background-color:#007bff;color:#fff;">
+            <div class="card text-center p-3 text-white" style="background: linear-gradient(135deg, #1abc9c, #16a085);">
                 <h5>Total Properties</h5>
-                <h3>{{ total_properties }}</h3>
+                <h3><i class="fa-solid fa-hotel me-1"></i> {{ total_properties }}</h3>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3" style="background-color:#007bff;color:#fff;">
+            <div class="card text-center p-3 text-white" style="background: linear-gradient(135deg, #3498db, #2980b9);">
                 <h5>Total Promotions</h5>
-                <h3>{{ total_promotions }}</h3>
+                <h3><i class="fa-solid fa-tags me-1"></i> {{ total_promotions }}</h3>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6">
+        <div class="col-md-4 col-sm-6">
             <div class="card text-center p-3" style="background-color:#007bff;color:#fff;">
-                <h5>Total Bookings</h5>
-                <h3>{{ total_bookings }}</h3>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3" style="background-color:#007bff;color:#fff;">
-                <h5>Total Reviews</h5>
-                <h3>{{ total_reviews }}</h3>
+                <h5>Profile Completion</h5>
+                <h3>{{ profile_completion }}%</h3>
             </div>
         </div>
     </div>
@@ -35,14 +29,14 @@
     <div class="row mb-4">
         <div class="col-md-6 mb-3">
             <div class="card p-3">
-                <h5 class="card-title">Property Bookings Overview</h5>
-                <canvas id="bookingsChart" height="250"></canvas>
+                <h5 class="card-title">Promotion Performance</h5>
+                <canvas id="promotionsChart" height="250"></canvas>
             </div>
         </div>
         <div class="col-md-6 mb-3">
             <div class="card p-3">
-                <h5 class="card-title">Promotion Performance</h5>
-                <canvas id="promotionsChart" height="250"></canvas>
+                <h5 class="card-title">Properties Overview</h5>
+                <canvas id="propertiesChart" height="250"></canvas>
             </div>
         </div>
     </div>
@@ -66,14 +60,6 @@
             </a>
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
-            <a href="#" class="text-decoration-none">
-                <div class="card text-center p-3 shadow-sm">
-                    <i class="fas fa-calendar-check fa-2x mb-2"></i>
-                    <h6>View Bookings</h6>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
             <a href="{{ url_for('provider.profile') }}" class="text-decoration-none">
                 <div class="card text-center p-3 shadow-sm">
                     <i class="fas fa-cog fa-2x mb-2"></i>
@@ -87,28 +73,6 @@
 
 <!-- Charts JS -->
 <script>
-    // Bookings Chart
-    const ctxBookings = document.getElementById('bookingsChart').getContext('2d');
-    const bookingsChart = new Chart(ctxBookings, {
-        type: 'bar',
-        data: {
-            labels: {{ booking_labels | default([]) | safe }},
-            datasets: [{
-                label: 'Bookings',
-                data: {{ booking_data | default([]) | safe }},
-                backgroundColor: '#007bff'
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
     // Promotions Chart
     const ctxPromotions = document.getElementById('promotionsChart').getContext('2d');
     const promotionsChart = new Chart(ctxPromotions, {
@@ -122,9 +86,22 @@
                 borderWidth: 1
             }]
         },
-        options: {
-            responsive: true
-        }
+        options: { responsive: true }
+    });
+
+    // Properties Chart (example: show distribution of property types)
+    const ctxProperties = document.getElementById('propertiesChart').getContext('2d');
+    const propertiesChart = new Chart(ctxProperties, {
+        type: 'bar',
+        data: {
+            labels: {{ property_types | default([]) | safe }},
+            datasets: [{
+                label: 'Properties',
+                data: {{ property_counts | default([]) | safe }},
+                backgroundColor: '#007bff'
+            }]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
 </script>
 {% endblock %}

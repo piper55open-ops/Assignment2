@@ -141,85 +141,28 @@
       <p class="text-muted">Experience culture, adventure, and unforgettable memories with fellow travelers.</p>
     </div>
 
-    <!-- 🔹 First Row -->
+    {% for row in event_rows %}
     <div class="row no-gutters">
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-1 order-xl-1">
-        <img src="{{ url_for('static', filename='images/events/event1.jpg') }}" alt="Queenstown Wine Festival"  class="img-fluid rounded">
+      {% for event in row %}
+      <div class="col-12 col-sm-6 col-xl-2 {{ loop.index is odd and 'order-sm-odd' or 'order-sm-even' }}">
+        <img src="{{ url_for('static', filename='images/events/' ~ event.image) }}" 
+             alt="{{ event.title }}" class="img-fluid rounded">
       </div>
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-2 order-xl-2 point-left">
+      <div class="col-12 col-sm-6 col-xl-2 point-left">
         <div class="menu-item-desc">
-          <h6>Nov 12, 2025</h6>
-          <h1>Queenstown Wine Festival</h1>
-          <p>Celebrate the region’s finest wines, live music, and stunning lakeside views.</p>
+          <h6>{{ event.date }}</h6>
+          <h1>{{ event.title }}</h1>
+          <p>{{ event.description }}</p>
           <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
         </div>
       </div>
-
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-4 order-xl-3">
-        <img src="{{ url_for('static', filename='images/events/event2.jpg') }}" alt="Auckland Lantern Festival" class="img-fluid rounded">
-      </div>
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-3 order-xl-4 point-left">
-        <div class="menu-item-desc">
-          <h6>Feb 8, 2026</h6>
-          <h1>Auckland Lantern Festival</h1>
-          <p>Immerse in beautiful lanterns, food stalls, and cultural performances.</p>
-          <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-5 order-xl-5">
-        <img src="{{ url_for('static', filename='images/events/event3.jpg') }}" alt="Rotorua Adventure Week" class="img-fluid rounded">
-      </div>
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-6 order-xl-6 point-left">
-        <div class="menu-item-desc">
-          <h6>Mar 20, 2026</h6>
-          <h1>Rotorua Adventure Week</h1>
-          <p>Adrenaline-packed adventures including zip-lining, rafting, and geothermal hikes.</p>
-          <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
-        </div>
-      </div>
+      {% endfor %}
     </div>
+    {% endfor %}
 
-    <!-- 🔹 Second Row -->
-    <div class="row no-gutters">
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-2 order-xl-2">
-        <img src="{{ url_for('static', filename='images/events/event4.jpg') }}" alt="Wellington Food Carnival" class="img-fluid rounded">
-      </div>
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-1 order-xl-1 point-right">
-        <div class="menu-item-desc">
-          <h6>Apr 10, 2026</h6>
-          <h1>Wellington Food Carnival</h1>
-          <p>Explore world flavors and street food in New Zealand’s culinary capital.</p>
-          <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-3 order-xl-4">
-        <img src="{{ url_for('static', filename='images/events/event5.jpg') }}" alt="Christchurch Art Parade" class="img-fluid rounded">
-      </div>
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-5 order-xl-3 point-right">
-        <div class="menu-item-desc">
-          <h6>May 2, 2026</h6>
-          <h1>Christchurch Art Parade</h1>
-          <p>Celebrate local art, creative workshops, and live street performances.</p>
-          <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
-        </div>
-      </div>
-
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-6 order-xl-6">
-        <img src="{{ url_for('static', filename='images/events/event6.jpg') }}" alt="Bay of Islands Music Fest" class="img-fluid rounded">
-      </div>
-      <div class="col-12 col-sm-6 col-xl-2 order-sm-5 order-xl-5 point-right">
-        <div class="menu-item-desc">
-          <h6>Jun 14, 2026</h6>
-          <h1>Bay of Islands Music Fest</h1>
-          <p>Live bands, sea breeze, and the perfect coastal vibe for every traveler.</p>
-          <a href="{{ url_for('login') }}" class="btna mt-3 d-none d-xl-block">Join Event</a>
-        </div>
-      </div>
-    </div>
   </div>
 </section>
+
 
 <script>
   AOS.init({ duration: 800, once: true });

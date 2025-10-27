@@ -14,7 +14,6 @@ provider_model = ProviderModel()
 property_model = PropertyModel()
 promotion_model = PromotionModel()
 
-
 @provider_bp.route("/dashboard")
 def provider_dashboard():
     """Provider main dashboard"""
@@ -33,14 +32,35 @@ def provider_dashboard():
     total_promotions = promotion_model.count_promotions(user_id)
     profile_completion = provider_model.calculate_profile_completion(provider)
 
+    # Get properties overview for chart
+    properties = property_model.get_properties_by_provider(provider_id)
+    property_types_dict = {}
+    for prop in properties:
+        ptype = prop["property_type"] or "Other"
+        property_types_dict[ptype] = property_types_dict.get(ptype, 0) + 1
+
+    property_types = list(property_types_dict.keys())
+    property_counts = list(property_types_dict.values())
+
+    # Promotions stats for chart
+    active_promotions = promotion_model.db.fetchone(
+        "SELECT COUNT(*) as count FROM promotions WHERE provider_id=? AND status='Confirmed'", (provider_id,)
+    )["count"] or 0
+    expired_promotions = promotion_model.db.fetchone(
+        "SELECT COUNT(*) as count FROM promotions WHERE provider_id=? AND status='Expired'", (provider_id,)
+    )["count"] or 0
+    
     return render_template(
         "provider/provider_dashboard.html",
         provider=provider,
         total_properties=total_properties,
         total_promotions=total_promotions,
-        profile_completion=profile_completion
+        profile_completion=profile_completion,
+        property_types=property_types,
+        property_counts=property_counts,
+        active_promotions=active_promotions,
+        expired_promotions=expired_promotions
     )
-
 #------------------------------PROPERTY ----------------------------------------------
 @provider_bp.route("/properties")
 def properties():
@@ -137,11 +157,12 @@ def provider_promotions():
     return render_template(
         "provider/promotions.html",
         provider=provider,
-        promotions=promotions
+        promotions=promotions,
+        new_promotion_approved=True
     )
 
 # -------------------- ADD PROMOTION --------------------
-@provider_bp.route('/promotions/add', methods=['POST'])
+@provider_bp.route('/promotions/add', methods=['GET', 'POST'])
 def add_promotion():
     if session.get("role") != "provider":
         return jsonify({"message": "Unauthorized"}), 403
@@ -180,7 +201,7 @@ def update_promotion():
     image_name = None
     if image_file and image_file.filename != "":
         image_name = image_file.filename
-        image_file.save(f"static/images/{image_name}")
+        image_file.save(f"static/images/promotions/{image_name}")
 
     promotion_model.update_promotion(promo_id, title, description, image_name, start_date, end_date)
     return jsonify({'message': 'Promotion updated successfully and sent for re-approval!'})

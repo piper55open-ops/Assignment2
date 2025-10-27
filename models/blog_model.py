@@ -60,9 +60,6 @@ class BlogModel:
             (title, author, date, short_description, full_description, image, blog_id)
         )
 
-        # blog_model.py
-    # blog_model.py
-
     def drop_table(self):
         """Drop blogs table if it exists."""
         self.db.execute("DROP TABLE IF EXISTS blogs")

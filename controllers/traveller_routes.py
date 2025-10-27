@@ -15,9 +15,10 @@ trip_model = TripModel()
 User = UserModel()
 
 # --- Load NZ locations ---
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 LOCATIONS_FILE = os.path.join(BASE_DIR, "..", "data", "locations.json")
-
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'images')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 load_dotenv()  # 🔹 loads .env file into environment
 
@@ -368,8 +369,7 @@ def get_nearby_hotels():
 
     return jsonify(hotels)
 
-UPLOAD_FOLDER = os.path.join('static', 'images')
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 
 @traveller_bp.route("/my-trips", methods=["GET", "POST"])
 def traveller_trips():
@@ -418,7 +418,6 @@ def traveller_trips():
     trips = trip_model.get_trips_by_user(user_id)
     return render_template("traveller/traveller_trips.html", trips=trips,current_traveller=traveller)
 
-UPLOAD_FOLDER = 'static/images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):

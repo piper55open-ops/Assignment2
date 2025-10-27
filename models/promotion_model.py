@@ -52,9 +52,6 @@ class PromotionModel:
 
     def update_status(self,promo_id, new_status):
         self.db.execute("UPDATE promotions SET status=? WHERE id=?", (new_status, promo_id))
-
-    def get_promotions_by_status(self,status):
-        return self.db.fetchall("SELECT * FROM promotions WHERE status=?", (status,))
     
     def get_promotion_by_id(self, promotion_id):
             return self.db.fetchone(
@@ -66,3 +63,14 @@ class PromotionModel:
                 "SELECT COUNT(*) as count FROM promotions WHERE provider_id=?", (provider_id,)
             )
             return result["count"] if result else 0
+        
+    def get_promotions_by_status(self, status):
+        return self.db.fetchall("""
+            SELECT p.*, u.username, pr.hotel_name
+            FROM promotions p
+            JOIN providers pr ON p.provider_id = pr.id
+            JOIN users u ON pr.user_id = u.id
+            WHERE p.status = ?
+        """, (status,))
+
+    

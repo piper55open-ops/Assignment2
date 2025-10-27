@@ -6,25 +6,25 @@
     <!-- Stat Cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3" style="background-color:#b08d57;color:#fff;">
+           <div class="card text-center p-3" style="background: linear-gradient(135deg, #65054bff, #dfa2d7ff); color:#fff;">
                 <h5>Total Users</h5>
                 <h3>{{ total_users }}</h3>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3" style="background-color:#f5c06f;color:#333;">
+            <div class="card text-center p-3" style="background: linear-gradient(135deg, #65054bff, #dfa2d7ff); color:#fff;">
                 <h5>Destinations</h5>
                 <h3>{{ total_destinations }}</h3>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3" style="background-color:#ffffff;color:#b08d57; border:1px solid #b08d57;">
+            <div class="card text-center p-3" style="background: linear-gradient(135deg, #65054bff, #dfa2d7ff); color:#fff;">
                 <h5>Events</h5>
                 <h3>{{ total_events }}</h3>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3" style="background-color:#b08d57;color:#fff;">
+            <div class="card text-center p-3" style="background: linear-gradient(135deg, #65054bff, #dfa2d7ff); color:#fff;">
                 <h5>Blogs</h5>
                 <h3>{{ total_blogs }}</h3>
             </div>
@@ -96,7 +96,7 @@
             datasets: [{
                 label: 'Users',
                 data: [{{ travellers_count | default(0) }}, {{ providers_count | default(0) }}],
-                backgroundColor: ['#b08d57', '#f5c06f'],
+                backgroundColor: ['#9f1b50ff', '#d76bccff'],
                 borderWidth: 1
             }]
         },
@@ -106,26 +106,26 @@
     });
 
     // Top Visited Regions Bar Chart
-    const ctxRegions = document.getElementById('regionsChart').getContext('2d');
-    const regionsChart = new Chart(ctxRegions, {
-        type: 'bar',
-        data: {
-            labels: {{ regions_labels | default([]) | safe }},
-            datasets: [{
-                label: 'Visits',
-                data: {{ regions_data | default([]) | safe }},
-                backgroundColor: '#b08d57'
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+    // Top Visited Regions Bar Chart
+const ctxRegions = document.getElementById('regionsChart').getContext('2d');
+const regionsChart = new Chart(ctxRegions, {
+    type: 'bar',
+    data: {
+        labels: {{ regions_labels | safe }},
+        datasets: [{
+            label: 'Visits',
+            data: {{ regions_data | safe }},
+            backgroundColor: '#5b0943ff'
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: { beginAtZero: true }
         }
-    });
+    }
+});
+
 </script>
 
 {% endblock %}
