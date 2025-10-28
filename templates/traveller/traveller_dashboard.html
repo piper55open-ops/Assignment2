@@ -12,7 +12,6 @@
     </div>
   </div>
 
-  <!-- Main Row -->
   <div class="row mb-4">
     <div class="col-md-8">
       <!-- Seasonal Recommendations -->
@@ -33,7 +32,6 @@
       </div>
     </div>
 
-    <!-- Right Side -->
     <div class="col-md-4">
       <!-- Calendar -->
       <div class="card calendar-card shadow-sm mb-4 fade-in">
@@ -69,22 +67,102 @@
     });
 
     const regions = [
-      { name: "Northland", coords: { lat: -35.7317, lng: 174.3237 } },
-      { name: "Auckland", coords: { lat: -36.8485, lng: 174.7633 } },
-      { name: "Waikato", coords: { lat: -37.7833, lng: 175.2833 } },
-      { name: "Bay of Plenty", coords: { lat: -37.6878, lng: 176.1651 } },
-      { name: "Gisborne", coords: { lat: -38.6623, lng: 178.0176 } },
-      { name: "Hawke’s Bay", coords: { lat: -39.4928, lng: 176.9120 } },
-      { name: "Taranaki", coords: { lat: -39.0556, lng: 174.0752 } },
-      { name: "Manawatu-Whanganui", coords: { lat: -40.3523, lng: 175.6082 } },
-      { name: "Wellington", coords: { lat: -41.2865, lng: 174.7762 } },
-      { name: "Tasman", coords: { lat: -41.2167, lng: 172.8333 } },
-      { name: "Nelson", coords: { lat: -41.2706, lng: 173.2840 } },
-      { name: "Marlborough", coords: { lat: -41.5134, lng: 173.9615 } },
-      { name: "West Coast", coords: { lat: -42.4500, lng: 171.2100 } },
-      { name: "Canterbury", coords: { lat: -43.5321, lng: 172.6362 } },
-      { name: "Otago", coords: { lat: -45.0312, lng: 168.6626 } },
-      { name: "Southland", coords: { lat: -46.4132, lng: 168.3538 } }
+      { 
+        name: "Northland", 
+        coords: { lat: -35.7317, lng: 174.3237 },
+        desc: "Known for beautiful beaches, Māori culture, and the Bay of Islands.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/0/07/Bay_of_Islands.jpg"
+      },
+      { 
+        name: "Auckland", 
+        coords: { lat: -36.8485, lng: 174.7633 },
+        desc: "New Zealand’s largest city with the Sky Tower and stunning harbours.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/1/16/Auckland_skyline_from_harbour.jpg"
+      },
+      { 
+        name: "Waikato", 
+        coords: { lat: -37.7833, lng: 175.2833 },
+        desc: "Home to Hobbiton Movie Set and rolling green farmland.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/b/b1/Hobbiton_Matamata.jpg"
+      },
+      { 
+        name: "Bay of Plenty", 
+        coords: { lat: -37.6878, lng: 176.1651 },
+        desc: "Famous for beaches, kiwifruit orchards, and Mount Maunganui.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Mount_Maunganui_beach.jpg"
+      },
+      { 
+        name: "Gisborne", 
+        coords: { lat: -38.6623, lng: 178.0176 },
+        desc: "The first city to see the sunrise and known for wineries.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/7/75/Gisborne_Sunrise.jpg"
+      },
+      { 
+        name: "Hawke’s Bay", 
+        coords: { lat: -39.4928, lng: 176.9120 },
+        desc: "Art Deco architecture and top NZ wine region.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/6/65/Napier_Art_Deco.jpg"
+      },
+      { 
+        name: "Taranaki", 
+        coords: { lat: -39.0556, lng: 174.0752 },
+        desc: "Dominated by the symmetrical Mt Taranaki volcano.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/3/32/Mount_Taranaki_Egmont_National_Park_New_Zealand.jpg"
+      },
+      { 
+        name: "Manawatu-Whanganui", 
+        coords: { lat: -40.3523, lng: 175.6082 },
+        desc: "Rugged terrain and cultural heart of Whanganui River.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Whanganui_River_from_Durie_Hill.jpg"
+      },
+      { 
+        name: "Wellington", 
+        coords: { lat: -41.2865, lng: 174.7762 },
+        desc: "The windy capital city filled with culture and coffee.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/6/67/Wellington_city_and_harbour.jpg"
+      },
+      { 
+        name: "Tasman", 
+        coords: { lat: -41.2167, lng: 172.8333 },
+        desc: "Home to Abel Tasman National Park and golden beaches.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/8/8e/Abel_Tasman_National_Park.jpg"
+      },
+      { 
+        name: "Nelson", 
+        coords: { lat: -41.2706, lng: 173.2840 },
+        desc: "Sunny region with art galleries and beaches.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Nelson_NZ_Harbour.jpg"
+      },
+      { 
+        name: "Marlborough", 
+        coords: { lat: -41.5134, lng: 173.9615 },
+        desc: "World-renowned for Sauvignon Blanc and the Sounds.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/8/86/Marlborough_Sounds.jpg"
+      },
+      { 
+        name: "West Coast", 
+        coords: { lat: -42.4500, lng: 171.2100 },
+        desc: "Wild beaches, rainforests, and the Franz Josef Glacier.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/d/d8/Franz_Josef_Glacier_02.jpg"
+      },
+      { 
+        name: "Canterbury", 
+        coords: { lat: -43.5321, lng: 172.6362 },
+        desc: "Home to Christchurch and scenic plains between alps & sea.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Christchurch_cityscape.jpg"
+      },
+      { 
+        name: "Otago", 
+        coords: { lat: -45.0312, lng: 168.6626 },
+        desc: "Queenstown and Dunedin — adventure & heritage mix.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/1/1a/Queenstown_Panorama.jpg"
+      },
+      { 
+        name: "Southland", 
+        coords: { lat: -46.4132, lng: 168.3538 },
+        desc: "Gateway to Fiordland National Park and Milford Sound.",
+        img: "https://upload.wikimedia.org/wikipedia/commons/1/16/Milford_Sound_NZ.jpg"
+      }
     ];
 
     const infoWindow = new google.maps.InfoWindow();
@@ -97,8 +175,17 @@
         icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
       });
 
+      const content = `
+        <div style="max-width:250px;">
+          <img src="${region.img}" style="width:100%;border-radius:8px;margin-bottom:5px;">
+          <h6 style="margin:0;color:#0d6efd;">${region.name}</h6>
+          <p style="font-size:13px;color:#555;">${region.desc}</p>
+          <a href="https://www.google.com/search?q=${encodeURIComponent(region.name)}+New+Zealand" target="_blank" style="font-size:12px;">🔎 Explore More</a>
+        </div>
+      `;
+
       marker.addListener("click", () => {
-        infoWindow.setContent(`<b>${region.name}</b>`);
+        infoWindow.setContent(content);
         infoWindow.open(map, marker);
       });
     });
