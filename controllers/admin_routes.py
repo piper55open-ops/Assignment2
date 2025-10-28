@@ -9,6 +9,7 @@ from models.blog_model import BlogModel
 from models.journey_models import JourneyModel
 from models.feedback_model import FeedbackModel
 from models.promotion_model import PromotionModel
+from models.property_model import PropertyModel
 import os
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -20,6 +21,7 @@ blog_model = BlogModel()
 journey_model = JourneyModel()
 feedback_model = FeedbackModel()
 promotion_model = PromotionModel()
+property_model = PropertyModel()
     
 @admin_bp.context_processor
 def inject_admin_user():
@@ -37,14 +39,10 @@ def admin_dashboard():
     if "role" not in session or session["role"] != "admin":
         flash("Unauthorized access", "danger")
         return redirect(url_for("login"))
-
-    # Stats
-    stats = {
-        "travellers": user_model.count_users_by_role("traveller"),
-        "providers": user_model.count_users_by_role("provider"),
-        "journeys": journey_model.count_journeys(),
-        "blogs": blog_model.count_blogs()
-    }
+    total_users = user_model.count_users()
+    total_properties = property_model.count_all_properties()  # ✅ You need to create this function
+    total_events = event_model.count_events()
+    total_blogs = blog_model.count_blogs()
 
     # Top locations
     top_locations = journey_model.db.fetchall(
@@ -60,19 +58,42 @@ def admin_dashboard():
 
     return render_template(
         "admin/dashboard.html",
-        stats=stats,
-        travellers_count=stats["travellers"],
-        providers_count=stats["providers"],
-        total_users=stats["travellers"] + stats["providers"],
-        total_destinations=0,  # replace if you have destination count
-        total_events=0,        # replace if you have events count
-        total_blogs=stats["blogs"],
+        total_users=total_users,
+        total_properties=total_properties,
+        total_events=total_events,
+        total_blogs= total_blogs,
         regions_labels=location_labels,
         regions_data=location_data,
         recent_journeys=recent_journeys,
         recent_blogs=recent_blogs
     )
+@admin_bp.route("/dashboard/users_chart")
+def users_chart_data():
+    # Fetch counts from your user model
+    tourist_count = user_model.count_users_by_role("tourist")
+    provider_count = user_model.count_users_by_role("provider")
+    admin_count = user_model.count_users_by_role("admin")
 
+    data = {
+        "labels": ["Tourist", "Provider", "Admin"],
+        "counts": [tourist_count, provider_count, admin_count]
+    }
+    return jsonify(data)
+
+@admin_bp.route("/dashboard/regions_chart")
+def regions_chart_data():
+    # Fetch top 5 visited locations
+    top_locations = journey_model.db.fetchall(
+        "SELECT location, COUNT(*) AS count FROM journeys "
+        "GROUP BY location ORDER BY count DESC LIMIT 5"
+    )
+    labels = [loc["location"] or "Unknown" for loc in top_locations]
+    data = [loc["count"] for loc in top_locations]
+
+    return jsonify({
+        "labels": labels,
+        "counts": data
+    })
 # Get all users
 @admin_bp.route('/users')
 def admin_users():
@@ -86,11 +107,19 @@ def add_user():
     email = request.form.get('email')
     role = request.form.get('role')
     password = "default123"  # or let admin set
+
+    image_file = request.files.get("image")
+    image_name = None
+    if image_file and image_file.filename:
+        image_name = image_file.filename
+        image_file.save(f"static/images/{image_name}")
+
     try:
-        user_model.add_user(username, email, user_model.hash_password(password), role)
+        user_model.add_user(username, email, user_model.hash_password(password), role, image_name)
         return jsonify({"status":"success", "message":"User added successfully"})
     except Exception as e:
         return jsonify({"status":"error", "message": str(e)})
+
 
 # Update user
 @admin_bp.route('/update_user/<int:user_id>', methods=['POST'])
@@ -98,8 +127,18 @@ def update_user(user_id):
     username = request.form.get('username')
     email = request.form.get('email')
     role = request.form.get('role')
-    user_model.update_profile(user_id, username, email)
+    
+    image_file = request.files.get("image")
+    if image_file and image_file.filename:
+        image_name = image_file.filename
+        image_file.save(f"static/images/{image_name}")
+    else:
+        old = user_model.get_user_by_id(user_id)
+        image_name = old["image"]  # keep old image if not updated
+
+    user_model.update_profile(user_id, username, email, role, image_name)
     return jsonify({"status":"success", "message":"User updated successfully"})
+
 
 # Deactivate user
 @admin_bp.route('/deactivate_user/<int:user_id>', methods=['POST'])
@@ -116,7 +155,15 @@ def admin_providers():
 
     # Fetch all registered providers
     providers = provider_model.get_all_providers()
-
+    users = user_model.get_users_by_role("provider") 
+    # For each provider, fetch their properties
+    provider_list = []
+    for p in providers:
+        properties = property_model.get_properties_by_provider(p["id"])
+        provider_list.append({
+            "provider": p,
+            "properties": properties
+        })
     # Fetch promotions by status
     pending_promotions = promotion_model.get_promotions_by_status("Pending")
     confirmed_promotions = promotion_model.get_promotions_by_status("Confirmed")
@@ -127,13 +174,15 @@ def admin_providers():
         providers=providers,
         pending_promotions=pending_promotions,
         confirmed_promotions=confirmed_promotions,
+        provider_list=provider_list,
+        users=users,
         rejected_promotions=rejected_promotions
     )
     
     # -------------------- ADD PROVIDER --------------------
 @admin_bp.route("/providers/add", methods=["POST"])
 def add_provider_route():
-    user_id = request.form.get("user_id")
+    user_id = request.form.get("user_id")  # Get selected user from the dropdown
     hotel_name = request.form.get("hotel_name")
     hotel_address = request.form.get("hotel_address")
     website_url = request.form.get("website_url")
@@ -145,12 +194,14 @@ def add_provider_route():
         image_file.save(f"static/images/{image_name}")
 
     result = provider_model.add_provider(user_id, hotel_name, hotel_address, website_url, image_name)
+
     if result["success"]:
         flash(result["message"], "success")
     else:
         flash(result["message"], "danger")
 
-    return redirect(url_for("admin.providers"))
+    return redirect(url_for("admin.admin_providers"))
+
 
 # -------------------- PROMOTION MANAGEMENT --------------------
 @admin_bp.route("/promotions")
@@ -281,6 +332,7 @@ def update_blog(blog_id):
 def delete_blog(blog_id):
     blog_model.delete_blog(blog_id)
     return jsonify({"status": "success", "message": "Blog deleted successfully!"})
+
 
 #--------------------------------------Analytics--------------------------------
 @admin_bp.route("/analytics")

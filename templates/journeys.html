@@ -3,7 +3,33 @@
 {% block title %}{{ journey.title }}{% endblock %}
 
 {% block content %}
-
+<style>
+      .btn{
+	font-size: 18px;
+	color:var(--white);
+	letter-spacing: 2px;
+	margin: 5px;
+	padding: 7px 28px;
+	text-decoration: none;
+	border: 1px solid coral;
+	border-radius: 25px;
+}
+.btn1{
+	background: coral;
+	color:var(--white);
+}
+.btn2{
+	background: coral;
+	color:var(--white);
+}
+.btn1:hover{
+	transition: .4s;
+}
+.btn2:hover{
+	background: coral;
+	transition: .4s;
+}
+</style>
 <!-- Video Hero Section -->
 <div class="container-fluid text-center heading">
     <video src="{{ url_for('static', filename='videos/video5.mp4') }}" autoplay muted loop id="myVideo"></video>
@@ -14,27 +40,27 @@
     <a href="./contact.html" class="btn btn1">Register</a>
     <a href="./portfolio.html" class="btn btn2">Explore</a>
 </div>
-
+{% if promotions|length > 0 %}
 <section class="section-store-intro">
         <div class="container text-center">
             <div class="row">
                 <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
                     <div class="pray">
-                        <img src="{{ url_for('static', filename='images/tourists1.jpg') }}" alt="">
+                        <img src="{{ url_for('static', filename='images/promotions/' ~ promotions[0].image) }}" alt="{{ promotions[0].title }}">
                     </div>
                 </div>
                 <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
                     <div class="panel-box text-left">
-                        <h4>Featured Stay</h4>
-                        <h1>Cozy Lakeview Retreat in Queenstown</h1>
-                        <p>Escape to serenity! Enjoy panoramic mountain views, warm hospitality, and modern amenities just minutes away from Queenstown’s vibrant center. 
-                            Perfect for couples or solo travelers seeking comfort and adventure.</p>
+                        <h4>Featured Promotion</h4>
+                        <h1>{{ promotions[0].title }}</h1>
+                        <p>{{ promotions[0].description }}</p>
                         <a href="login.html">View Details</a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+    {% endif %}
 
       <section class="container">
         <div class="site-content">
@@ -51,84 +77,48 @@
                         <a href="{{ url_for('static', filename='images/wall_paper2.jpg') }}" class="img-7"><i class="icon ion-md-expand"></i></a>
                         <a href="{{ url_for('static', filename='images/wall_paper2.jpg') }}" class="img-8"><i class="icon ion-md-expand"></i></a>
                     </div>
+                    {% if promotions|length > 1 %}
                     <section class="section-store-intro">
                         <div class="container text-center">
                             <div class="row">
                                 <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
                                     <div class="pray">
-                                        <img src="{{ url_for('static', filename='images/wall_paper4.jpg') }}" alt="">
+                                        <img src="{{ url_for('static', filename='images/promotions/' ~ promotions[1].image) }}" alt="{{ promotions[1].title }}">
                                     </div>
                                 </div>
                                 <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
                                     <div class="panel-box text-left">
-                                        <h4>Premium Real Wood Experiance</h4>
-                                        <h1>Modern Style And Ultimate Functionality</h1>
-                                        <p>Delight Seasonal Offers.Please use the ‘Store Locator’ to find your nearest
-                                            Dilight showroom. For further enquires please contact or visit any
-                                            Dlight showroom where our friendly staff will gladly assist you.</p>
+                                        <h4>Special Offer</h4>
+                                        <h1>{{ promotions[1].title }}</h1>
+                                        <p>{{ promotions[1].description }}</p>
+                                        <p><strong>Valid:</strong> {{ promotions[1].start_date }} – {{ promotions[1].end_date }}</p>
                                         <a href="./login.html">SHOP NOW</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </section>
-
+                    {% endif %}
                 </div>
 
             </div>
-
             <aside class="sidebar">
                 <div class="popular-post">
-                    <h2>Featured Products</h2>
+                    <h2>Traveller Memories</h2>
+                   {% for trip in trips %}
                     <div class="post-content">
-                        <p class="blog-meta"> By Admin<span>February 26,2020</span></p>
-                        <img src="./images/furniture/furn13.jpg" alt="">
-                        <h2> Trends In Sofa Designing </h2>
+                        <p class="blog-meta">By {{ trip.username }} <span>{{ trip.formatted_date }}</span></p>
+                        <img src="{{ url_for('static', filename='images/' ~ trip.cover_image) }}" alt="{{ trip.title }}">
+                         <h2>{{ trip.title }}</h2>
                         <p class="blog-text">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi atque earum velit dolore
-                            esse ducimu vero expedita illum magnam,
-                            aliquid voluptatem cumque deleniti numquam itaque?
+                             {{ trip.description[:180] }}{% if trip.description|length > 180 %}...{% endif %}
                         </p>
-                        <p><a href="./login.html" class="read-more-btn">Shop Now </a>
-                        </p>
+                        <p> <a href="{{ url_for('login') }}" class="read-more-btn">Read More</a></p>
                     </div>
-                    <div class="post-content">
-                        <p class="blog-meta">By Admin <span>January 15,2020</span></p>
-                        <img src="./images/furniture/furn19.jpg" alt="">
-                        <h2> Trends In Leather Sofa Designing </h2>
-                        <p class="blog-text">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi atque earum velit dolore
-                            esse ducimu vero expedita illum magnam,
-                            aliquid voluptatem cumque deleniti numquam itaque?
-                        </p>
-                        <p><a href="./login.html" class="read-more-btn">Shop Now </a>
-                        </p>
-                    </div>
-                    <div class="post-content">
-                        <p class="blog-meta">By Admin <span>November 26,2019</span></p>
-                        <img src="./images/furniture/furn9.jpg" alt="">
-                        <h2> Trends In Wooden Sofa Designing </h2>
-                        <p class="blog-text">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi atque earum velit dolore
-                            esse ducimu vero expedita illum magnam,
-                            aliquid voluptatem cumque deleniti numquam itaque?
-                        </p>
-                        <p><a href="./login.html" class="read-more-btn">Shop Now </a>
-                        </p>
-                    </div>
-                    <div class="post-content">
-                        <p class="blog-meta">By Admin <span>December 25,2019</span></p>
-                        <img src="./images/furniture/furn4.jpg" alt="">
-                        <h2> Trends In Recliner Sofa Designing </h2>
-                        <p class="blog-text">
-                            The place where you meet your furniture expectations with the combination of
-                            world class designed and manufactured furniture.
-                        </p>
-                        <p><a href="./login.html" class="read-more-btn">Shop Now </a>
-                        </p>
-                    </div>
+                     {% else %}
+                    <p>No traveller memories available yet.</p>
+                    {% endfor %}
                 </div>
-
              </aside>
         </div>
 

@@ -43,3 +43,14 @@ class MemoryModel:
 
     def delete_memory(self, memory_id):
         self.db.execute("DELETE FROM travel_memories WHERE id=?", (memory_id,))
+        
+    def get_recent_memories(self, limit=4):
+        """Fetch the most recent traveller memories with user info."""
+        return self.db.fetchall("""
+            SELECT tm.*, u.username 
+            FROM travel_memories tm
+            JOIN users u ON tm.user_id = u.id
+            ORDER BY tm.created_date DESC
+            LIMIT ?
+        """, (limit,))
+

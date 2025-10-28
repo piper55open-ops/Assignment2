@@ -6,19 +6,19 @@
     <!-- Stat Cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3 text-white" style="background: linear-gradient(135deg, #1abc9c, #16a085);">
+            <div class="card text-center p-3" style="background: #fff; color: #1750ecff;">
                 <h5>Total Properties</h5>
                 <h3><i class="fa-solid fa-hotel me-1"></i> {{ total_properties }}</h3>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3 text-white" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+            <div class="card text-center p-3 " style="background: #fff; color: #1750ecff;">
                 <h5>Total Promotions</h5>
                 <h3><i class="fa-solid fa-tags me-1"></i> {{ total_promotions }}</h3>
             </div>
         </div>
         <div class="col-md-4 col-sm-6">
-            <div class="card text-center p-3" style="background-color:#007bff;color:#fff;">
+            <div class="card text-center p-3" style="background: #fff; color: #1750ecff;">
                 <h5>Profile Completion</h5>
                 <h3>{{ profile_completion }}%</h3>
             </div>
@@ -73,21 +73,25 @@
 
 <!-- Charts JS -->
 <script>
-    // Promotions Chart
-    const ctxPromotions = document.getElementById('promotionsChart').getContext('2d');
-    const promotionsChart = new Chart(ctxPromotions, {
-        type: 'pie',
-        data: {
-            labels: ['Active', 'Expired'],
-            datasets: [{
-                label: 'Promotions',
-                data: [{{ active_promotions | default(0) }}, {{ expired_promotions | default(0) }}],
-                backgroundColor: ['#007bff', '#5dade2'],
-                borderWidth: 1
-            }]
-        },
-        options: { responsive: true }
-    });
+    // Promotions Doughnut Chart
+const ctxPromotions = document.getElementById('promotionsChart').getContext('2d');
+const promotionsChart = new Chart(ctxPromotions, {
+    type: 'doughnut',  // Changed from 'pie' to 'doughnut'
+    data: {
+        labels: ['Active', 'Expired'],
+        datasets: [{
+            label: 'Promotions',
+            data: [{{ active_promotions | default(0) }}, {{ expired_promotions | default(0) }}],
+            backgroundColor: ['#007bff', '#5dade2'],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '50%'  // Optional: controls the thickness of the doughnut
+    }
+});
+
 
     // Properties Chart (example: show distribution of property types)
     const ctxProperties = document.getElementById('propertiesChart').getContext('2d');

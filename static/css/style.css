@@ -8,7 +8,6 @@ html,body{
 	
 }
 
-
 :root{
 
 	--text-gray:#3f4954;
@@ -24,8 +23,6 @@ html,body{
 	--border:#2b303218;
 	--light-gray:#2b3032a1;
 	--text_color:#ff686b;
-
-
 
 
 	--main-font:'Source Sans Pro', sans-serif;
@@ -168,7 +165,6 @@ span{
 	color:var(--white);
 }
 .btn1:hover{
-	
 	transition: .4s;
 }
 .btn2:hover{

@@ -55,8 +55,8 @@ body {
 
 /* Cards */
 .card {
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(249, 247, 247, 0.1);
 }
 
 /* Scrollable sidebar */

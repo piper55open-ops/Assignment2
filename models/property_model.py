@@ -83,3 +83,7 @@ class PropertyModel:
             "total_properties": total,
             "active_properties": active["count"] if active else 0
         }
+        
+    def count_all_properties(self):
+        result = self.db.fetchone("SELECT COUNT(*) as count FROM properties")
+        return result["count"] if result else 0

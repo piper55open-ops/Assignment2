@@ -27,11 +27,22 @@ class UserModel:
             (username, email, password, role, image)
         )
 
+    def update_profile(self, user_id, username, email, role, image=None):
+        self.db.execute(
+            "UPDATE users SET username=?, email=?, role=?, image=? WHERE id=?",
+            (username, email, role, image, user_id)
+        )
+
+
     def get_user_by_email(self, email):
         return self.db.fetchone("SELECT * FROM users WHERE email = ?", (email,))
     
     def count_users_by_role(self, role):
         result = self.db.fetchone("SELECT COUNT(*) as count FROM users WHERE role=?", (role,))
+        return result["count"] if result else 0
+    
+    def count_users(self):
+        result = self.db.fetchone("SELECT COUNT(*) as count FROM users")
         return result["count"] if result else 0
 
     def get_all_users(self):
@@ -42,18 +53,6 @@ class UserModel:
     
     def get_users_by_role(self, role):
         return self.db.fetchall("SELECT * FROM users WHERE role=?", (role,))
-
-    def update_profile(self, user_id, username, email, image=None):
-        if image:
-            self.db.execute(
-                "UPDATE users SET username=?, email=?, image=? WHERE id=?",
-                (username, email, image, user_id)
-            )
-        else:
-            self.db.execute(
-                "UPDATE users SET username=?, email=? WHERE id=?",
-                (username, email, user_id)
-            )
 
     def update_password(self, user_id, new_password):
         hashed_pw = self.hash_password(new_password)

@@ -74,3 +74,12 @@ class PromotionModel:
         """, (status,))
 
     
+    def get_recent_promotions(self, limit=3):
+        """Fetch the most recent confirmed promotions ordered by date."""
+        return self.db.fetchall("""
+            SELECT title, description, image, start_date, end_date
+            FROM promotions
+            WHERE status = 'Confirmed'
+            ORDER BY created_date DESC
+            LIMIT ?
+        """, (limit,))

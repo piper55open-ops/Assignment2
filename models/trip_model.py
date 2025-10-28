@@ -86,4 +86,14 @@ class TripModel:
     def delete_trip(self, trip_id):
         self.db.execute("DELETE FROM trips WHERE id=?", (trip_id,))
         
+    def get_recent_trips(self, limit=4):
+        return self.db.fetchall("""
+            SELECT t.*, u.username 
+            FROM trips t
+            JOIN users u ON t.user_id = u.id
+            ORDER BY t.created_date DESC
+            LIMIT ?
+        """, (limit,))
+
+        
    

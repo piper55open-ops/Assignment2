@@ -83,6 +83,10 @@
               <option value="admin">Admin</option>
             </select>
           </div>
+          <div class="mb-3">
+            <label class="form-label">User Image</label>
+            <input type="file" class="form-control" name="image">
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
@@ -118,6 +122,10 @@
               <option value="provider">Provider</option>
               <option value="admin">Admin</option>
             </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">User Image</label>
+            <input type="file" class="form-control" name="image" id="updateImage">
           </div>
         </div>
         <div class="modal-footer">
@@ -204,8 +212,8 @@
       text: "This will deactivate the user!",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#b8860b',
-      cancelButtonColor: '#d33',
+      confirmButtonColor: '#2e0619ff',
+      cancelButtonColor: 'rgba(236, 39, 144, 1)',
       confirmButtonText: 'Yes, deactivate!'
     });
     if(!confirmResult.isConfirmed) return;
@@ -230,20 +238,4 @@
   }
 </script>
 
-<!-- 🎨 Custom Styles -->
-<style>
-  .btn-gold {
-    background-color: #b8860b;
-    color: white;
-    border: none;
-  }
-  .btn-gold:hover { background-color: #a67c00; }
-  .btn-outline-gold { color: #b8860b; border: 1px solid #b8860b; }
-  .btn-outline-gold:hover { background-color: #b8860b; color: #fff; }
-  .bg-gold { background-color: #b8860b !important; }
-  .form-control:focus {
-    border-color: #b8860b;
-    box-shadow: 0 0 0 0.2rem rgba(184, 134, 11, 0.25);
-  }
-</style>
 {% endblock %}

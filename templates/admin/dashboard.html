@@ -6,25 +6,25 @@
     <!-- Stat Cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-sm-6">
-           <div class="card text-center p-3" style="background: linear-gradient(135deg, #65054bff, #dfa2d7ff); color:#fff;">
+           <div class="card text-center p-3" style="background: #fff; color:#65054bff;">
                 <h5>Total Users</h5>
                 <h3>{{ total_users }}</h3>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3" style="background: linear-gradient(135deg, #65054bff, #dfa2d7ff); color:#fff;">
-                <h5>Destinations</h5>
-                <h3>{{ total_destinations }}</h3>
+            <div class="card text-center p-3"  style="background: #fff; color:#65054bff;">
+                <h5>Total Properties</h5>
+            <h3>{{ total_properties or 0 }}</h3>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3" style="background: linear-gradient(135deg, #65054bff, #dfa2d7ff); color:#fff;">
+            <div class="card text-center p-3"  style="background: #fff; color:#65054bff;">
                 <h5>Events</h5>
                 <h3>{{ total_events }}</h3>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="card text-center p-3" style="background: linear-gradient(135deg, #65054bff, #dfa2d7ff); color:#fff;">
+            <div class="card text-center p-3"  style="background: #fff; color:#65054bff;">
                 <h5>Blogs</h5>
                 <h3>{{ total_blogs }}</h3>
             </div>
@@ -87,44 +87,59 @@
 
 <!-- Charts JS -->
 <script>
-    // Users by Role Pie Chart
-    const ctxUsers = document.getElementById('usersRoleChart').getContext('2d');
-    const usersRoleChart = new Chart(ctxUsers, {
-        type: 'pie',
+    async function renderUsersRoleChart() {
+    const response = await fetch("/admin/dashboard/users_chart");
+    const data = await response.json();
+
+    const ctx = document.getElementById("usersRoleChart").getContext("2d");
+    new Chart(ctx, {
+        type: 'doughnut',
         data: {
-            labels: ['Travellers', 'Providers'],
+            labels: data.labels,
             datasets: [{
-                label: 'Users',
-                data: [{{ travellers_count | default(0) }}, {{ providers_count | default(0) }}],
-                backgroundColor: ['#9f1b50ff', '#d76bccff'],
-                borderWidth: 1
+                label: 'Users by Role',
+                data: data.counts,
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
             }]
         },
         options: {
-            responsive: true
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { enabled: true }
+            }
         }
     });
+}
+
+document.addEventListener("DOMContentLoaded", renderUsersRoleChart);
 
     // Top Visited Regions Bar Chart
-    // Top Visited Regions Bar Chart
-const ctxRegions = document.getElementById('regionsChart').getContext('2d');
-const regionsChart = new Chart(ctxRegions, {
-    type: 'bar',
-    data: {
-        labels: {{ regions_labels | safe }},
-        datasets: [{
-            label: 'Visits',
-            data: {{ regions_data | safe }},
-            backgroundColor: '#5b0943ff'
-        }]
-    },
-    options: {
-        responsive: true,
-        scales: {
-            y: { beginAtZero: true }
+async function renderRegionsChart() {
+    const response = await fetch("/admin/dashboard/regions_chart");
+    const chartData = await response.json();
+
+    const ctx = document.getElementById('regionsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Visits',
+                data: chartData.counts,
+                backgroundColor: '#5b0943ff'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
         }
-    }
-});
+    });
+}
+
+document.addEventListener("DOMContentLoaded", renderRegionsChart);
 
 </script>
 

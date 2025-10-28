@@ -3,7 +3,33 @@
 {% block title %}TRAVEL MATE{% endblock %}
 
 {% block content %}
-
+<style>
+  .btn{
+	font-size: 18px;
+	color:var(--white);
+	letter-spacing: 2px;
+	margin: 5px;
+	padding: 7px 28px;
+	text-decoration: none;
+	border: 1px solid coral;
+	border-radius: 25px;
+}
+.btn1{
+	background: coral;
+	color:var(--white);
+}
+.btn2{
+	background: coral;
+	color:var(--white);
+}
+.btn1:hover{
+	transition: .4s;
+}
+.btn2:hover{
+	background: coral;
+	transition: .4s;
+}
+</style>
 <div class="container-fluid text-center heading">
   <video src="{{ url_for('static', filename='videos/video1.mp4') }}" autoplay muted loop id="myVideo"></video>
   <h1 class="h1" data-aos="fade-up" data-aos-delay="300">Welcome to the <span></span>TRAVEL MATE</h1>

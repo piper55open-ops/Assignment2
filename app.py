@@ -5,11 +5,11 @@ from werkzeug.utils import secure_filename
 import math
 from io import BytesIO
 import time
+from datetime import datetime
 import requests
 from dotenv import load_dotenv
 from flask import Flask, session
 from openai import OpenAI
-
 from controllers.user_controller import UserController
 from models.user_model import UserModel
 from models.journey_models import JourneyModel
@@ -18,6 +18,8 @@ from models.provider_model import ProviderModel
 from models.property_model import PropertyModel
 from models.promotion_model import PromotionModel
 from models.event_model import EventModel
+from models.memory_model import MemoryModel
+from models.trip_model import TripModel
 from controllers.admin_routes import admin_bp
 from controllers.provider_routes import provider_bp
 from controllers.traveller_routes import traveller_bp
@@ -45,6 +47,8 @@ provider_model = ProviderModel()
 property_model = PropertyModel()
 promotion_model = PromotionModel()
 event_model = EventModel()
+memory_model = MemoryModel()
+trip_model = TripModel()
 
 print("OpenAI Key Loaded:", os.getenv("OPENAI_API_KEY"))
 
@@ -229,7 +233,14 @@ def journies():
         for i in range(0, len(lst), n):
             yield lst[i:i + n]
     event_rows = list(chunks(events, 3))
-    return render_template('journeys.html', event_rows=event_rows)
+    promotions = promotion_model.get_recent_promotions(limit=3)
+    trips = trip_model.get_recent_trips(limit=4)
+    for trip in trips:
+        if trip.get("created_date"):
+            trip["formatted_date"] = datetime.strptime(trip["created_date"], "%Y-%m-%d %H:%M:%S").strftime("%B %d, %Y")
+        else:
+            trip["formatted_date"] = ""
+    return render_template('journeys.html', event_rows=event_rows, promotions=promotions, trips=trips)
 
 
 
