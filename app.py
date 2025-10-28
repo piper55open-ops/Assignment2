@@ -35,11 +35,8 @@ app.secret_key = "super_secret_key_123"
 
 user_controller = UserController()
 
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    organization=os.getenv("OPENAI_ORG_ID"),
-    project=os.getenv("OPENAI_PROJECT_ID")
-)
+client = OpenAI( api_key=os.getenv("OPENAI_API_KEY"))
+
 user_model = UserModel()
 journey_model = JourneyModel()
 blog_model = BlogModel()

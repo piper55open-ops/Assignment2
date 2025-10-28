@@ -1,9 +1,11 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request, jsonify
 import os, json, re, requests
 import uuid
+from openai import OpenAI
 from datetime import datetime
 from dotenv import load_dotenv
-from openai import OpenAI
+from google import genai
+from google.genai.errors import APIError
 from models.database import Database
 from models.trip_model import TripModel
 from models.user_model import UserModel
@@ -25,11 +27,9 @@ load_dotenv()  # 🔹 loads .env file into environment
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    organization=os.getenv("OPENAI_ORG_ID"),
-    project=os.getenv("OPENAI_PROJECT_ID")
-)
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 
 with open(LOCATIONS_FILE, 'r') as f:
@@ -117,108 +117,68 @@ def traveller_dashboard():
         seasonal_places=seasonal_places,
         current_season=season
     )
+
+import re
+
 @traveller_bp.route("/trip-planner", methods=["GET", "POST"])
 def ai_planner():
     if "role" not in session or session["role"] != "tourist":
         flash("Unauthorized access. Please log in as a traveller.", "danger")
         return redirect(url_for("login"))
-    
+
     user_id = session.get("user_id")
     traveller = User.get_user_by_id(user_id)
+    itinerary = None
+    day_sections = []  # <-- to hold each day’s text
 
     if request.method == "POST":
-        if not request.is_json:
-            return jsonify({"error": "Invalid content type. Expected JSON."}), 400
-
-        data = request.json
-        destination = data.get("destination", "unknown destination")
-        nights = data.get("nights", 1)
-        adults = data.get("adults", 1)
-        children = data.get("children", 0)
-        budget = data.get("budget", 0)
-        preferences = data.get("preferences") or []
-        selected_places = data.get("selected_places") or []
+        destination = request.form.get("destination", "unknown destination")
+        nights = request.form.get("nights", 1)
+        adults = request.form.get("adults", 1)
+        children = request.form.get("children", 0)
+        budget = request.form.get("budget", 0)
+        preferences = request.form.getlist("preferences")
+        selected_places = request.form.getlist("selected_places")
 
         prompt = f"""
         Create a {nights}-night travel itinerary for {adults} adults and {children} children in {destination}.
         Budget: ${budget}.
         Preferences: {', '.join(preferences)}.
         Must include these places: {', '.join(selected_places)}.
-        Provide day-wise activities, suggested accommodations, dining, and local experiences in JSON format:
-        [
-          {{
-            "day": 1,
-            "activities": [
-              {{
-                "name": "Activity name",
-                "time": "Morning/Afternoon/Evening",
-                "location": "Place",
-                "description": "Brief description",
-                "image": "Image URL"
-              }}
-            ],
-            "accommodation": "Hotel suggestion",
-            "notes": "Any extra tips"
-          }}
-        ]
+        Provide day-wise activities, accommodation, dining, and local experiences in a clear format starting each day with 'Day X:'.
         """
 
         try:
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are a helpful AI trip planner that always outputs valid JSON."},
-                    {"role": "user", "content": prompt}
+                    {"role": "system", "content": "You are a helpful travel planner."},
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.7,
             )
+            itinerary = response.choices[0].message.content.strip()
+
+            # Split into Day sections (e.g. Day 1:, Day 2:)
+            day_sections = re.split(r'(Day\s*\d+[:\-])', itinerary)
+            # Join titles and content together
+            day_sections = [
+                day_sections[i] + day_sections[i+1]
+                for i in range(1, len(day_sections), 2)
+            ]
+
         except Exception as e:
-            print("AI Error:", e)
-            return jsonify({"error": "AI request failed", "details": str(e)}), 500
+            itinerary = f"⚠️ Error generating itinerary: {str(e)}"
 
-        if not response or not response.choices:
-            return jsonify({"error": "No response from AI"}), 500
-
-        itinerary_text = response.choices[0].message.content.strip()
-
-        try:
-            itinerary = json.loads(itinerary_text)
-        except json.JSONDecodeError:
-            match = re.search(r"\[.*\]", itinerary_text, re.DOTALL)
-            if match:
-                try:
-                    itinerary = json.loads(match.group(0))
-                except Exception as e:
-                    itinerary = {"error": "AI returned invalid JSON", "details": str(e), "raw": itinerary_text}
-            else:
-                itinerary = {"error": "No valid JSON found", "raw": itinerary_text}
-
-        return jsonify(itinerary)
-
-    return render_template("traveller/trip_planner.html",current_traveller=traveller)
-
-
-
-def generate_itinerary(destination, days, adults, children, budget):
-    """
-    Generate a travel itinerary using OpenAI.
-    """
-    system_prompt = "You are an expert travel planner."
-    user_prompt = f"""
-    Plan a {days}-day trip to {destination} for {adults} adults and {children} children.
-    Include recommended activities, attractions, and budget-friendly options.
-    """
-
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ]
+    return render_template(
+        "traveller/trip_planner.html",
+        current_traveller=traveller,
+        itinerary=itinerary,
+        day_sections=day_sections
     )
 
-    itinerary = response.choices[0].message.content
-    return itinerary
+
+
 
 def get_nearby_accommodations(destination, radius=5000):
     """

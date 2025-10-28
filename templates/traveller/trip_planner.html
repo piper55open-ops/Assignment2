@@ -1,175 +1,199 @@
 {% extends "traveller/traveller_base.html" %}
 {% block content %}
-<div class="container-fluid py-4">
-  <h3 class="fw-bold mb-4">AI Trip Planner 🗺️</h3>
 
-  <!-- Trip Details Form -->
-  <div class="card mb-4 p-4 shadow-sm rounded-4">
-    <form id="tripForm">
-      <div class="row g-3">
-        <div class="col-md-4">
-          <label class="form-label">Destination</label>
-          <input type="text" class="form-control" name="destination" placeholder="Rotorua" required>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">Start Date</label>
-          <input type="date" class="form-control" name="start_date" required>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">Nights</label>
-          <input type="number" class="form-control" name="nights" value="3" min="1" required>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">Adults</label>
-          <input type="number" class="form-control" name="adults" value="2" min="1" required>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">Children</label>
-          <input type="number" class="form-control" name="children" value="0" min="0" required>
+<div class="container mt-4">
+  <h3 class="text-center mb-4">🧭 AI Trip Planner</h3>
+
+  <!-- Trip Planner Form -->
+  <form method="POST" action="{{ url_for('traveller.ai_planner') }}" class="p-4 border rounded bg-light shadow-sm mb-4">
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label>Destination</label>
+        <input type="text" name="destination" class="form-control" required>
+      </div>
+      <div class="col-md-3">
+        <label>Nights</label>
+        <input type="number" name="nights" class="form-control" min="1" required>
+      </div>
+      <div class="col-md-3">
+        <label>Budget ($)</label>
+        <input type="number" name="budget" class="form-control" min="0">
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label>Adults</label>
+        <input type="number" name="adults" class="form-control" min="1" required>
+      </div>
+      <div class="col-md-3">
+        <label>Children</label>
+        <input type="number" name="children" class="form-control" min="0">
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label>Preferences</label><br>
+      {% for pref in ['Nature', 'Food', 'Adventure', 'Relaxation'] %}
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" name="preferences" value="{{ pref }}">
+        <label class="form-check-label">{{ pref }}</label>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      <label>Selected Places</label>
+      <input type="text" name="selected_places" id="selected_places_input" class="form-control"
+        placeholder="e.g. Eiffel Tower, Louvre Museum" readonly>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">✨ Generate Itinerary</button>
+  </form>
+
+  {% if day_sections %}
+  <div class="mt-4">
+    <h4 class="text-center mb-3">🗓️ Your AI-Generated Itinerary</h4>
+    <div class="itinerary-carousel d-flex flex-row overflow-auto pb-3">
+      {% for day in day_sections %}
+      <div class="card shadow-sm me-3 flex-shrink-0" style="min-width: 360px; border-radius: 15px;">
+        <div class="card-body">
+          <h5 class="card-title text-primary mb-3">{{ day.split(':')[0] }}</h5>
+          <div class="day-content" style="font-size: 14px; white-space: pre-wrap;">
+            {{ day.split(':', 1)[1] }}
+          </div>
         </div>
       </div>
-
-      <div class="row g-3 mt-3">
-        <div class="col-md-4">
-          <label class="form-label">Budget ($)</label>
-          <input type="number" class="form-control" name="budget" value="1500" required>
-        </div>
-        <div class="col-md-8">
-          <label class="form-label">Preferences</label>
-          <select class="form-select" name="preferences" multiple>
-            <option value="Adventure">Adventure</option>
-            <option value="Relaxation">Relaxation</option>
-            <option value="Sightseeing">Sightseeing</option>
-            <option value="Food">Food</option>
-            <option value="Culture">Culture</option>
-          </select>
-        </div>
-      </div>
-
-      <button type="submit" class="btn btn-primary mt-3">Generate Itinerary</button>
-    </form>
+      {% endfor %}
+    </div>
   </div>
+  {% elif itinerary %}
+  <div class="mt-4 p-3 border rounded bg-white shadow-sm">
+    <h5 class="mb-3">🗓️ Itinerary</h5>
+    <div id="structuredItinerary" style="font-size: 14px; white-space: pre-wrap;">{{ itinerary }}</div>
+  </div>
+  {% endif %}
+</div>
 
-  <!-- Map Section -->
-  <div class="card mb-4 shadow-sm rounded-4 p-3">
+<!-- Map Section -->
+<div class="container mt-4 mb-5">
+  <div class="card shadow-sm rounded-4 p-3">
     <h5>Select Places on Map</h5>
     <div id="tripMap" style="height:400px;"></div>
   </div>
-
-  <!-- AI Generated Itinerary -->
-  <div id="itinerary" class="row g-3"></div>
 </div>
 
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf6P2gxnZGfdwhhbuXV3oJPnrFrGtD0o8&callback=initMap">
+</script>
 <script>
-const map = L.map('tripMap').setView([-41.2865, 174.7762], 5);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-
+  let map;
 let selectedPlaces = [];
+const selectedPlacesInput = document.getElementById("selected_places_input");
 
-// Example markers for demo
-const places = [
-  { name: "Redwoods Forest", coords: [-38.1368, 176.2497] },
-  { name: "Polynesian Spa", coords: [-38.1369, 176.2470] },
-  { name: "Lake Rotorua", coords: [-38.1390, 176.2460] }
-];
-
-places.forEach(p => {
-  const marker = L.marker(p.coords, {icon: L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-      iconSize: [35, 35]
-    })}).addTo(map).bindPopup(`<b>${p.name}</b><br><small>Click to select</small>`);
-
-  marker.on('click', () => {
-    if (!selectedPlaces.includes(p.name)) {
-      selectedPlaces.push(p.name);
-      marker.setOpacity(0.7); // visually mark selection
-    } else {
-      selectedPlaces = selectedPlaces.filter(x => x !== p.name);
-      marker.setOpacity(1);
-    }
+function initMap() {
+  // Center New Zealand
+  map = new google.maps.Map(document.getElementById("tripMap"), {
+    center: { lat: -41.2865, lng: 174.7762 },
+    zoom: 5,
   });
-});
 
-// Handle form submission
-document.getElementById('tripForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const button = e.target.querySelector('button');
-  button.disabled = true;
-  button.textContent = "Generating itinerary... 🧭";
+  const places = [
+    { name: "Redwoods Forest", position: { lat: -38.1368, lng: 176.2497 } },
+    { name: "Polynesian Spa", position: { lat: -38.1369, lng: 176.2470 } },
+    { name: "Lake Rotorua", position: { lat: -38.1390, lng: 176.2460 } },
+  ];
 
-  const formData = new FormData(e.target);
-  const data = {
-    destination: formData.get('destination'),
-    nights: formData.get('nights'),
-    adults: formData.get('adults'),
-    children: formData.get('children'),
-    budget: formData.get('budget'),
-    preferences: Array.from(formData.getAll('preferences')),
-    selected_places: selectedPlaces
-  };
-
-  try {
-    const res = await fetch("/traveller/trip-planner", {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+  places.forEach((place) => {
+    const marker = new google.maps.Marker({
+      position: place.position,
+      map: map,
+      title: place.name,
     });
-    
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}`);
-  }
-    const itinerary = await res.json();
-    displayItinerary(itinerary);
-  } catch (err) {
-    document.getElementById('itinerary').innerHTML =
-      `<div class="alert alert-danger">Error generating itinerary. Please try again.</div>`;
-  } finally {
-    button.disabled = false;
-    button.textContent = "Generate Itinerary";
-  }
-});
 
-function displayItinerary(itinerary) {
-  const container = document.getElementById('itinerary');
-  container.innerHTML = '';
+    const info = new google.maps.InfoWindow({
+      content: `<strong>${place.name}</strong><br><small>Click to select</small>`,
+    });
 
-  // handle errors/invalid responses
-  if (!itinerary) {
-    container.innerHTML = `<div class="alert alert-warning">No itinerary returned.</div>`;
-    return;
-  }
-  if (itinerary.error) {
-    container.innerHTML = `<div class="alert alert-danger">${itinerary.error}</div>`;
-    return;
-  }
-
-  // ensure it's an array
-  const days = Array.isArray(itinerary) ? itinerary : [itinerary];
-
-  days.forEach(day => {
-    const card = document.createElement('div');
-    card.className = 'col-md-4';
-
-    // Use backticks for template literal
-    card.innerHTML = `
-      <div class="card shadow-sm rounded-4 p-3 mb-3">
-        <div class="card-header bg-gradient rounded-top-3 mb-2" style="background: linear-gradient(90deg,#6dd5ed,#2193b0); color: white;">
-          <h6 class="mb-0 fw-bold">Day ${day.day || '—'}</h6>
-        </div>
-        <div class="card-body p-2">
-          <p class="mb-2"><strong>Accommodation:</strong> ${day.accommodation || 'N/A'}</p>
-          <ul class="small mb-0">
-            ${Array.isArray(day.activities) && day.activities.length
-              ? day.activities.map(a => `<li>${a.time || ''}: ${a.name || ''} ${a.location ? ' — ' + a.location : ''}</li>`).join('')
-              : '<li>No activities suggested</li>'}
-          </ul>
-        </div>
-      </div>
-    `;
-
-    container.appendChild(card);
+    marker.addListener("click", () => {
+      info.open(map, marker);
+      togglePlace(place.name, marker);
+    });
   });
 }
 
+function togglePlace(name, marker) {
+  if (!selectedPlaces.includes(name)) {
+    selectedPlaces.push(name);
+    marker.setIcon("https://maps.google.com/mapfiles/ms/icons/blue-dot.png");
+  } else {
+    selectedPlaces = selectedPlaces.filter((x) => x !== name);
+    marker.setIcon(null);
+  }
+  selectedPlacesInput.value = selectedPlaces.join(", ");
+}
+  // 🪄 Format itinerary text into beautiful mini-cards dynamically
+  document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("structuredItinerary");
+    if (!container) return;
+    const text = container.innerText;
+    const dayBlocks = text.split(/---/g);
+    let html = "";
+
+    dayBlocks.forEach(day => {
+      if (!day.trim()) return;
+      const title = (day.match(/Day\s*\d+/i) || ["Itinerary"])[0];
+      const sections = day.split(/\*\*|\n/).filter(line => line.trim());
+      let sectionHTML = "";
+
+      sections.forEach(line => {
+        if (line.match(/Morning|Afternoon|Evening|Night/i)) {
+          sectionHTML += `<div class='subcard'><h6>🌅 ${line.trim()}</h6>`;
+        } else if (line.startsWith('-') || line.startsWith('*')) {
+          sectionHTML += `<p>${line.replace(/[*-]/g, '').trim()}</p>`;
+        } else {
+          sectionHTML += `<p>${line.trim()}</p>`;
+        }
+      });
+
+      html += `
+        <div class='card mb-3 shadow-sm'>
+          <div class='card-body'>
+            <h5 class='card-title text-primary'>${title}</h5>
+            <div>${sectionHTML}</div>
+          </div>
+        </div>`;
+    });
+
+    container.innerHTML = html;
+  });
 </script>
+
+<style>
+  .itinerary-carousel {
+    scroll-behavior: smooth;
+  }
+
+  .itinerary-carousel::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .itinerary-carousel::-webkit-scrollbar-thumb {
+    background: #b46fa3;
+    border-radius: 4px;
+  }
+
+  .subcard {
+    background: #f9f9fb;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+
+  .subcard h6 {
+    font-weight: 600;
+    color: #5b0943;
+  }
+</style>
+
 {% endblock %}

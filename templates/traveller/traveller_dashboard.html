@@ -1,7 +1,5 @@
 {% extends "traveller/traveller_base.html" %}
-
 {% block content %}
-
 
 <div class="container-fluid mt-4 fade-in">
   <!-- Welcome Header -->
@@ -41,47 +39,75 @@
       <div class="card calendar-card shadow-sm mb-4 fade-in">
         <div class="card-body">
           <h6 class="fw-semibold mb-3 text-success">🗓 My Calendar</h6>
-         <iframe src="https://calendar.google.com/calendar/embed?src=2bd4b57773c9e3dacadfa1ea3a79db1db690140898d12876833edd9ae42570bf%40group.calendar.google.com&ctz=Pacific%2FAuckland" 
+          <iframe src="https://calendar.google.com/calendar/embed?src=2bd4b57773c9e3dacadfa1ea3a79db1db690140898d12876833edd9ae42570bf%40group.calendar.google.com&ctz=Pacific%2FAuckland"
                   style="border:0" width="100%" height="300" frameborder="0" scrolling="no"></iframe>
         </div>
       </div>
 
       <!-- Map -->
-     <div class="card shadow-sm border-0 rounded-4 map-card overflow-hidden">
-      <div class="map-header text-white p-3 d-flex align-items-center justify-content-between">
-        <h6 class="fw-semibold mb-0"><i class="fa-solid fa-map-location-dot me-2"></i>New Zealand Map</h6>
-        <span class="badge bg-light text-dark">Zoom & Explore</span>
-      </div>
-      <div class="card-body p-0">
-        <div id="nzMap" style="height: 350px; border-radius: 0 0 20px 20px;"></div>
+      <div class="card shadow-sm border-0 rounded-4 map-card overflow-hidden">
+        <div class="map-header text-white p-3 d-flex align-items-center justify-content-between">
+          <h6 class="fw-semibold mb-0"><i class="fa-solid fa-map-location-dot me-2"></i>New Zealand Map</h6>
+          <span class="badge bg-light text-dark">Zoom & Explore</span>
+        </div>
+        <div class="card-body p-0">
+          <div id="nzMap" style="height: 350px; border-radius: 0 0 20px 20px;"></div>
+        </div>
       </div>
     </div>
+  </div>
+</div>
 
-<!-- Map Script -->
+<!-- ✅ Google Maps Script -->
 <script>
-  // Leaflet map setup
-const map = L.map('nzMap').setView([-41.2865, 174.7762], 5);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap'
-}).addTo(map);
+  function initNZMap() {
+    const map = new google.maps.Map(document.getElementById("nzMap"), {
+      center: { lat: -41.2865, lng: 174.7762 },
+      zoom: 5,
+      mapTypeControl: false,
+      streetViewControl: false,
+    });
 
-// Key NZ regions with bouncing markers
-const regions = [
-  { name: "Auckland", coords: [-36.8485, 174.7633] },
-  { name: "Wellington", coords: [-41.2865, 174.7762] },
-  { name: "Christchurch", coords: [-43.5320, 172.6306] },
-  { name: "Queenstown", coords: [-45.0312, 168.6626] },
-  { name: "Rotorua", coords: [-38.1368, 176.2497] }
-];
+    const regions = [
+      { name: "Northland", coords: { lat: -35.7317, lng: 174.3237 } },
+      { name: "Auckland", coords: { lat: -36.8485, lng: 174.7633 } },
+      { name: "Waikato", coords: { lat: -37.7833, lng: 175.2833 } },
+      { name: "Bay of Plenty", coords: { lat: -37.6878, lng: 176.1651 } },
+      { name: "Gisborne", coords: { lat: -38.6623, lng: 178.0176 } },
+      { name: "Hawke’s Bay", coords: { lat: -39.4928, lng: 176.9120 } },
+      { name: "Taranaki", coords: { lat: -39.0556, lng: 174.0752 } },
+      { name: "Manawatu-Whanganui", coords: { lat: -40.3523, lng: 175.6082 } },
+      { name: "Wellington", coords: { lat: -41.2865, lng: 174.7762 } },
+      { name: "Tasman", coords: { lat: -41.2167, lng: 172.8333 } },
+      { name: "Nelson", coords: { lat: -41.2706, lng: 173.2840 } },
+      { name: "Marlborough", coords: { lat: -41.5134, lng: 173.9615 } },
+      { name: "West Coast", coords: { lat: -42.4500, lng: 171.2100 } },
+      { name: "Canterbury", coords: { lat: -43.5321, lng: 172.6362 } },
+      { name: "Otago", coords: { lat: -45.0312, lng: 168.6626 } },
+      { name: "Southland", coords: { lat: -46.4132, lng: 168.3538 } }
+    ];
 
-regions.forEach(r => {
-  const marker = L.marker(r.coords, { riseOnHover: true }).addTo(map)
-    .bindPopup(`<b>${r.name}</b>`)
-    .openPopup();
-  
-  // Optional bounce effect
-  marker.on('click', () => marker.openPopup());
-});
+    const infoWindow = new google.maps.InfoWindow();
 
+    regions.forEach(region => {
+      const marker = new google.maps.Marker({
+        position: region.coords,
+        map,
+        title: region.name,
+        icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+      });
+
+      marker.addListener("click", () => {
+        infoWindow.setContent(`<b>${region.name}</b>`);
+        infoWindow.open(map, marker);
+      });
+    });
+  }
 </script>
+
+<!-- ✅ Load Google Maps API -->
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf6P2gxnZGfdwhhbuXV3oJPnrFrGtD0o8&callback=initNZMap">
+</script>
+
 {% endblock %}
