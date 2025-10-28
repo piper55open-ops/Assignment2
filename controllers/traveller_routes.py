@@ -42,8 +42,7 @@ def inject_traveller_user():
     traveller_id = session.get("user_id")
     traveller = None
     if traveller_id and session.get("role") == "tourist":
-        # Use your UserModel instance
-        from models.user_model import UserModel
+
         user_model = UserModel()
         traveller = user_model.get_user_by_id(traveller_id)
     return dict(current_traveller=traveller)
@@ -117,67 +116,120 @@ def traveller_dashboard():
         seasonal_places=seasonal_places,
         current_season=season
     )
+    
+def get_ai_itinerary(destination, nights, budget, adults, children, preferences):
+    """
+    Generate itinerary using OpenAI GPT model.
+    """
+    prompt = f"""
+    Plan a {nights}-day trip to {destination} for {adults} adults and {children} children.
+    Budget: ${budget}.
+    Preferences: {', '.join(preferences)}.
+    Include day-by-day plan with Morning, Afternoon, Evening, Night activities,
+    with approximate costs and restaurant/hotel suggestions.
+    """
 
-import re
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a travel planner."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7
+        )
+        return response.choices[0].message.content.strip()
 
-@traveller_bp.route("/trip-planner", methods=["GET", "POST"])
+    except Exception as e:
+        print("AI itinerary generation error:", e)
+        return "Error generating itinerary. Please try again."
+    
+
+def parse_itinerary_to_structure(itinerary_text):
+    """
+    Convert AI-generated itinerary text into structured format
+    [
+      {
+        "day": 1,
+        "schedule": [
+            {"time": "Morning", "text": "..."},
+            {"time": "Afternoon", "text": "..."},
+        ]
+      },
+      ...
+    ]
+    """
+    if not itinerary_text:
+        return []
+
+    # Split days cleanly
+    day_sections = re.split(r"(?i)\bDay\s+\d+\b", itinerary_text)
+    day_numbers = re.findall(r"(?i)\bDay\s+(\d+)\b", itinerary_text)
+    structured = []
+
+    for i, content in enumerate(day_sections[1:], start=0):
+        day_data = {"day": int(day_numbers[i]), "schedule": []}
+        
+        # Capture each time section (morning, afternoon, etc.)
+        for time in ["Morning", "Afternoon", "Evening", "Night"]:
+            pattern = rf"(?i){time}:(.*?)(?=(Morning|Afternoon|Evening|Night|$))"
+            match = re.search(pattern, content, re.S)
+            if match:
+                text = match.group(1).strip()
+                # Clean up bullet points
+                text = re.sub(r"(\r?\n)+", "\n", text).strip()
+
+                icon = {
+                    "Morning": "☀️",
+                    "Afternoon": "🌇",
+                    "Evening": "🌆",
+                    "Night": "🌙"
+                }[time]
+
+                day_data["schedule"].append({
+                    "time": time,
+                    "icon": icon,
+                    "text": text
+                })
+
+        structured.append(day_data)
+
+    return structured
+
+
+
+@traveller_bp.route("/ai_planner", methods=["GET", "POST"])
 def ai_planner():
-    if "role" not in session or session["role"] != "tourist":
-        flash("Unauthorized access. Please log in as a traveller.", "danger")
-        return redirect(url_for("login"))
+    user_id = session.get("user_id")  # get logged-in user id
+    traveller = None
+    if user_id:
+        traveller = User.get_user_by_id(user_id)  # only if you have this method
+    else:
+        traveller = {"username": "Guest"}
 
-    user_id = session.get("user_id")
-    traveller = User.get_user_by_id(user_id)
     itinerary = None
-    day_sections = []  # <-- to hold each day’s text
+    structured_itinerary = None
+    day_sections = None
 
     if request.method == "POST":
-        destination = request.form.get("destination", "unknown destination")
-        nights = request.form.get("nights", 1)
-        adults = request.form.get("adults", 1)
-        children = request.form.get("children", 0)
-        budget = request.form.get("budget", 0)
+        destination = request.form.get("destination")
+        nights = int(request.form.get("nights"))
+        budget = request.form.get("budget") or "Flexible"
+        adults = request.form.get("adults")
+        children = request.form.get("children")
         preferences = request.form.getlist("preferences")
-        selected_places = request.form.getlist("selected_places")
 
-        prompt = f"""
-        Create a {nights}-night travel itinerary for {adults} adults and {children} children in {destination}.
-        Budget: ${budget}.
-        Preferences: {', '.join(preferences)}.
-        Must include these places: {', '.join(selected_places)}.
-        Provide day-wise activities, accommodation, dining, and local experiences in a clear format starting each day with 'Day X:'.
-        """
-
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "You are a helpful travel planner."},
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0.7,
-            )
-            itinerary = response.choices[0].message.content.strip()
-
-            # Split into Day sections (e.g. Day 1:, Day 2:)
-            day_sections = re.split(r'(Day\s*\d+[:\-])', itinerary)
-            # Join titles and content together
-            day_sections = [
-                day_sections[i] + day_sections[i+1]
-                for i in range(1, len(day_sections), 2)
-            ]
-
-        except Exception as e:
-            itinerary = f"⚠️ Error generating itinerary: {str(e)}"
+        itinerary = get_ai_itinerary(destination, nights, budget, adults, children, preferences)
+        structured_itinerary = parse_itinerary_to_structure(itinerary)
 
     return render_template(
         "traveller/trip_planner.html",
         current_traveller=traveller,
         itinerary=itinerary,
-        day_sections=day_sections
+        itinerary_data=structured_itinerary,
+        raw_itinerary=itinerary,
+        day_sections=[]
     )
-
-
 
 
 def get_nearby_accommodations(destination, radius=5000):

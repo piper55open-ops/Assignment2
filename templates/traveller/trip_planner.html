@@ -34,45 +34,76 @@
 
     <div class="mb-3">
       <label>Preferences</label><br>
-      {% for pref in ['Nature', 'Food', 'Adventure', 'Relaxation'] %}
       <div class="form-check form-check-inline">
-        <input class="form-check-input" type="checkbox" name="preferences" value="{{ pref }}">
-        <label class="form-check-label">{{ pref }}</label>
+        <input class="form-check-input" type="checkbox" name="preferences" value="Nature">
+        <label class="form-check-label">Nature</label>
       </div>
-      {% endfor %}
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" name="preferences" value="Food">
+        <label class="form-check-label">Food</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" name="preferences" value="Adventure">
+        <label class="form-check-label">Adventure</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" name="preferences" value="Relaxation">
+        <label class="form-check-label">Relaxation</label>
+      </div>
     </div>
 
     <div class="mb-3">
       <label>Selected Places</label>
-      <input type="text" name="selected_places" id="selected_places_input" class="form-control"
-        placeholder="e.g. Eiffel Tower, Louvre Museum" readonly>
+      <input type="text" name="selected_places" id="selected_places_input" class="form-control" placeholder="e.g. Eiffel Tower, Louvre Museum" readonly>
     </div>
 
     <button type="submit" class="btn btn-primary w-100">✨ Generate Itinerary</button>
   </form>
 
-  {% if day_sections %}
+  <!-- AI Itinerary Display -->
+  {% if itinerary_data %}
   <div class="mt-4">
     <h4 class="text-center mb-3">🗓️ Your AI-Generated Itinerary</h4>
-    <div class="itinerary-carousel d-flex flex-row overflow-auto pb-3">
-      {% for day in day_sections %}
-      <div class="card shadow-sm me-3 flex-shrink-0" style="min-width: 360px; border-radius: 15px;">
-        <div class="card-body">
-          <h5 class="card-title text-primary mb-3">{{ day.split(':')[0] }}</h5>
-          <div class="day-content" style="font-size: 14px; white-space: pre-wrap;">
-            {{ day.split(':', 1)[1] }}
+
+    <div id="itineraryCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        {% for day in itinerary_data %}
+        <div class="carousel-item {% if loop.first %}active{% endif %}">
+          <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Day {{ day.day }}</h5>
+          </div>
+          <div class="card-body">
+            {% for section in day.schedule %}
+              <div class="card mb-3 border-0 bg-light">
+                <div class="card-header fw-semibold">
+                  {{ section.icon }} {{ section.time }}
+                </div>
+                <div class="card-body">
+                  <p style="white-space: pre-line;">{{ section.text }}</p>
+                </div>
+              </div>
+            {% endfor %}
           </div>
         </div>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
+      <button class="carousel-control-prev" type="button" data-bs-target="#itineraryCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#itineraryCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+      </button>
     </div>
   </div>
-  {% elif itinerary %}
+  {% elif raw_itinerary %}
   <div class="mt-4 p-3 border rounded bg-white shadow-sm">
     <h5 class="mb-3">🗓️ Itinerary</h5>
-    <div id="structuredItinerary" style="font-size: 14px; white-space: pre-wrap;">{{ itinerary }}</div>
+    <pre style="white-space: pre-wrap;">{{ raw_itinerary }}</pre>
   </div>
   {% endif %}
+
 </div>
 
 <!-- Map Section -->
@@ -175,7 +206,7 @@ function togglePlace(name, marker) {
   }
 
   .itinerary-carousel::-webkit-scrollbar {
-    height: 8px;
+    height: 50px;
   }
 
   .itinerary-carousel::-webkit-scrollbar-thumb {
