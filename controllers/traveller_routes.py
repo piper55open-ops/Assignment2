@@ -276,7 +276,6 @@ def memories():
             filename = image.filename
             upload_folder = os.path.join("static", "images")
 
-            # 👇 create the folder if it doesn't exist
             os.makedirs(upload_folder, exist_ok=True)
 
             upload_path = os.path.join(upload_folder, filename)
@@ -392,8 +391,6 @@ def traveller_trips():
     user_id = session.get("user_id")
     traveller = User.get_user_by_id(user_id)
     
-
-    # Handle new trip upload
     if request.method == "POST":
         title = request.form.get("title")
         destination = request.form.get("destination")
