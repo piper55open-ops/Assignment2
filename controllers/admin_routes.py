@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, session, redirect, url_for, flash,
 from flask import Blueprint,current_app
 from werkzeug.utils import secure_filename
 from models.user_model import UserModel
-from models.ad_model import AdModel
 from models.provider_model import ProviderModel
 from models.event_model import EventModel
 from models.blog_model import BlogModel
@@ -15,7 +14,6 @@ import os
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 user_model = UserModel()
 provider_model = ProviderModel()
-ad_model = AdModel()
 event_model = EventModel()
 blog_model = BlogModel()
 journey_model = JourneyModel()
@@ -421,26 +419,42 @@ def add_admin():
     user_model.add_user(username, email, password, "admin", image)
     return jsonify({"status": "success", "message": "New admin added!"})
 
-#--------------------------Feedback Page ----------------------------
-# 📝 Admin Feedback Page
-@admin_bp.route("/feedbacks")
+
+# ✅ View all feedbacks
+@admin_bp.route("/admin/feedbacks")
 def admin_feedbacks():
     feedbacks = feedback_model.get_all_feedbacks()
     return render_template("admin/feedback.html", feedbacks=feedbacks)
 
-# 💬 Reply / Update Feedback
-@admin_bp.route("/feedback/reply/<int:feedback_id>", methods=["POST"])
-def reply_feedback(feedback_id):
-    reply = request.form.get("reply")
-    status = request.form.get("status")
+# ✅ Reply to feedback
+@admin_bp.route("/admin/feedback/reply", methods=["POST"])
+def admin_feedback_reply():
+    if "role" not in session or session["role"] != "admin":
+        flash("Unauthorized access", "error")
+        return redirect(url_for("login"))
+
     try:
+        feedback_id = request.form.get("feedback_id")
+        reply = request.form.get("reply")
+        status = request.form.get("status")
+
+        if not feedback_id or not reply:
+            flash("Reply message cannot be empty", "error")
+            return redirect(url_for("admin.admin_feedbacks"))
+
         feedback_model.update_feedback(feedback_id, reply, status)
-        return jsonify({"status": "success", "message": "Feedback updated successfully!"})
+        flash("Feedback reply sent successfully!", "success")
+        return redirect(url_for("admin.admin_feedbacks"))
+
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+        print("Admin feedback reply error:", e)
+        flash("Server error occurred while sending reply", "error")
+        return redirect(url_for("admin.admin_feedbacks"))
+
+
 
 # ❌ Delete Feedback
-@admin_bp.route("/feedback/delete/<int:feedback_id>", methods=["DELETE"])
+@admin_bp.route("/admin/feedback/delete/<int:feedback_id>", methods=["DELETE"])
 def delete_feedback(feedback_id):
     try:
         feedback_model.delete_feedback(feedback_id)

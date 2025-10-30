@@ -12,6 +12,8 @@ class FeedbackModel:
         self.db.execute("""
             CREATE TABLE IF NOT EXISTS feedbacks (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                user_type TEXT CHECK(user_type IN ('tourist', 'provider', 'admin')) NOT NULL,
                 name TEXT NOT NULL,
                 email TEXT NOT NULL,
                 message TEXT NOT NULL,
@@ -21,14 +23,20 @@ class FeedbackModel:
             )
         """)
 
-    def add_feedback(self, name, email, message):
+    def add_feedback(self, user_id, user_type, name, email, message):
         self.db.execute(
-            "INSERT INTO feedbacks (name, email, message) VALUES (?, ?, ?)",
-            (name, email, message)
+            "INSERT INTO feedbacks (user_id, user_type, name, email, message) VALUES (?, ?, ?, ?, ?)",
+            (user_id, user_type, name, email, message)
         )
 
     def get_all_feedbacks(self):
         return self.db.fetchall("SELECT * FROM feedbacks ORDER BY created_at DESC")
+
+    def get_feedbacks_by_user(self, user_id, user_type):
+        return self.db.fetchall(
+            "SELECT * FROM feedbacks WHERE user_id=? AND user_type=? ORDER BY created_at DESC",
+            (user_id, user_type)
+        )
 
     def update_feedback(self, feedback_id, reply, status):
         self.db.execute(
@@ -37,7 +45,12 @@ class FeedbackModel:
         )
 
     def delete_feedback(self, feedback_id):
-        self.db.execute(
-            "DELETE FROM feedbacks WHERE id=?",
-            (feedback_id,)
+        self.db.execute("DELETE FROM feedbacks WHERE id=?", (feedback_id,))
+        
+
+    def get_unread_replies_count(self, user_id, user_type):
+        result = self.db.fetchall(
+            "SELECT COUNT(*) AS count FROM feedbacks WHERE user_id=? AND user_type=? AND reply IS NOT NULL AND status='Resolved'",
+            (user_id, user_type)
         )
+        return result[0]["count"] if result else 0

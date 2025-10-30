@@ -34,13 +34,16 @@
         <i class="fa-solid fa-chart-line"></i> <span>Dashboard</span>
       </a>
       <a class="nav-link {% if request.endpoint=='provider.properties' %}active{% endif %}" href="{{ url_for('provider.properties') }}">
-        <i class="fa-solid fa-hotel"></i> <span>Properties</span>
+        <i class="fa-solid fa-hotel"></i> <span>My Properties</span>
       </a>
       <a class="nav-link {% if request.endpoint=='provider.promotions' %}active{% endif %}" href="{{ url_for('provider.promotions') }}">
-        <i class="fa-solid fa-bullhorn"></i> <span>Promotions</span>
+        <i class="fa-solid fa-bullhorn"></i> <span>My Promotions</span>
       </a>
-      <a class="nav-link {% if request.endpoint=='provider.profile' %}active{% endif %}" href="{{ url_for('provider.profile') }}">
-        <i class="fa-solid fa-user-circle"></i> <span>Profile</span>
+      <a class="nav-link {% if request.endpoint=='provider.provider_feedback_page' %}active{% endif %}" href="{{ url_for('provider.provider_feedback_page') }}">
+        <i class="fa-solid fa-bell"></i> <span>My Notifications</span>
+      </a>
+      <a class="nav-link {% if request.endpoint=='provider.provider.profile' %}active{% endif %}" href="{{ url_for('provider.profile') }}">
+        <i class="fa-solid fa-user-circle"></i> <span>My Profile</span>
       </a>
       <a class="nav-link" href="{{ url_for('logout') }}">
         <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
@@ -62,7 +65,9 @@
                 class="rounded-circle me-2"
                 width="40" height="40">
             <span class="fw-semibold">{{ provider['username'] }}</span>
+    
         </div>
+        
       </div>
     </nav>
 

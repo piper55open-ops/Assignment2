@@ -1,171 +1,178 @@
 {% extends "admin/admin_base.html" %}
-
 {% block content %}
-<div class="container-fluid py-4">
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold text-uppercase text-secondary">Feedback / Contact Messages</h3>
-  </div>
+<div class="container py-4">
+  <h3 class="fw-bold text-secondary mb-4">Traveller Feedbacks</h3>
 
-  <!-- Search Bar -->
-  <div class="mb-3">
-    <input type="text" id="searchFeedback" class="form-control shadow-sm" placeholder="Search messages by name, email or message...">
-  </div>
-
-  <!-- Feedback Table -->
   <div class="card shadow-sm border-0 rounded-4">
     <div class="card-body">
-      <table class="table align-middle table-hover" id="feedbackTable">
-        <thead class="table-light text-center">
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Message</th>
-            <th>Status</th>
-            <th>Reply</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody class="text-center">
-          {% for fb in feedbacks %}
-          <tr>
-            <td>{{ fb.id }}</td>
-            <td>{{ fb.name }}</td>
-            <td>{{ fb.email }}</td>
-            <td>{{ fb.message }}</td>
-            <td>{{ fb.status }}</td>
-            <td>{{ fb.reply or "No Reply Yet" }}</td>
-            <td>
-              <button class="btn btn-sm btn-outline-gold me-2"
-                      data-bs-toggle="modal" 
-                      data-bs-target="#replyFeedbackModal"
-                      onclick="openReplyModal({{ fb.id }}, '{{ fb.message|escape }}', '{{ fb.reply|default('')|escape }}')">
-                <i class="bi bi-reply"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-danger" onclick="deleteFeedback({{ fb.id }})">
-                <i class="bi bi-trash"></i>
-              </button>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="table table-hover text-center align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Traveller Name</th>
+              <th>Email</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Reply</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fb in feedbacks %}
+            <tr>
+              <td>{{ fb.id }}</td>
+              <td>{{ fb.username }}</td>
+              <td>{{ fb.email }}</td>
+              <td>{{ fb.message }}</td>
+              <td>
+                {% if fb.status == 'Resolved' %}
+                <span class="badge bg-success">Resolved</span>
+                {% else %}
+                <span class="badge bg-warning text-dark">Pending</span>
+                {% endif %}
+              </td>
+              <td>{{ fb.reply or 'No reply yet' }}</td>
+              <td>
+                <button
+                  class="btn btn-sm btn btn-gold"
+                  data-id="{{ fb.id }}"
+                  data-message="{{ fb.message }}"
+                  data-reply="{{ fb.reply or '' }}"
+                  data-status="{{ fb.status }}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#replyModal"
+                >
+                  Reply
+                </button>
+                <button
+                  class="btn btn-sm btn-danger delete-btn"
+                  data-id="{{ fb.id }}"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Reply Feedback Modal -->
-<div class="modal fade" id="replyFeedbackModal" tabindex="-1">
+<!-- Reply Modal -->
+<div
+  class="modal fade"
+  id="replyModal"
+  tabindex="-1"
+  aria-labelledby="replyModalLabel"
+  aria-hidden="true"
+>
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4 border-0 shadow">
-      <div class="modal-header bg-gold text-white">
-        <h5 class="modal-title fw-bold">Reply to Feedback</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="replyModalLabel">Send Reply</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
       </div>
-      <form id="replyForm">
+      <form method="POST" action="{{ url_for('admin.admin_feedback_reply') }}">
         <div class="modal-body">
+          <input type="hidden" name="feedback_id" id="feedbackIdInput" />
+
           <div class="mb-3">
-            <label class="form-label">Message</label>
-            <textarea class="form-control" id="originalMessage" rows="3" readonly></textarea>
+            <label class="form-label fw-bold">Traveller's Message</label>
+            <textarea
+              class="form-control"
+              id="feedbackMessageInput"
+              rows="3"
+              readonly
+            ></textarea>
           </div>
+
           <div class="mb-3">
-            <label class="form-label">Reply</label>
-            <textarea class="form-control" id="replyText" name="reply" rows="3" required></textarea>
+            <label class="form-label fw-bold">Your Reply</label>
+            <textarea
+              class="form-control"
+              name="reply"
+              id="replyTextInput"
+              rows="3"
+              required
+            ></textarea>
           </div>
+
           <div class="mb-3">
-            <label class="form-label">Status</label>
-            <select class="form-select" id="feedbackStatus" name="status" required>
+            <label class="form-label fw-bold">Status</label>
+            <select class="form-select" name="status" id="statusSelect">
               <option value="Pending">Pending</option>
               <option value="Resolved">Resolved</option>
             </select>
           </div>
         </div>
+
         <div class="modal-footer">
-          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-gold">Save Reply</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-gold">Send Reply</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Scripts -->
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  // 🔍 Search filter
-  const searchFeedback = document.getElementById("searchFeedback");
-  searchFeedback.addEventListener("keyup", function() {
-    const filter = searchFeedback.value.toLowerCase();
-    const rows = document.querySelectorAll("#feedbackTable tbody tr");
-    rows.forEach(row => {
-      const text = row.textContent.toLowerCase();
-      row.style.display = text.includes(filter) ? "" : "none";
+document.addEventListener("DOMContentLoaded", function () {
+  // ✅ Populate modal fields dynamically when admin clicks Reply
+  const replyButtons = document.querySelectorAll(".reply-btn");
+  replyButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.getElementById("feedbackIdInput").value = btn.dataset.id;
+      document.getElementById("feedbackMessageInput").value = btn.dataset.message;
+      document.getElementById("replyTextInput").value = btn.dataset.reply;
+      document.getElementById("statusSelect").value = btn.dataset.status;
     });
   });
 
-  let currentFeedbackId = null;
+  // ✅ Delete feedback (optional)
+  const deleteButtons = document.querySelectorAll(".delete-btn");
+  deleteButtons.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const feedbackId = btn.dataset.id;
+      const confirm = await Swal.fire({
+        title: "Are you sure?",
+        text: "This feedback will be permanently deleted.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!",
+      });
 
-  // Open Reply Modal
-  function openReplyModal(id, message, reply) {
-    currentFeedbackId = id;
-    document.getElementById("originalMessage").value = message;
-    document.getElementById("replyText").value = reply;
-    document.getElementById("feedbackStatus").value = reply ? "Resolved" : "Pending";
-  }
-
-  // Submit Reply
-  document.getElementById("replyForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const response = await fetch(`/admin/feedback/reply/${currentFeedbackId}`, {
-      method: "POST",
-      body: formData
+      if (confirm.isConfirmed) {
+        const res = await fetch(`/admin/feedback/delete/${feedbackId}`, {
+          method: "DELETE",
+        });
+        const result = await res.json();
+        if (result.status === "success") {
+          Swal.fire("Deleted!", result.message, "success").then(() => {
+            window.location.reload();
+          });
+        } else {
+          Swal.fire("Error", result.message, "error");
+        }
+      }
     });
-    const result = await response.json();
-    if (result.status === "success") {
-      alert(result.message);
-      location.reload();
-    } else {
-      alert("Error: " + result.message);
-    }
   });
-
-  // Delete Feedback
-  async function deleteFeedback(id) {
-    if (!confirm("Are you sure you want to delete this feedback?")) return;
-    const response = await fetch(`/admin/feedback/delete/${id}`, {
-      method: "DELETE"
-    });
-    const result = await response.json();
-    if (result.status === "success") {
-      alert(result.message);
-      location.reload();
-    } else {
-      alert("Error: " + result.message);
-    }
-  }
+});
 </script>
 
-<!-- Styles -->
-<style>
-  .btn-gold {
-    background-color: #b8860b;
-    color: white;
-    border: none;
-  }
-  .btn-gold:hover {
-    background-color: #a67c00;
-  }
-  .btn-outline-gold {
-    color: #b8860b;
-    border: 1px solid #b8860b;
-  }
-  .btn-outline-gold:hover {
-    background-color: #b8860b;
-    color: #fff;
-  }
-  .bg-gold {
-    background-color: #b8860b !important;
-  }
-</style>
 {% endblock %}

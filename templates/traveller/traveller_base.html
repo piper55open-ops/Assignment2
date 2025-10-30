@@ -11,6 +11,7 @@
   integrity="sha256-sA+4aGq6V4npC9J0Zp2uyC0ZFJ0IkEb6iZlfFv1SZoE="
   crossorigin=""
 />
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- ✅ Leaflet JS -->
 <script 
@@ -39,6 +40,8 @@
   rel="stylesheet" 
   href="{{ url_for('static', filename='css/traveller.css') }}" 
 />
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     body, html { min-height: 100%; }
@@ -66,7 +69,7 @@
                   alt="Traveller" 
                   class="rounded-circle me-2" width="40" height="40">
           {% endif %}
-          <span>{{ current_traveller['username'] if current_traveller else 'Traveller' }}</span>
+
       </div>
 
     </div>
@@ -81,6 +84,7 @@
         <a href="{{ url_for('traveller.traveller_trips') }}"><i class="fas fa-route"></i> My Trips</a>
         <a href="{{ url_for('traveller.ai_planner') }}"><i class="fas fa-robot"></i> Trip Planner</a>
         <a href="{{ url_for('traveller.nearby_stays') }}"><i class="fas fa-map-marked-alt"></i> Nearby Stays</a>
+         <a href="{{ url_for('traveller.traveller_feedback_page') }}"><i class="fas fa-bell"></i> My Notifications</a>
         <a href="{{ url_for('traveller.profile') }}"><i class="fa-solid fa-id-card me-2"></i>Profile</a>
         <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a>
       </div>

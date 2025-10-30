@@ -9,12 +9,14 @@ from google.genai.errors import APIError
 from models.database import Database
 from models.trip_model import TripModel
 from models.user_model import UserModel
+from models.feedback_model import FeedbackModel
 from werkzeug.utils import secure_filename
 from models.database import Database
 
 traveller_bp = Blueprint("traveller", __name__, url_prefix="/traveller")
 trip_model = TripModel()
 User = UserModel()
+feedback_model = FeedbackModel()
 
 # --- Load NZ locations ---
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -464,3 +466,53 @@ def update_profile():
     flash("Profile updated successfully!", "success")
     return redirect(url_for("traveller_bp.profile"))
 
+
+
+# ✅ Page Load Route
+@traveller_bp.route("/traveller/feedback", methods=["GET"])
+def traveller_feedback_page():
+    if "role" not in session or session["role"] != "tourist":
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for("login"))
+
+    user_id = session.get("user_id")
+    traveller = User.get_user_by_id(user_id)
+    feedbacks = feedback_model.get_feedbacks_by_user(user_id, "tourist")
+    unread_count = feedback_model.get_unread_replies_count(user_id, "tourist")
+
+    # Optional messages for SweetAlert
+    success_message = request.args.get("success")
+    error_message = request.args.get("error")
+
+    return render_template(
+        "traveller/feedback_notifications.html",
+        feedbacks=feedbacks,
+        traveller=traveller,
+        unread_count=unread_count,
+        success_message=success_message,
+        error_message=error_message
+    )
+
+
+# ✅ Normal POST Route (no AJAX)
+@traveller_bp.route("/traveller/feedback/send", methods=["POST"])
+def traveller_send_feedback():
+    if "role" not in session or session["role"] != "tourist":
+        return redirect(url_for("traveller.traveller_feedback_page", error="Unauthorized access"))
+
+    try:
+        user_id = session.get("user_id")
+        traveller = User.get_user_by_id(user_id)
+        traveller_name = traveller["username"]
+        traveller_email = traveller["email"]
+
+        message = request.form.get("message")
+        if not message:
+            return redirect(url_for("traveller.traveller_feedback_page", error="Message cannot be empty"))
+
+        feedback_model.add_feedback(user_id, "tourist", traveller_name, traveller_email, message)
+        return redirect(url_for("traveller.traveller_feedback_page", success="Feedback submitted successfully!"))
+
+    except Exception as e:
+        print("Feedback submission error:", e)
+        return redirect(url_for("traveller.traveller_feedback_page", error="Server error occurred"))

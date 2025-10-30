@@ -4,7 +4,8 @@ from werkzeug.utils import secure_filename
 from models.provider_model import ProviderModel
 from models.property_model import PropertyModel
 from models.promotion_model import PromotionModel
-
+from models.feedback_model import FeedbackModel
+from models.user_model import UserModel
 
 # Initialize Blueprint
 provider_bp = Blueprint("provider", __name__, template_folder="../templates/provider")
@@ -13,6 +14,8 @@ provider_bp = Blueprint("provider", __name__, template_folder="../templates/prov
 provider_model = ProviderModel()
 property_model = PropertyModel()
 promotion_model = PromotionModel()
+feedback_model = FeedbackModel()
+user_model = UserModel()
 
 @provider_bp.route("/dashboard")
 def provider_dashboard():
@@ -31,6 +34,8 @@ def provider_dashboard():
     total_properties = provider_model.count_properties(user_id)
     total_promotions = promotion_model.count_promotions(user_id)
     profile_completion = provider_model.calculate_profile_completion(provider)
+    unread_count = feedback_model.get_unread_replies_count(provider_id, "provider")
+
 
     # Get properties overview for chart
     properties = property_model.get_properties_by_provider(provider_id)
@@ -53,6 +58,7 @@ def provider_dashboard():
     return render_template(
         "provider/provider_dashboard.html",
         provider=provider,
+        unread_count=unread_count,
         total_properties=total_properties,
         total_promotions=total_promotions,
         profile_completion=profile_completion,
@@ -263,3 +269,43 @@ def update_profile():
     provider_model.db.execute(update_query, (hotel_name, hotel_address, website_url, image_to_save, user_id))
     flash("Profile updated successfully!", "success")
     return redirect(url_for("provider.profile"))
+
+# ✅ Page load route
+@provider_bp.route("/provider/feedback", methods=["GET"])
+def provider_feedback_page():
+    if "role" not in session or session["role"] != "provider":
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for("login"))
+
+    user_id = session.get("user_id")
+    provider = provider_model.get_current_provider(user_id)
+    feedbacks = feedback_model.get_feedbacks_by_user(user_id, "provider")
+    unread_count = feedback_model.get_unread_replies_count(user_id, "provider")
+
+    return render_template(
+        "provider/feedback_notifications.html",
+        feedbacks=feedbacks,
+        provider=provider,
+        unread_count=unread_count
+    )
+
+
+# ✅ Feedback submission route
+@provider_bp.route("/provider/feedback/send", methods=["POST"])
+def provider_send_feedback():
+    if "role" not in session or session["role"] != "provider":
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for("login"))
+
+    user_id = session.get("user_id")
+    provider = provider_model.get_current_provider(user_id)
+    user = user_model.get_user_by_id(provider["user_id"])
+    provider_name = user["username"]
+    provider_email = user["email"]
+
+    message = request.form.get("message")
+    if not message:
+        return jsonify({"status": "error", "message": "Message cannot be empty"})
+
+    feedback_model.add_feedback(user_id, "provider", provider_name, provider_email, message)
+    return jsonify({"status": "success", "message": "Feedback submitted successfully!"})

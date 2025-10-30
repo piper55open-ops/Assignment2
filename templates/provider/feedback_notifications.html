@@ -1,0 +1,81 @@
+{% extends "provider/provider_base.html" %}
+
+{% block content %}
+<div class="container py-4">
+  <h3 class="fw-bold text-secondary mb-4">Feedback & Notifications</h3>
+
+  <!-- Send Feedback -->
+  <div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-body">
+      <h5 class="fw-bold mb-3">Send Feedback to Admin</h5>
+      <form id="feedbackForm">
+        <div class="mb-3">
+          <textarea class="form-control" name="message" placeholder="Enter your feedback..." rows="3" required></textarea>
+        </div>
+        <button class="btn btn-gold" type="submit">Submit Feedback</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Feedback Table -->
+  <div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body">
+      <h5 class="fw-bold mb-3">Your Feedback History</h5>
+      <div class="table-responsive">
+        <table class="table table-hover text-center align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Reply</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fb in feedbacks %}
+            <tr>
+              <td>{{ fb.message }}</td>
+              <td>
+                {% if fb.status == 'Resolved' %}
+                <span class="badge bg-success">Resolved</span>
+                {% else %}
+                <span class="badge bg-warning text-dark">Pending</span>
+                {% endif %}
+              </td>
+              <td>{{ fb.reply or 'No reply yet' }}</td>
+              <td>{{ fb.created_at }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const response = await fetch("/provider/feedback/send", {
+    method: "POST",
+    body: formData
+  });
+  const result = await response.json();
+  alert(result.message);
+  if (result.status === "success") location.reload();
+});
+</script>
+
+
+<style>
+.btn-gold {
+  background-color: #b8860b;
+  color: white;
+  border: none;
+}
+.btn-gold:hover {
+  background-color: #a67c00;
+}
+</style>
+{% endblock %}
