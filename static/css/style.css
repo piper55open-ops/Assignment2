@@ -1614,6 +1614,29 @@ footer.footer .move-up span:hover{
     height:100%;
 	margin-top: 10%;
 }
+.translate-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.translate-footer h4 {
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+#google_translate_element select {
+    border-radius: 25px;
+    padding: 5px 15px;
+    background: coral;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+}
+
+#google_translate_element select option {
+    color: #000; /* keep options readable */
+}
 
 /* Floating Chatbot Button */
 #chatbot-toggle {

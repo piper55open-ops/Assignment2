@@ -497,9 +497,22 @@ def traveller_properties():
 
     # Traveller's existing inquiries
     inquiries = db.fetchall("""
-        SELECT i.id, p.name AS property_name, i.status, i.created_at
+        SELECT i.id,
+            p.name AS property_name,
+            i.status,
+            i.created_at,
+            im.message AS last_message,
+            u.username AS provider_name
         FROM inquiries i
         JOIN properties p ON i.property_id = p.id
+        LEFT JOIN inquiry_messages im ON im.id = (
+            SELECT id 
+            FROM inquiry_messages 
+            WHERE inquiry_id = i.id 
+            ORDER BY created_at DESC 
+            LIMIT 1
+        )
+        JOIN users u ON i.provider_id = u.id
         WHERE i.traveller_id = ?
         ORDER BY i.created_at DESC
     """, (traveller_id,))

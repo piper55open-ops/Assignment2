@@ -225,3 +225,7 @@ h6 {
 .fc .fc-daygrid-event.fc-event-planned {
     background-color: #007bff !important;
 }
+
+.btn-green { background: linear-gradient(120deg, #42a5f5, #66bb6a); color: #fff; border: none; }
+.btn-green:hover { background-color: #41b76e; }
+  

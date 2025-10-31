@@ -33,7 +33,7 @@
               </span>
             </td>
             <td>
-              <button class="btn btn-gold"
+              <button class="btn btn-green"
                       data-bs-toggle="modal"
                       data-bs-target="#inquiryModal"
                       onclick="openInquiryModal({{ property.id }}, '{{ property.name|escape }}')">
@@ -56,17 +56,21 @@
         <thead class="table-light">
           <tr>
             <th>ID</th>
-            <th>Message</th>
+            <th>Property</th>
+            <th>Last Message</th>
+            <th>Provider</th>
             <th>Status</th>
-            <th>Reply</th>
             <th>Date</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {% for iq in inquiries %}
           <tr>
             <td>{{ iq.id }}</td>
-            <td>{{ iq.message }}</td>
+            <td>{{ iq.property_name }}</td>
+            <td>{{ iq.last_message or 'No messages yet' }}</td>
+            <td>{{ iq.provider_name }}</td>
             <td>
               {% if iq.status == 'Resolved' %}
                 <span class="badge bg-success">Resolved</span>
@@ -74,8 +78,12 @@
                 <span class="badge bg-warning text-dark">Pending</span>
               {% endif %}
             </td>
-            <td>{{ iq.reply or 'No reply yet' }}</td>
             <td>{{ iq.created_at }}</td>
+            <td>
+              <a href="{{ url_for('traveller.view_inquiry_chat', inquiry_id=iq.id) }}" class="btn btn-sm btn-green">
+                View Chat
+              </a>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -83,6 +91,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- ✅ Single Inquiry Modal -->
 <div class="modal fade" id="inquiryModal" tabindex="-1">

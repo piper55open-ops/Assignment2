@@ -138,6 +138,7 @@ def locations():
     file_path = os.path.join(app.root_path, "data", "blogs.json")
     with open(file_path, "r", encoding="utf-8") as f:
         blogs = json.load(f)
+       
         page = request.args.get('page', 1, type=int)
         per_page = 6 # number of blogs per page
         start = (page - 1) * per_page
@@ -152,7 +153,7 @@ def locations():
             prev_page=page-1 if page>1 else None,
             next_page=page+1 if page<total_pages else None,
             sidebar_posts=blogs[:4],  # top posts
-            tags=["Architecture","Exterior","Interior","Planning","Gardening","Landscape"]
+            tags=["Culture","Journey","Exploration","Vaccation","Discover","Adventure"] 
 )
 
 @app.route("/blog/<int:blog_id>")
@@ -324,26 +325,27 @@ def places_photo():
 
 @app.route("/chatbot", methods=["POST"])
 def chatbot():
-    user_message = request.json.get("message", "")
-    if not user_message.strip():
+    user_message = request.json.get("message", "").strip()
+    if not user_message:
         return jsonify({"response": "Please type a message."})
 
     try:
-        # Simple AI or placeholder logic
-        if "hello" in user_message.lower():
-            bot_reply = "Hello traveller! 😊 How can I help you plan your next trip?"
-        elif "recommend" in user_message.lower():
-            bot_reply = "I recommend visiting Queenstown for adventure or Rotorua for culture!"
-        elif "thank" in user_message.lower():
-            bot_reply = "You're most welcome! 🧳"
-        else:
-            bot_reply = "I'm here to help you with travel tips and planning ideas!"
+        # Send the user's message to the OpenAI model
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",  # fast, smart, affordable model
+            messages=[
+                {"role": "system", "content": "You are a friendly travel assistant that helps tourists plan trips in New Zealand. Provide practical travel tips, destination advice, and itinerary ideas."},
+                {"role": "user", "content": user_message},
+            ],
+            temperature=0.8,  
+        )
 
+        bot_reply = response.choices[0].message.content.strip()
         return jsonify({"response": bot_reply})
 
     except Exception as e:
         print("Chatbot Error:", e)
-        return jsonify({"response": "Sorry, I’m having trouble responding right now. Please try again soon."})
+        return jsonify({"response": "⚠️ Sorry, I ran into an issue. Please try again soon."})
     
 @app.route("/chatbot_reply", methods=["POST"])
 def chatbot_reply():

@@ -52,12 +52,20 @@
             </td>
             <td>{{ property.created_date }}</td>
             <td>
-              <button class="btn btn-sm btn-outline-blue me-2"
-                      data-bs-toggle="modal"
-                      data-bs-target="#updatePropertyModal"
-                      onclick="openUpdateModal({{ property.id }}, '{{ property.name }}', '{{ property.property_type }}', '{{ property.location }}', {{ property.price_per_day }}, {{ property.max_guests }}, {{ property.food_available }}, '{{ property.facilities }}', '{{ property.status }}')">
-                <i class="bi bi-pencil-square"></i>Update
-              </button>
+              <button class="btn btn-sm btn-outline-blue me-2" data-bs-toggle="modal" data-bs-target="#updatePropertyModal" onclick="openUpdateModal(
+                {{ property.id }},
+                '{{ property.name|escape }}',
+                '{{ property.property_type|escape }}',
+                '{{ property.location|escape }}',
+                {{ property.price_per_day }},
+                {{ property.max_guests }},
+                {{ property.food_available }},
+                '{{ property.facilities|escape }}',
+                '{{ property.status|escape }}'
+            )">
+          <i class="bi bi-pencil-square"></i>Update
+      </button>
+
               <form action="{{ url_for('provider.delete_property', property_id=property.id) }}" method="POST" style="display:inline;">
                 <button type="submit" class="btn btn-sm btn-outline-danger"
                   onclick="return confirmDelete(event)">
@@ -249,6 +257,20 @@
       row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
     });
   });
+
+  function openUpdateModal(id, name, type, location, price, maxGuests, food, facilities, status) {
+    const modal = document.getElementById("updatePropertyModal");
+
+    modal.querySelector("input[name='id']").value = id;
+    modal.querySelector("input[name='name']").value = name;
+    modal.querySelector("select[name='property_type']").value = type;
+    modal.querySelector("input[name='location']").value = location;
+    modal.querySelector("input[name='price_per_day']").value = price;
+    modal.querySelector("input[name='max_guests']").value = maxGuests;
+    modal.querySelector("select[name='food_available']").value = food;
+    modal.querySelector("textarea[name='facilities']").value = facilities;
+    modal.querySelector("select[name='status']").value = status;
+}
 </script>
 {% endblock %}
 
