@@ -36,6 +36,9 @@
       <a class="nav-link {% if request.endpoint=='provider.properties' %}active{% endif %}" href="{{ url_for('provider.properties') }}">
         <i class="fa-solid fa-hotel"></i> <span>My Properties</span>
       </a>
+      <a class="nav-link {% if request.endpoint=='provider.provider_inquiries' %}active{% endif %}" href="{{ url_for('provider.provider_inquiries') }}">
+        <i class="fa-solid fa-hotel"></i> <span>My Inquiries</span>
+      </a>
       <a class="nav-link {% if request.endpoint=='provider.promotions' %}active{% endif %}" href="{{ url_for('provider.promotions') }}">
         <i class="fa-solid fa-bullhorn"></i> <span>My Promotions</span>
       </a>

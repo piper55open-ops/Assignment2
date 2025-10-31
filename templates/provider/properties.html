@@ -58,9 +58,12 @@
                       onclick="openUpdateModal({{ property.id }}, '{{ property.name }}', '{{ property.property_type }}', '{{ property.location }}', {{ property.price_per_day }}, {{ property.max_guests }}, {{ property.food_available }}, '{{ property.facilities }}', '{{ property.status }}')">
                 <i class="bi bi-pencil-square"></i>Update
               </button>
-              <button class="btn btn-sm btn-outline-danger" onclick="deleteProperty({{ property.id }})">
-                <i class="bi bi-trash"></i>Delete
-              </button>
+              <form action="{{ url_for('provider.delete_property', property_id=property.id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-sm btn-outline-danger"
+                  onclick="return confirmDelete(event)">
+                  <i class="bi bi-trash"></i>Delete
+                </button>
+              </form>
             </td>
           </tr>
           {% endfor %}
@@ -78,7 +81,7 @@
         <h5 class="modal-title fw-bold">Add New Property</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form id="addPropertyForm" enctype="multipart/form-data">
+      <form action="{{ url_for('provider.add_property') }}" method="POST" enctype="multipart/form-data">
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-md-6">
@@ -144,7 +147,7 @@
         <h5 class="modal-title fw-bold">Update Property</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form id="updatePropertyForm">
+      <form action="{{ url_for('provider.update_property') }}" method="POST">
         <div class="modal-body">
           <input type="hidden" name="id">
           <div class="row g-3">
@@ -207,60 +210,37 @@
 
 
 <script>
-  // 🟢 ADD PROPERTY
-  document.getElementById("addPropertyForm")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target);
-
-    const response = await fetch("/provider/properties/add", {
-      method: "POST",
-      body: formData
+  // ✅ Confirmation for Delete
+  function confirmDelete(event) {
+    event.preventDefault();
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        event.target.closest("form").submit();
+      }
     });
-
-    const data = await response.json();
-    alert(data.message);
-    location.reload();
-  });
-
-  // 🟡 OPEN UPDATE MODAL
-  function openUpdateModal(id, name, property_type, location, price_per_day, max_guests, food_available, facilities, status) {
-    const form = document.getElementById("updatePropertyForm");
-    form.querySelector("[name='id']").value = id;
-    form.querySelector("[name='name']").value = name;
-    form.querySelector("[name='property_type']").value = property_type;
-    form.querySelector("[name='location']").value = location;
-    form.querySelector("[name='price_per_day']").value = price_per_day;
-    form.querySelector("[name='max_guests']").value = max_guests;
-    form.querySelector("[name='food_available']").value = food_available;
-    form.querySelector("[name='facilities']").value = facilities;
-    form.querySelector("[name='status']").value = status;
   }
 
-  // 🟠 UPDATE PROPERTY
-  document.getElementById("updatePropertyForm")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target);
-    const response = await fetch("/provider/properties/update", {
-      method: "POST",
-      body: formData
-    });
-
-    const data = await response.json();
-    alert(data.message);
-    location.reload();
-  });
-
-  // 🔴 DELETE PROPERTY
-  async function deleteProperty(id) {
-    if (confirm("Are you sure you want to delete this property?")) {
-      const response = await fetch(`/provider/properties/delete/${id}`, { method: "POST" });
-      const data = await response.json();
-      alert(data.message);
-      location.reload();
-    }
-  }
+  // ✅ Show flash messages with SweetAlert
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        Swal.fire({
+          icon: "{{ 'success' if category == 'success' else 'error' if category == 'danger' else 'info' }}",
+          title: "{{ message }}",
+          timer: 2500,
+          showConfirmButton: false
+        });
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
   // 🔍 SEARCH BAR
   document.getElementById("propertySearch")?.addEventListener("keyup", function() {

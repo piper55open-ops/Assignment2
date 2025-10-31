@@ -9,6 +9,7 @@ from models.journey_models import JourneyModel
 from models.feedback_model import FeedbackModel
 from models.promotion_model import PromotionModel
 from models.property_model import PropertyModel
+from controllers.auth_decorators import admin_required
 import os
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -32,11 +33,12 @@ def inject_admin_user():
         )
     return dict(current_admin=admin)
 
+
+#---------------------- Admin Dashboard --------------------
 @admin_bp.route("/dashboard")
+@admin_required
 def admin_dashboard():
-    if "role" not in session or session["role"] != "admin":
-        flash("Unauthorized access", "danger")
-        return redirect(url_for("login"))
+  
     total_users = user_model.count_users()
     total_properties = property_model.count_all_properties()  # ✅ You need to create this function
     total_events = event_model.count_events()
@@ -92,8 +94,10 @@ def regions_chart_data():
         "labels": labels,
         "counts": data
     })
-# Get all users
+
+#---------------------- Users Page --------------------
 @admin_bp.route('/users')
+@admin_required
 def admin_users():
     users = user_model.get_all_users()
     return render_template("admin/users.html", users=users)
@@ -144,8 +148,9 @@ def deactivate_user(user_id):
     user_model.deactivate_user(user_id)
     return jsonify({"status":"success", "message":"User deactivated successfully"})
 
-# --- Providers Page ---
+#-------------------- Provider Management --------------------
 @admin_bp.route("/providers")
+@admin_required
 def admin_providers():
     if session.get("role") != "admin":
         flash("Unauthorized access", "danger")
@@ -203,11 +208,9 @@ def add_provider_route():
 
 # -------------------- PROMOTION MANAGEMENT --------------------
 @admin_bp.route("/promotions")
+@admin_required
 def admin_promotions():
-    if session.get("role") != "admin":
-        flash("Unauthorized access", "danger")
-        return redirect(url_for("login"))
-
+   
     # Fetch all pending promotions
     pending_promotions = promotion_model.get_promotions_by_status("Pending")
     confirmed_promotions = promotion_model.get_promotions_by_status("Confirmed")
@@ -245,6 +248,7 @@ def reject_promotion(promo_id):
 
 #----------------------Events -----------------------------
 @admin_bp.route("/events")
+@admin_required
 def admin_events():
     events = event_model.get_all_events()
     return render_template("admin/events.html", events=events)
@@ -292,6 +296,7 @@ def delete_event(event_id):
 #-----------------------------BLOGS ---------------------------------------------
 # 🟤 Blog Management Dashboard
 @admin_bp.route("/blogs")
+@admin_required
 def admin_blogs():
     blogs = blog_model.get_all_blogs()
     return render_template("admin/blogs.html", blogs=blogs)
@@ -334,6 +339,7 @@ def delete_blog(blog_id):
 
 #--------------------------------------Analytics--------------------------------
 @admin_bp.route("/analytics")
+@admin_required
 def admin_analytics():
     # Get statistics
     total_travellers = user_model.count_users_by_role("tourist")
@@ -378,10 +384,9 @@ def admin_analytics():
 
     
 @admin_bp.route("/settings")
+@admin_required
 def admin_settings():
-    if "role" not in session or session["role"] != "admin":
-        flash("Unauthorized access", "danger")
-        return redirect(url_for("login"))
+  
 
     return render_template("admin/settings.html")
 
@@ -419,14 +424,12 @@ def add_admin():
     user_model.add_user(username, email, password, "admin", image)
     return jsonify({"status": "success", "message": "New admin added!"})
 
-
-# ✅ View all feedbacks
+#----------------------------- Feedback Management --------------------------------
 @admin_bp.route("/admin/feedbacks")
 def admin_feedbacks():
     feedbacks = feedback_model.get_all_feedbacks()
     return render_template("admin/feedback.html", feedbacks=feedbacks)
 
-# ✅ Reply to feedback
 @admin_bp.route("/admin/feedback/reply", methods=["POST"])
 def admin_feedback_reply():
     if "role" not in session or session["role"] != "admin":
@@ -451,9 +454,6 @@ def admin_feedback_reply():
         flash("Server error occurred while sending reply", "error")
         return redirect(url_for("admin.admin_feedbacks"))
 
-
-
-# ❌ Delete Feedback
 @admin_bp.route("/admin/feedback/delete/<int:feedback_id>", methods=["DELETE"])
 def delete_feedback(feedback_id):
     try:

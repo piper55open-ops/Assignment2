@@ -87,3 +87,15 @@ class PropertyModel:
     def count_all_properties(self):
         result = self.db.fetchone("SELECT COUNT(*) as count FROM properties")
         return result["count"] if result else 0
+    
+    def get_active_properties(self):
+        return self.db.fetchall("SELECT * FROM properties WHERE status='Active'")
+
+    def get_properties_with_provider(self, provider_id):
+        query = """
+            SELECT p.*, pr.name AS provider_name, pr.email AS provider_email
+            FROM properties p
+            JOIN providers pr ON p.provider_id = pr.id
+            WHERE p.provider_id = ?
+        """
+        return self.db.fetchall(query, (provider_id,))

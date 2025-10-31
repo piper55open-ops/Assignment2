@@ -6,6 +6,9 @@ from models.property_model import PropertyModel
 from models.promotion_model import PromotionModel
 from models.feedback_model import FeedbackModel
 from models.user_model import UserModel
+from models.inquiry_model import InquiryModel
+from models.database import Database
+from controllers.auth_decorators import provider_required
 
 # Initialize Blueprint
 provider_bp = Blueprint("provider", __name__, template_folder="../templates/provider")
@@ -16,23 +19,25 @@ property_model = PropertyModel()
 promotion_model = PromotionModel()
 feedback_model = FeedbackModel()
 user_model = UserModel()
+inquiry_model = InquiryModel()
+db = Database()
 
+#------------------------------DASHBOARD ----------------------------------------------
 @provider_bp.route("/dashboard")
+@provider_required
 def provider_dashboard():
     """Provider main dashboard"""
-    if "role" not in session or session["role"] != "provider":
-        flash("Unauthorized access.", "danger")
-        return redirect(url_for("login"))
 
     user_id = session.get("user_id")
     provider = provider_model.get_current_provider(user_id)
     if not provider:
         flash("Provider profile not found.", "warning")
         return redirect(url_for("login"))
-
+    
     provider_id = provider["id"]
-    total_properties = provider_model.count_properties(user_id)
-    total_promotions = promotion_model.count_promotions(user_id)
+
+    total_properties = provider_model.count_properties(provider_id)
+    total_promotions = promotion_model.count_promotions(provider_id)
     profile_completion = provider_model.calculate_profile_completion(provider)
     unread_count = feedback_model.get_unread_replies_count(provider_id, "provider")
 
@@ -67,28 +72,35 @@ def provider_dashboard():
         active_promotions=active_promotions,
         expired_promotions=expired_promotions
     )
+    
 #------------------------------PROPERTY ----------------------------------------------
 @provider_bp.route("/properties")
+@provider_required
 def properties():
-    if session.get("role") != "provider":
-        flash("Unauthorized access", "danger")
-        return redirect(url_for("login"))
 
     user_id = session.get("user_id")
     provider = provider_model.get_current_provider(user_id) 
-    properties = property_model.get_properties_by_provider(user_id)
+    provider_id = provider["id"]
+    properties = property_model.get_properties_by_provider(provider_id)
     return render_template(
         "provider/properties.html",
         properties=properties,
         provider=provider  
     )
 
+# ----------------------------------------------
+# ADD PROPERTY
+# ----------------------------------------------
 @provider_bp.route("/properties/add", methods=["POST"])
+@provider_required
 def add_property():
-    if "provider_id" not in session:
-        return jsonify({"message": "Unauthorized"}), 403
+    user_id = session.get("user_id")
+    provider = provider_model.get_current_provider(user_id) 
+    provider_id = provider["id"]
+    if not provider_id:
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for("login"))
 
-    provider_id = session["provider_id"]
     name = request.form.get("name")
     description = request.form.get("description")
     property_type = request.form.get("property_type")
@@ -98,7 +110,7 @@ def add_property():
     food_available = request.form.get("food_available")
     facilities = request.form.get("facilities")
 
-    # Handle image upload
+    # ✅ Handle image upload safely
     image = request.files.get("image")
     filename = None
     if image and image.filename:
@@ -110,12 +122,22 @@ def add_property():
         price_per_day, max_guests, food_available, facilities, filename
     )
 
-    return jsonify({"message": "Property added successfully!"})
+    flash("Property added successfully!", "success")
+    return redirect(url_for("provider.properties"))
 
+
+# ----------------------------------------------
+# UPDATE PROPERTY
+# ----------------------------------------------
 @provider_bp.route("/properties/update", methods=["POST"])
+@provider_required
 def update_property():
-    if "provider_id" not in session:
-        return jsonify({"message": "Unauthorized"}), 403
+    user_id = session.get("user_id")
+    provider = provider_model.get_current_provider(user_id) 
+    provider_id = provider["id"]
+    if not provider_id:
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for("login"))
 
     property_id = request.form.get("id")
     name = request.form.get("name")
@@ -133,25 +155,33 @@ def update_property():
         facilities, status
     )
 
-    return jsonify({"message": "Property updated successfully!"})
+    flash("Property updated successfully!", "success")
+    return redirect(url_for("provider.properties"))
 
+
+# ----------------------------------------------
+# DELETE PROPERTY
+# ----------------------------------------------
 @provider_bp.route("/properties/delete/<int:property_id>", methods=["POST"])
+@provider_required
 def delete_property(property_id):
-    if "provider_id" not in session:
-        return jsonify({"message": "Unauthorized"}), 403
-
-    property_model.delete_property(property_id)
-    return jsonify({"message": "Property deleted successfully!"})
-
-
-#------------------------------PROMOTION --------------------------------------------
-# -------------------- VIEW PROMOTIONS --------------------
-@provider_bp.route("/promotions", endpoint="promotions")
-def provider_promotions():
-    if "role" not in session or session["role"] != "provider":
+    user_id = session.get("user_id")
+    provider = provider_model.get_current_provider(user_id) 
+    provider_id = provider["id"]
+    if not provider_id:
         flash("Unauthorized access.", "danger")
         return redirect(url_for("login"))
 
+    property_model.delete_property(property_id)
+    flash("Property deleted successfully!", "success")
+    return redirect(url_for("provider.properties"))
+
+
+#------------------------------PROMOTION --------------------------------------------
+@provider_bp.route("/promotions", endpoint="promotions")
+@provider_required
+def provider_promotions():
+   
     user_id = session.get("user_id")
     provider = provider_model.get_current_provider(user_id)
     if not provider:
@@ -169,6 +199,7 @@ def provider_promotions():
 
 # -------------------- ADD PROMOTION --------------------
 @provider_bp.route('/promotions/add', methods=['GET', 'POST'])
+@provider_required
 def add_promotion():
     if session.get("role") != "provider":
         return jsonify({"message": "Unauthorized"}), 403
@@ -196,6 +227,7 @@ def add_promotion():
 
 # -------------------- UPDATE PROMOTION --------------------
 @provider_bp.route('/promotions/update', methods=['POST'])
+@provider_required
 def update_promotion():
     promo_id = request.form.get('id')
     title = request.form.get('title')
@@ -221,10 +253,8 @@ def delete_promotion(promo_id):
 
 #--------------------------------PROFILE ---------------------------------
 @provider_bp.route("/profile", methods=["GET"])
+@provider_required
 def profile():
-    if "role" not in session or session["role"] != "provider":
-        flash("Unauthorized access.", "danger")
-        return redirect(url_for("login"))
 
     user_id = session.get("user_id")
     provider = provider_model.get_current_provider(user_id) # fetch from session or DB
@@ -238,29 +268,27 @@ def allowed_file(filename):
 
 
 @provider_bp.route("/profile/update", methods=["POST"])
+@provider_required
 def update_profile():
-    if "role" not in session or session["role"] != "provider":
-        flash("Unauthorized access.", "danger")
-        return redirect(url_for("login"))
-
+   
     user_id = session.get("user_id")
     provider = provider_model.get_current_provider(user_id)
 
-    # Get form data
+    
     hotel_address = request.form.get("hotel_address")
     hotel_name = request.form.get("hotel_name")
     website_url = request.form.get("website_url")
 
-    # Handle image upload
+
     file = request.files.get("image")
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(UPLOAD_FOLDER, filename))
         image_to_save = filename
     else:
-        image_to_save = provider.get("image")  # Keep existing image if no new upload
+        image_to_save = provider.get("image")  
 
-    # Update provider in DB
+    
     update_query = """
         UPDATE providers
         SET hotel_name = ?, hotel_address = ?, website_url = ?, image = ?
@@ -270,12 +298,11 @@ def update_profile():
     flash("Profile updated successfully!", "success")
     return redirect(url_for("provider.profile"))
 
-# ✅ Page load route
+
+#------------------Provider Feedback & Notifications-----------------#
 @provider_bp.route("/provider/feedback", methods=["GET"])
+@provider_required
 def provider_feedback_page():
-    if "role" not in session or session["role"] != "provider":
-        flash("Unauthorized access.", "danger")
-        return redirect(url_for("login"))
 
     user_id = session.get("user_id")
     provider = provider_model.get_current_provider(user_id)
@@ -290,13 +317,10 @@ def provider_feedback_page():
     )
 
 
-# ✅ Feedback submission route
 @provider_bp.route("/provider/feedback/send", methods=["POST"])
+@provider_required
 def provider_send_feedback():
-    if "role" not in session or session["role"] != "provider":
-        flash("Unauthorized access.", "danger")
-        return redirect(url_for("login"))
-
+ 
     user_id = session.get("user_id")
     provider = provider_model.get_current_provider(user_id)
     user = user_model.get_user_by_id(provider["user_id"])
@@ -309,3 +333,93 @@ def provider_send_feedback():
 
     feedback_model.add_feedback(user_id, "provider", provider_name, provider_email, message)
     return jsonify({"status": "success", "message": "Feedback submitted successfully!"})
+
+#------------------Provider Inquiries-----------------#
+@provider_bp.route("/provider/inquiries")
+@provider_required
+def provider_inquiries():
+    user_id = session.get("user_id")
+    provider = provider_model.get_current_provider(user_id)
+    provider_id = provider["id"]
+
+    inquiries = db.fetchall("""
+        SELECT i.*, u.username AS traveller_name, p.name AS property_name,
+            m.message AS last_message
+        FROM inquiries i
+        JOIN users u ON i.traveller_id = u.id
+        JOIN properties p ON i.property_id = p.id
+        LEFT JOIN inquiry_messages m 
+            ON m.inquiry_id = i.id
+            AND m.created_at = (SELECT MAX(created_at) FROM inquiry_messages WHERE inquiry_id = i.id)
+        WHERE i.provider_id = ?
+        ORDER BY i.created_at DESC
+    """, (provider_id,))
+
+    return render_template(
+        "provider/property_inquiries.html",
+        inquiries=inquiries,
+        provider=provider
+    )
+
+
+
+# 💬 Open a chat view for one inquiry
+@provider_bp.route("/provider/inquiry/<int:inquiry_id>")
+@provider_required
+def provider_inquiry_chat(inquiry_id):
+   
+    user_id = session.get("user_id")
+    provider = provider_model.get_current_provider(user_id)
+
+    # ✅ Use users table instead of travellers
+    inquiry = db.fetchone("""
+        SELECT i.*, 
+               u.username AS traveller_name, 
+               p.name AS property_name
+        FROM inquiries i
+        JOIN users u ON i.traveller_id = u.id
+        JOIN properties p ON i.property_id = p.id
+        WHERE i.id = ?
+    """, (inquiry_id,))
+
+    if not inquiry:
+        flash("Inquiry not found.", "danger")
+        return redirect(url_for("provider.provider_dashboard"))
+
+    # ✅ Fetch all messages related to this inquiry
+    messages = db.fetchall("""
+        SELECT m.*, u.username
+        FROM inquiry_messages m
+        LEFT JOIN users u ON m.sender_id = u.id
+        WHERE m.inquiry_id = ?
+        ORDER BY m.created_at ASC
+    """, (inquiry_id,))
+
+    return render_template("provider/inquiry_chat.html", inquiry=inquiry, messages=messages, provider=provider)
+
+
+# 📤 Send a reply message
+@provider_bp.route("/provider/inquiry/<int:inquiry_id>/send", methods=["POST"])
+def provider_send_message(inquiry_id):
+    
+    user_id = session.get("user_id")
+    provider = provider_model.get_current_provider(user_id)
+
+    message = request.form.get("message")
+
+    if not message.strip():
+        flash("Message cannot be empty.", "warning")
+        return redirect(url_for("provider.provider_inquiry_chat", inquiry_id=inquiry_id))
+
+    # ✅ Use provider.user_id (which matches users table)
+    db.execute("""
+        INSERT INTO inquiry_messages (inquiry_id, sender_id, message)
+        VALUES (?, ?, ?)
+    """, (inquiry_id, user_id, message))
+
+    db.execute("""
+        UPDATE inquiries SET status = 'Open' WHERE id = ?
+    """, (inquiry_id,))
+
+    flash("Message sent!", "success")
+    return redirect(url_for("provider.provider_inquiry_chat", inquiry_id=inquiry_id))

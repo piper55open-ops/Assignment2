@@ -18,11 +18,11 @@ from models.provider_model import ProviderModel
 from models.property_model import PropertyModel
 from models.promotion_model import PromotionModel
 from models.event_model import EventModel
-from models.memory_model import MemoryModel
 from models.trip_model import TripModel
 from controllers.admin_routes import admin_bp
 from controllers.provider_routes import provider_bp
 from controllers.traveller_routes import traveller_bp
+from models.database import Database
 
 load_dotenv()  # 🔹 loads .env file into environment
 
@@ -44,8 +44,8 @@ provider_model = ProviderModel()
 property_model = PropertyModel()
 promotion_model = PromotionModel()
 event_model = EventModel()
-memory_model = MemoryModel()
 trip_model = TripModel()
+db = Database()
 
 print("OpenAI Key Loaded:", os.getenv("OPENAI_API_KEY"))
 
@@ -101,6 +101,14 @@ def login():
         if user and user["role"].lower() == role:
             session["user_id"] = user["id"]
             session["role"] = user["role"].lower()
+
+            if role == "provider":
+                provider = db.fetchone(
+                    "SELECT id FROM providers WHERE user_id = ?", (user["id"],)
+                )
+                if provider:
+                    session["provider_id"] = provider["id"]
+
             flash("Login successful!", "success")
             print("SESSION DATA:", dict(session)) 
 
@@ -114,6 +122,7 @@ def login():
             flash("Invalid credentials or role", "danger")
 
     return render_template("auth/login.html")
+
 
 
 # -------------------- LOGOUT --------------------

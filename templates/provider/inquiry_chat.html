@@ -1,0 +1,90 @@
+{% extends "provider/provider_base.html" %}
+{% block content %}
+<style>
+.chat-container {
+  max-width: 750px;
+  margin: auto;
+  height: 70vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 20px;
+}
+.message {
+  margin: 10px 0;
+  padding: 10px 15px;
+  border-radius: 16px;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+.provider {
+  background-color: #e8f0ff;
+  margin-left: auto;
+}
+.traveller {
+  background-color: #f1f1f1;
+}
+.message-time {
+  font-size: 0.75rem;
+  color: #777;
+  margin-top: 4px;
+  text-align: right;
+}
+.chat-footer {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+}
+.chat-footer textarea {
+  flex: 1;
+  border-radius: 12px;
+  resize: none;
+}
+.btn-send {
+  margin-left: 10px;
+  border-radius: 12px;
+}
+</style>
+
+<div class="container py-4">
+  <h3 class="fw-bold text-secondary mb-3">
+    💬 Chat with {{ inquiry.traveller_name }} about {{ inquiry.property_name }}
+  </h3>
+  <div class="chat-container d-flex flex-column">
+    {% for msg in messages %}
+      <div class="message {% if msg.sender_id == session['user_id'] %}provider{% else %}traveller{% endif %}">
+        <strong>{{ msg.username }}</strong><br>
+        {{ msg.message }}
+        <span class="message-time">{{ msg.created_at }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form id="chatForm" action="{{ url_for('provider.provider_send_message', inquiry_id=inquiry.id) }}" method="POST" class="chat-footer">
+    <textarea name="message" rows="2" placeholder="Type your reply..." class="form-control" required></textarea>
+    <button type="submit" class="btn btn-gold btn-send">Send</button>
+  </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const chatContainer = document.querySelector(".chat-container");
+  chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll
+
+  document.getElementById("chatForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+
+    const response = await fetch(form.action, { method: "POST", body: formData });
+    if (response.redirected) {
+      Swal.fire("Message Sent!", "Your reply was sent successfully.", "success")
+        .then(() => { window.location.href = response.url; });
+    } else {
+      Swal.fire("Error", "Could not send reply. Try again.", "error");
+    }
+  });
+});
+</script>
+{% endblock %}

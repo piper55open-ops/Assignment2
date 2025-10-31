@@ -1,0 +1,122 @@
+{% extends "traveller/traveller_base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h3 class="fw-bold text-secondary mb-4">Accommodation Details</h3>
+
+  <div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body">
+      <table class="table table-hover text-center align-middle">
+        <thead>
+          <tr>
+            <th>Property Name</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Price per Day</th>
+            <th>Max Guests</th>
+            <th>Food Available</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for property in properties %}
+          <tr>
+            <td>{{ property.name }}</td>
+            <td>{{ property.property_type }}</td>
+            <td>{{ property.location }}</td>
+            <td>{{ property.price_per_day }}</td>
+            <td>{{ property.max_guests }}</td>
+            <td>{{ 'Yes' if property.food_available else 'No' }}</td>
+            <td>
+              <span class="badge bg-{{ 'success' if property.status == 'Active' else 'secondary' }}">
+                {{ property.status }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-gold"
+                      data-bs-toggle="modal"
+                      data-bs-target="#inquiryModal"
+                      onclick="openInquiryModal({{ property.id }}, '{{ property.name|escape }}')">
+                Inquire
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="container py-4">
+  <h3 class="fw-bold text-secondary mb-4">My Property Inquiries</h3>
+
+  <div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body table-responsive">
+      <table class="table table-hover text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th>Reply</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for iq in inquiries %}
+          <tr>
+            <td>{{ iq.id }}</td>
+            <td>{{ iq.message }}</td>
+            <td>
+              {% if iq.status == 'Resolved' %}
+                <span class="badge bg-success">Resolved</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Pending</span>
+              {% endif %}
+            </td>
+            <td>{{ iq.reply or 'No reply yet' }}</td>
+            <td>{{ iq.created_at }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Single Inquiry Modal -->
+<div class="modal fade" id="inquiryModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header bg-gold text-white">
+        <h5 class="modal-title fw-bold">Inquire About Property</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <!-- ✅ Use start_inquiry route since this creates new inquiry -->
+      <form id="inquiryForm" method="POST">
+        <input type="hidden" name="property_id" id="property_id">
+        <div class="modal-body">
+          <p id="propertyName" class="fw-bold"></p>
+          <textarea class="form-control" name="message" placeholder="Type your inquiry..." rows="3" required></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-gold">Send Inquiry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function openInquiryModal(propertyId, propertyName) {
+  document.getElementById("property_id").value = propertyId;
+  document.getElementById("propertyName").innerText = propertyName;
+
+  // Dynamically set form action
+  const form = document.getElementById("inquiryForm");
+  form.action = `/traveller/inquire/${propertyId}`;
+}
+</script>
+
+{% endblock %}

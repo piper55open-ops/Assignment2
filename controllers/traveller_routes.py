@@ -10,13 +10,20 @@ from models.database import Database
 from models.trip_model import TripModel
 from models.user_model import UserModel
 from models.feedback_model import FeedbackModel
+from models.property_model import PropertyModel
+from models.inquiry_model import InquiryModel
 from werkzeug.utils import secure_filename
+from controllers.auth_decorators import traveller_required
 from models.database import Database
+
 
 traveller_bp = Blueprint("traveller", __name__, url_prefix="/traveller")
 trip_model = TripModel()
 User = UserModel()
 feedback_model = FeedbackModel()
+inquiry_model = InquiryModel()
+property_model = PropertyModel()
+db = Database()
 
 # --- Load NZ locations ---
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -49,15 +56,11 @@ def inject_traveller_user():
         traveller = user_model.get_user_by_id(traveller_id)
     return dict(current_traveller=traveller)
 
+#-----------------Traveller Dashboard & Features-----------------#
 @traveller_bp.route("/dashboard")
+@traveller_required
 def traveller_dashboard():
     """Traveller main dashboard"""
-    if "role" not in session or session["role"] != "tourist":
-        flash("Unauthorized access. Please log in as a traveller.", "danger")
-        return redirect(url_for("login"))
-
-    db = Database()
-  
     user_id = session.get("user_id")
 
     traveller = db.fetchone("SELECT * FROM users WHERE id=?", (user_id,))
@@ -118,6 +121,7 @@ def traveller_dashboard():
         seasonal_places=seasonal_places,
         current_season=season
     )
+#-----------------AI Trip Planner-----------------#
     
 def get_ai_itinerary(destination, nights, budget, adults, children, preferences):
     """
@@ -232,7 +236,7 @@ def ai_planner():
         raw_itinerary=itinerary,
         day_sections=[]
     )
-
+#-----------------Nearby Accommodations-----------------#
 
 def get_nearby_accommodations(destination, radius=5000):
     """
@@ -259,46 +263,7 @@ def get_nearby_accommodations(destination, radius=5000):
 
     return accommodations
 
-@traveller_bp.route("/memories", methods=["GET", "POST"])
-def memories():
-    if "role" not in session or session["role"] != "tourist":
-        flash("Unauthorized access.", "danger")
-        return redirect(url_for("login"))
-
-    user_id = session.get("user_id")
-    traveller = User.get_user_by_id(user_id)
-    
-    if request.method == "POST":
-        title = request.form["title"]
-        story = request.form["story"]
-        date = request.form["date"]
-        image = request.files["image"]
-
-        if image and image.filename != "":
-            filename = image.filename
-            upload_folder = os.path.join("static", "images")
-
-            os.makedirs(upload_folder, exist_ok=True)
-
-            upload_path = os.path.join(upload_folder, filename)
-            image.save(upload_path)
-
-            # Store in DB (update this part according to your DB helper)
-            db =  Database()  # replace with your actual db instance
-            db.execute(
-                "INSERT INTO travel_memories (user_id, title, story, date, image) VALUES (?, ?, ?, ?, ?)",
-                (session["user_id"], title, story, date, filename),
-            )
-            flash("Memory added successfully!", "success")
-            return redirect(url_for("traveller.memories"))
-
-    # Retrieve all memories for this user
-    db =  Database()  # replace with your actual db instance
-    memories = db.execute(
-        "SELECT * FROM travel_memories WHERE user_id = ?", (session["user_id"],)
-    ).fetchall()
-
-    return render_template("traveller/traveller_memories.html", memories=memories,current_traveller=traveller)
+#-----------------Nearby Stays Page & API-----------------#
 
 @traveller_bp.route("/nearby_stays")
 def nearby_stays():
@@ -382,14 +347,12 @@ def get_nearby_hotels():
 
     return jsonify(hotels)
 
-
+#-----------------Traveller Trips & Profile-----------------#
 
 @traveller_bp.route("/my-trips", methods=["GET", "POST"])
+@traveller_required
 def traveller_trips():
-    if "role" not in session or session["role"] != "tourist":
-        flash("Unauthorized access.", "danger")
-        return redirect(url_for("login"))
-
+    """View and add traveller trips"""
     user_id = session.get("user_id")
     traveller = User.get_user_by_id(user_id)
     
@@ -428,6 +391,8 @@ def traveller_trips():
     # Fetch all trips for this user
     trips = trip_model.get_trips_by_user(user_id)
     return render_template("traveller/traveller_trips.html", trips=trips,current_traveller=traveller)
+
+#-----------------Traveller Profile-----------------#
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -468,12 +433,11 @@ def update_profile():
 
 
 
-# ✅ Page Load Route
+#-----------------Traveller Feedback & Notifications-----------------#
 @traveller_bp.route("/traveller/feedback", methods=["GET"])
+@traveller_required
 def traveller_feedback_page():
-    if "role" not in session or session["role"] != "tourist":
-        flash("Unauthorized access.", "danger")
-        return redirect(url_for("login"))
+    
 
     user_id = session.get("user_id")
     traveller = User.get_user_by_id(user_id)
@@ -494,11 +458,10 @@ def traveller_feedback_page():
     )
 
 
-# ✅ Normal POST Route (no AJAX)
+
 @traveller_bp.route("/traveller/feedback/send", methods=["POST"])
+@traveller_required
 def traveller_send_feedback():
-    if "role" not in session or session["role"] != "tourist":
-        return redirect(url_for("traveller.traveller_feedback_page", error="Unauthorized access"))
 
     try:
         user_id = session.get("user_id")
@@ -516,3 +479,115 @@ def traveller_send_feedback():
     except Exception as e:
         print("Feedback submission error:", e)
         return redirect(url_for("traveller.traveller_feedback_page", error="Server error occurred"))
+
+
+#-----------------Traveller Accommodations & Inquiries-----------------#
+@traveller_bp.route("/traveller/properties")
+@traveller_required
+def traveller_properties():
+
+    properties = db.fetchall("""
+        SELECT p.*, u.username AS provider_name
+        FROM properties p
+        JOIN users u ON p.provider_id = u.id
+        WHERE p.status = 'Active'
+    """)
+
+    traveller_id = session.get("user_id")
+
+    # Traveller's existing inquiries
+    inquiries = db.fetchall("""
+        SELECT i.id, p.name AS property_name, i.status, i.created_at
+        FROM inquiries i
+        JOIN properties p ON i.property_id = p.id
+        WHERE i.traveller_id = ?
+        ORDER BY i.created_at DESC
+    """, (traveller_id,))
+
+    return render_template("traveller/traveller_properties.html", properties=properties, inquiries=inquiries)
+
+# Start or Continue a conversation
+# 📨 Start or Continue a conversation
+@traveller_bp.route("/inquire/<int:property_id>", methods=["POST"])
+@traveller_required
+def start_inquiry(property_id):
+    traveller_id = session.get("user_id")
+    property_data = db.fetchone("SELECT provider_id FROM properties WHERE id = ?", (property_id,))
+    if not property_data:
+        flash("Property not found.", "danger")
+        return redirect(url_for("traveller.traveller_properties"))
+
+    provider_id = property_data["provider_id"]
+    message = request.form.get("message")
+
+    # ✅ Check if inquiry exists
+    existing_inquiry = db.fetchone("""
+        SELECT id FROM inquiries
+        WHERE property_id = ? AND traveller_id = ? AND provider_id = ?
+    """, (property_id, traveller_id, provider_id))
+
+    if existing_inquiry:
+        inquiry_id = existing_inquiry["id"]
+    else:
+        db.execute("""
+            INSERT INTO inquiries (property_id, traveller_id, provider_id, status)
+            VALUES (?, ?, ?, 'Open')
+        """, (property_id, traveller_id, provider_id))
+        inquiry_id = db.fetchone("SELECT last_insert_rowid() AS id")["id"]
+
+    # Add the message to inquiry_messages
+    db.execute("""
+        INSERT INTO inquiry_messages (inquiry_id, sender_id, message)
+        VALUES (?, ?, ?)
+    """, (inquiry_id, traveller_id, message))
+
+    flash("Inquiry sent successfully!", "success")
+    return redirect(url_for("traveller.view_inquiry_chat", inquiry_id=inquiry_id))
+
+
+# 2️⃣ View full chat (conversation)
+@traveller_bp.route("/inquiry/<int:inquiry_id>")
+@traveller_required
+def view_inquiry_chat(inquiry_id):
+    inquiry = db.fetchone("""
+        SELECT i.*, p.name AS property_name, u.username AS provider_name
+        FROM inquiries i
+        JOIN properties p ON i.property_id = p.id
+        JOIN users u ON i.provider_id = u.id
+        WHERE i.id = ?
+    """, (inquiry_id,))
+
+    messages = db.fetchall("""
+        SELECT im.*, u.username
+        FROM inquiry_messages im
+        JOIN users u ON im.sender_id = u.id
+        WHERE im.inquiry_id = ?
+        ORDER BY im.created_at ASC
+    """, (inquiry_id,))
+
+    return render_template("traveller/inquiry_chat.html", inquiry=inquiry, messages=messages)
+
+
+# 3️⃣ Send a message inside a chat
+@traveller_bp.route("/inquiry/<int:inquiry_id>/send", methods=["POST"])
+@traveller_required
+def send_inquiry_message(inquiry_id):
+    traveller_id = session.get("user_id")
+    message = request.form.get("message")
+
+    if not message.strip():
+        flash("Message cannot be empty.", "warning")
+        return redirect(url_for("traveller.view_inquiry_chat", inquiry_id=inquiry_id))
+
+    db.execute("""
+        INSERT INTO inquiry_messages (inquiry_id, sender_id, message)
+        VALUES (?, ?, ?)
+    """, (inquiry_id, traveller_id, message))
+
+    # ✅ Update status
+    db.execute("""
+        UPDATE inquiries SET status = 'Open' WHERE id = ?
+    """, (inquiry_id,))
+
+    flash("Message sent!", "success")
+    return redirect(url_for("traveller.view_inquiry_chat", inquiry_id=inquiry_id))
