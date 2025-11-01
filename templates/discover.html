@@ -139,7 +139,7 @@
 <script>
 const regions = {{ regions | tojson | safe }};
 
-// Fetch places for each region
+// Fetch places for each region dynamically
 Object.keys(regions).forEach((region, index) => {
     const coords = regions[region];
     const carouselDiv = document.getElementById(`carousel-${index}`);
@@ -149,19 +149,39 @@ Object.keys(regions).forEach((region, index) => {
         .then(data => {
             carouselDiv.innerHTML = ''; // clear loading text
 
-            if(data.results && data.results.length > 0){
+            if (data.results && data.results.length > 0) {
                 data.results.forEach(place => {
-                    // Use server-side photo URL if available
-                    let photoUrl = place.photo_url || 
-                                   '{{ url_for("static", filename="images/default-place.jpg") }}';
+                    const photoUrl = place.photo_url || '{{ url_for("static", filename="images/default-place.jpg") }}';
+
+                    const ratingStars = place.rating 
+                        ? `⭐ ${place.rating} (${place.total_reviews || 0} reviews)` 
+                        : "⭐ No ratings yet";
+
+                    const openStatus = place.is_open_now === true
+                        ? '<span style="color:green;">🟢 Open Now</span>'
+                        : place.is_open_now === false
+                        ? '<span style="color:red;">🔴 Closed</span>'
+                        : '';
+
+                    const websiteLink = place.website 
+                        ? `<a href="${place.website}" target="_blank" style="color:coral;text-decoration:none;">🌐 Visit Website</a>` 
+                        : '';
+
+                    const phoneInfo = place.phone ? `<p>📞 ${place.phone}</p>` : '';
 
                     const card = document.createElement('div');
                     card.className = 'place-card';
                     card.innerHTML = `
                         <img src="${photoUrl}" alt="${place.name}">
                         <h4>${place.name}</h4>
-                        <p>${place.vicinity || ''}</p>
+                        <p>${place.address || place.vicinity || ''}</p>
+                        <p>${ratingStars}</p>
+                        ${openStatus}
+                        ${phoneInfo}
+                        ${websiteLink}
                     `;
+
+                    // Open map modal when clicked
                     card.style.cursor = "pointer";
                     card.onclick = () => openMapModal(place);
                     carouselDiv.appendChild(card);
@@ -181,6 +201,8 @@ function scrollCarousel(direction, index) {
     const carousel = document.getElementById(`carousel-${index}`);
     carousel.scrollBy({ left: direction * 260, behavior: 'smooth' });
 }
+
+// Open Google Map in modal
 function openMapModal(place) {
     const lat = place.geometry?.location?.lat;
     const lng = place.geometry?.location?.lng;
@@ -200,9 +222,7 @@ function openMapModal(place) {
 
     document.getElementById("mapModalLabel").innerText = place.name;
 }
-
 </script>
-
 
 
 {% endblock %}

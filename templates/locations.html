@@ -29,6 +29,17 @@
 	background: coral;
 	transition: .4s;
 }
+.read-more-btn{
+	background-image: linear-gradient(to right, #3594b6ff, #5ccdef);
+	padding: 5px 12px 8px;
+	border-radius: 20px;
+	line-height: 20px;
+	font-size: 14px;
+	color:white;
+	border: none !important;
+	
+
+}
 </style>
 
 <div class="container-fluid text-center heading">
@@ -71,7 +82,7 @@
                         {{ blog.story[:120] }}
                         <span id="more-{{ blog.id }}">{{ blog.story[120:] }}</span>
                     </p>
-                    <a href="{{ url_for('blog_detail', blog_id=blog.id) }}" class="read-btn">
+                    <a href="{{ url_for('blog_detail', blog_id=blog.id) }}" class="read-more-btn">
                         Read More &nbsp;<i class="fas fa-arrow-right"></i>
                     </a>
 

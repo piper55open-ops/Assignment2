@@ -269,7 +269,7 @@ def discover_places_proxy():
     if not lat or not lng:
         return jsonify({"error": "Missing lat or lng"}), 400
 
-    # Google Places Nearby Search
+    # 🔹 Google Places Nearby Search API
     places_url = (
         "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
         f"?location={lat},{lng}&radius=2000&type=restaurant&key={GOOGLE_API_KEY}"
@@ -283,20 +283,39 @@ def discover_places_proxy():
     results = []
 
     for place in data.get("results", []):
+        # Fetch place details for website and phone number
+        place_id = place.get("place_id")
+        details_url = (
+            f"https://maps.googleapis.com/maps/api/place/details/json"
+            f"?place_id={place_id}&fields=name,website,formatted_phone_number,"
+            f"rating,user_ratings_total,price_level,opening_hours,formatted_address,"
+            f"geometry,photos&key={GOOGLE_API_KEY}"
+        )
+
+        details_res = requests.get(details_url)
+        details_data = details_res.json().get("result", {})
+
+        # Handle image
         photo_url = ""
-        if "photos" in place and len(place["photos"]) > 0:
-            # Instead of returning Google's URL, return our own endpoint
-            photo_ref = place["photos"][0]["photo_reference"]
+        if "photos" in details_data and len(details_data["photos"]) > 0:
+            photo_ref = details_data["photos"][0]["photo_reference"]
             photo_url = f"/places_photo?photoref={photo_ref}"
 
+        # Prepare structured result
         results.append({
-            "name": place.get("name"),
+            "name": details_data.get("name"),
+            "address": details_data.get("formatted_address"),
+            "website": details_data.get("website"),
+            "phone": details_data.get("formatted_phone_number"),
+            "rating": details_data.get("rating"),
+            "total_reviews": details_data.get("user_ratings_total"),
+            "is_open_now": details_data.get("opening_hours", {}).get("open_now") if details_data.get("opening_hours") else None,
             "photo_url": photo_url,
-            "vicinity": place.get("formatted_address", ""),
-            "geometry": place.get("geometry", {})
+            "geometry": details_data.get("geometry", {})
         })
 
     return jsonify({"results": results})
+
 
 @app.route("/places_photo")
 def places_photo():
