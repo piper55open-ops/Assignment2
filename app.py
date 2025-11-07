@@ -234,7 +234,7 @@ def ask_ai():
 
 @app.route('/journies')
 def journies():
-    events = event_model.get_all_events()  # List of all events
+    events = event_model.get_upcoming_events()
     # Split into chunks of 3 for each row
     def chunks(lst, n):
         for i in range(0, len(lst), n):

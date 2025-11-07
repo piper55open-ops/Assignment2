@@ -16,8 +16,8 @@
   </div>
 
   <input type="text" id="promotionSearch" class="form-control mb-3" placeholder="Search promotions...">
-
-  <table class="table align-middle table-hover" id="promotionTable">
+<div class="table-responsive">
+  <table class="table align-middle table-hover" id="promotionTable" >
     <thead class="table-light text-center">
       <tr>
         <th>ID</th>
@@ -55,19 +55,22 @@
         {% endif %}
       </td>
           <td>
-          {% if promo['status'] == 'Pending' %}
-          <span class="text-muted small">Waiting for admin approval</span>
-          {% else %}
-          <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"data-bs-target="#updatePromotionModal"data-id="{{ promo['id'] }}"
-          data-title="{{ promo['title'] }}"data-description="{{ promo['description'] }}"data-start_date="{{ promo['start_date'] }}"data-end_date="{{ promo['end_date'] }}"> Edit</button>
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap">
+              {% if promo['status'] == 'Pending' %}
+              <span class="text-muted small">Waiting for admin approval</span>
+              {% else %}
+              <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"data-bs-target="#updatePromotionModal"data-id="{{ promo['id'] }}"
+              data-title="{{ promo['title'] }}"data-description="{{ promo['description'] }}"data-start_date="{{ promo['start_date'] }}"data-end_date="{{ promo['end_date'] }}"> Edit</button>
 
-          <button class="btn btn-sm btn-outline-danger" onclick="deletePromotion('{{ promo['id'] }}')">Delete</button>
-          {% endif %}
+              <button class="btn btn-sm btn-outline-danger" onclick="deletePromotion('{{ promo['id'] }}')">Delete</button>
+              {% endif %}
+              </div>
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+  </div>
 </div>
 
 <!-- 🟢 Add Promotion Modal -->

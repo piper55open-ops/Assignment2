@@ -2,7 +2,15 @@
 
 {% block content %}
 <div class="container-fluid">
-
+ <!-- Welcome Header -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="welcome-box">
+        <h3>Welcome, {{ provider_name }}</h3>
+        <p>Manage Your Properties, Track Upcoming Inquiries, and Make Every Stay Unforgettable!</p>
+      </div>
+    </div>
+  </div>
     <!-- Stat Cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-sm-6">
@@ -19,8 +27,8 @@
         </div>
         <div class="col-md-4 col-sm-6">
             <div class="card text-center p-3" style="background: #fff; color: #1750ecff;">
-                <h5>Profile Completion</h5>
-                <h3>{{ profile_completion }}%</h3>
+                <h5>Total Inquiries</h5>
+                <h3><i class="fa-solid fa-envelope me-1"></i> {{ total_inquiries }}</h3>
             </div>
         </div>
     </div>
@@ -102,7 +110,7 @@ const promotionsChart = new Chart(ctxPromotions, {
             datasets: [{
                 label: 'Properties',
                 data: {{ property_counts | default([]) | safe }},
-                backgroundColor: '#007bff'
+                backgroundColor: ['#007bff', '#5dade2', '#85c1e9', '#aed6f1', '#d6eaf8'],
             }]
         },
         options: { responsive: true, scales: { y: { beginAtZero: true } } }

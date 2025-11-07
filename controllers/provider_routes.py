@@ -29,17 +29,34 @@ def provider_dashboard():
     """Provider main dashboard"""
 
     user_id = session.get("user_id")
+   
     provider = provider_model.get_current_provider(user_id)
     if not provider:
         flash("Provider profile not found.", "warning")
         return redirect(url_for("login"))
+  
+    provider_name = provider["username"]
     
+
     provider_id = provider["id"]
 
     total_properties = provider_model.count_properties(provider_id)
     total_promotions = promotion_model.count_promotions(provider_id)
-    profile_completion = provider_model.calculate_profile_completion(provider)
-    unread_count = feedback_model.get_unread_replies_count(provider_id, "provider")
+    
+    inquiries = db.fetchall("""
+        SELECT i.*, u.username AS traveller_name, p.name AS property_name,
+            m.message AS last_message
+        FROM inquiries i
+        JOIN users u ON i.traveller_id = u.id
+        JOIN properties p ON i.property_id = p.id
+        LEFT JOIN inquiry_messages m 
+            ON m.inquiry_id = i.id
+            AND m.created_at = (SELECT MAX(created_at) FROM inquiry_messages WHERE inquiry_id = i.id)
+        WHERE i.provider_id = ?
+        ORDER BY i.created_at DESC
+    """, (provider_id,))
+
+    total_inquiries = len(inquiries)
 
 
     # Get properties overview for chart
@@ -63,10 +80,10 @@ def provider_dashboard():
     return render_template(
         "provider/provider_dashboard.html",
         provider=provider,
-        unread_count=unread_count,
+        provider_name=provider_name,
         total_properties=total_properties,
+        total_inquiries=total_inquiries,
         total_promotions=total_promotions,
-        profile_completion=profile_completion,
         property_types=property_types,
         property_counts=property_counts,
         active_promotions=active_promotions,

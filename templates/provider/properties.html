@@ -27,7 +27,7 @@
             <th>Name</th>
             <th>Type</th>
             <th>Location</th>
-            <th>Price/Day ($)</th>
+            <th>Price/Day</th>
             <th>Max Guests</th>
             <th>Food</th>
             <th>Status</th>
@@ -52,26 +52,28 @@
             </td>
             <td>{{ property.created_date }}</td>
             <td>
-              <button class="btn btn-sm btn-outline-blue me-2" data-bs-toggle="modal" data-bs-target="#updatePropertyModal" onclick="openUpdateModal(
-                {{ property.id }},
-                '{{ property.name|escape }}',
-                '{{ property.property_type|escape }}',
-                '{{ property.location|escape }}',
-                {{ property.price_per_day }},
-                {{ property.max_guests }},
-                {{ property.food_available }},
-                '{{ property.facilities|escape }}',
-                '{{ property.status|escape }}'
-            )">
-          <i class="bi bi-pencil-square"></i>Update
-      </button>
+              <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+                    <button class="btn btn-sm btn-outline-blue me-2" data-bs-toggle="modal" data-bs-target="#updatePropertyModal" onclick="openUpdateModal(
+                      {{ property.id }},
+                      '{{ property.name|escape }}',
+                      '{{ property.property_type|escape }}',
+                      '{{ property.location|escape }}',
+                      {{ property.price_per_day }},
+                      {{ property.max_guests }},
+                      {{ property.food_available }},
+                      '{{ property.facilities|escape }}',
+                      '{{ property.status|escape }}'
+                  )">
+                <i class="bi bi-pencil-square"></i>Update
+            </button>
 
-              <form action="{{ url_for('provider.delete_property', property_id=property.id) }}" method="POST" style="display:inline;">
-                <button type="submit" class="btn btn-sm btn-outline-danger"
-                  onclick="return confirmDelete(event)">
-                  <i class="bi bi-trash"></i>Delete
-                </button>
-              </form>
+                    <form action="{{ url_for('provider.delete_property', property_id=property.id) }}" method="POST" style="display:inline;">
+                      <button type="submit" class="btn btn-sm btn-outline-danger"
+                        onclick="return confirmDelete(event)">
+                        <i class="bi bi-trash"></i>Delete
+                      </button>
+                    </form>
+                    </div>
             </td>
           </tr>
           {% endfor %}

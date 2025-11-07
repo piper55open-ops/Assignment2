@@ -9,6 +9,7 @@ from models.journey_models import JourneyModel
 from models.feedback_model import FeedbackModel
 from models.promotion_model import PromotionModel
 from models.property_model import PropertyModel
+from models.database import Database
 from controllers.auth_decorators import admin_required
 import os
 
@@ -21,6 +22,7 @@ journey_model = JourneyModel()
 feedback_model = FeedbackModel()
 promotion_model = PromotionModel()
 property_model = PropertyModel()
+db = Database()
     
 @admin_bp.context_processor
 def inject_admin_user():
@@ -55,9 +57,14 @@ def admin_dashboard():
     # Recent journeys & blogs
     recent_journeys = journey_model.get_all_journeys()[:5]
     recent_blogs = blog_model.get_all_blogs()[:5]
+    user_id = session.get("user_id")
+    admin = db.fetchone("SELECT * FROM users WHERE id=?", (user_id,))
+    admin_name = admin["username"]
+
 
     return render_template(
         "admin/dashboard.html",
+        admin_name=admin_name,
         total_users=total_users,
         total_properties=total_properties,
         total_events=total_events,
@@ -253,6 +260,8 @@ def admin_events():
     events = event_model.get_all_events()
     return render_template("admin/events.html", events=events)
 
+
+
 @admin_bp.route("/events/add", methods=["POST"])
 def add_event():
     title = request.form.get("title")
@@ -261,14 +270,20 @@ def add_event():
     location = request.form.get("location")
     image = request.files.get("image")
 
-    if image:
-        image.save(f"static/images/events/{image.filename}")
-        image_name = image.filename
-    else:
-        image_name = "default.jpg"
+    image_name = "default.jpg"
+
+    if image and image.filename:
+        filename = secure_filename(image.filename)
+        upload_path = os.path.join(current_app.root_path, "static", "images", "events")
+        os.makedirs(upload_path, exist_ok=True)
+        image.save(os.path.join(upload_path, filename))
+        image_name = filename
 
     event_model.add_event(title, description, date, image_name, location)
+
+    
     return jsonify({"status": "success", "message": "Event added successfully!"})
+
 
 @admin_bp.route("/events/update/<int:event_id>", methods=["POST"])
 def update_event(event_id):

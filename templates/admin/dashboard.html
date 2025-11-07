@@ -3,6 +3,16 @@
 {% block content %}
 <div class="container-fluid">
 
+    <!-- Welcome Header -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="welcome-box">
+        <h3>Welcome, {{ admin_name }}</h3>
+        <p>Plan, Monitor, and Grow — Everything You Need To Manage Your Platform Efficiently is Right Here!</p>
+      </div>
+    </div>
+  </div>
+
     <!-- Stat Cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-sm-6">
@@ -127,7 +137,7 @@ async function renderRegionsChart() {
             datasets: [{
                 label: 'Visits',
                 data: chartData.counts,
-                backgroundColor: '#5b0943ff'
+                backgroundColor: ['#5b0943ff', '#8c2550ff', '#b6495eff', '#e07b91ff', '#f4a261ff', '#f4a261ff', '#2a9d8fff'],
             }]
         },
         options: {

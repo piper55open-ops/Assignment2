@@ -79,3 +79,19 @@ body {
     vertical-align: middle;
     white-space: nowrap;  /* prevent wrapping of buttons */
 }
+.welcome-box {
+  background: linear-gradient(135deg, rgb(46, 4, 35), #dfa2d7ff);
+  color: white;
+  border-radius: 15px;
+  padding: 25px 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.welcome-box h3 {
+  font-size: 1.8rem;
+}
+
+.welcome-box p {
+  font-size: 1rem;
+  opacity: 0.9;
+}

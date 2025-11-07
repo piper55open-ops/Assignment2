@@ -150,21 +150,33 @@ document.getElementById("searchEventInput").addEventListener("keyup", function()
 
 // 🟤 Add Event
 document.getElementById("addEventForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const response = await fetch("/admin/events/add", { method: "POST", body: new FormData(e.target) });
+  e.preventDefault(); // stop default form submit
+  const form = e.target;
+  const response = await fetch(form.action, {
+    method: "POST",
+    body: new FormData(form)
+  });
+  
   const result = await response.json();
-  if(result.status === "success") {
+  
+  if (result.status === "success") {
     Swal.fire({
       icon: 'success',
-      title: 'Event Added',
+      title: 'Event Added!',
       text: result.message,
       timer: 1500,
       showConfirmButton: false
-    }).then(() => location.reload());
+    }).then(() => {
+      // close modal + reload table
+      const modal = bootstrap.Modal.getInstance(document.getElementById("addEventModal"));
+      modal.hide();
+      location.reload();
+    });
   } else {
     Swal.fire('Error', result.message, 'error');
   }
 });
+
 
 // 🟤 Update Event
 document.getElementById("updateEventForm").addEventListener("submit", async (e) => {

@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from models.database import Database
+from datetime import datetime
 
 
 class EventModel:
@@ -48,3 +49,13 @@ class EventModel:
         result = self.db.fetchone("SELECT COUNT(*) as count FROM events")
         return result["count"] if result else 0
 
+    def get_upcoming_events(self):
+        today = datetime.now().strftime("%Y-%m-%d")
+        query = """
+            SELECT DISTINCT id, title, description, date, image, location
+            FROM events
+            WHERE date >= ?
+            ORDER BY date ASC
+        """
+        # Pass the query and parameters to fetchall
+        return self.db.fetchall(query, (today,))

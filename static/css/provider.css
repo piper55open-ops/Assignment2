@@ -135,3 +135,20 @@ body {
     margin-left: 0 !important;
   }
 }
+
+.welcome-box {
+  background: linear-gradient(180deg, #02264d, #6f8da1);
+  color: white;
+  border-radius: 15px;
+  padding: 25px 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.welcome-box h3 {
+  font-size: 1.8rem;
+}
+
+.welcome-box p {
+  font-size: 1rem;
+  opacity: 0.9;
+}
